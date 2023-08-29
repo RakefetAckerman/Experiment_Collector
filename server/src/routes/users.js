@@ -1,6 +1,6 @@
 import express from "express";
 import userService from "../logic/serivces/UsersService"; // Make sure the path is correct
-import { verifyToken } from "../middleware/auth.js";
+import { verifyToken } from "../logic/middleware/auth.js";
 
 const router = express.Router();
 
@@ -16,7 +16,7 @@ router.post("/register", (req, res) => {
 });
 
 // Route for user login
-router.post("/login", (req, res) => {
+router.get("/login", (req, res) => {
   const { userSuperApp, userEmail } = req.body;
   try {
     const user = userService.login(userSuperApp, userEmail);
@@ -26,17 +26,5 @@ router.post("/login", (req, res) => {
   }
 });
 
-// Example of a protected route using token verification middleware
-router.get("/profile", verifyToken, (req, res) => {
-  const userId = req.user.id; // Assuming you have the user ID in the request
-  try {
-    const userData = userService.getUserData(userId);
-    res.status(200).json(userData);
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-// ... Other routes
 
 export default router;
