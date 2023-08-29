@@ -129,5 +129,3 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# Temporarily - ignoring the public folder 
-server/public/assets
