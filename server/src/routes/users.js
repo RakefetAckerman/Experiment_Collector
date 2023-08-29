@@ -1,5 +1,5 @@
 import express from "express";
-import userService from "../logic/serivces/UsersService"; // Make sure the path is correct
+import userService from "../logic/serivces/UsersService.js"; // Make sure the path is correct
 import { verifyToken } from "../logic/middleware/auth.js";
 
 const router = express.Router();
