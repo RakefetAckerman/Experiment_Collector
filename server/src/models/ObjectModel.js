@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import UserModel from './UserModel';
+import UserModel from './UserModel.js';
 /**
  * Mongoose schema for representing an ObjectBoundary object.
  * @class

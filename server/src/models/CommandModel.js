@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import ObjectBoundaryModel from './ObjectModel';
-import UserModel from './UserModel';
+import ObjectBoundaryModel from './ObjectModel.js';
+import UserModel from './UserModel.js';
 
 /**
  * Mongoose schema for representing a CommandBoundary object.
