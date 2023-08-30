@@ -10,8 +10,9 @@ class UserBoundary {
      * @param {UserIdBoundary} userId - The UserIdBoundary instance of the user.
      * @param {string} role - The role of the user.
      * @param {string} username - The username of the user.
+     * @param {Object} userDetails - Additional data about the user.
      */
-    constructor(userId, role, username) {
+    constructor(userId, role, username, userDetails) {
         /**
          * The UserIdBoundary instance of the user.
          * @type {UserIdBoundary}
@@ -29,6 +30,12 @@ class UserBoundary {
          * @type {string}
          */
         this.username = username;
+
+        /**
+         * The username of the user.
+         * @type {string}
+         */
+        this.userDetails = userDetails;
     }
 
     /**

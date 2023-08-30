@@ -1,5 +1,6 @@
 import ObjectIdBoundary from "./ObjectIdBoundary";
 import UserIdInvoker from "../../utils/Invokers/UserIdInvoker"
+import Location from "../../utils/Location";
 
 /**
  * Represents a ObjectBoundary that contains information about an object within the  platform.
