@@ -1,4 +1,4 @@
-import UserIdBoundary from "./UserIdBoundary";
+import UserIdBoundary from "./UserIdBoundary.js";
 /**
  * Represents a UserBoundary object of the Collector's users.
  * @class
@@ -7,17 +7,18 @@ class UserBoundary {
     /**
      * Create a UserBoundary.
      * @constructor
-     * @param {UserIdBoundary} userId - The UserIdBoundary instance of the user.
+     * @param {string} platform - The platform that user uses
+     * @param {string} email - The email that belongs to the user
      * @param {string} role - The role of the user.
      * @param {string} username - The username of the user.
      * @param {Object} userDetails - Additional data about the user.
      */
-    constructor(userId, role, username, userDetails) {
+    constructor(platform, email, role, username, userDetails) {
         /**
          * The UserIdBoundary instance of the user.
          * @type {UserIdBoundary}
          */
-        this.userId = userId;
+        this.userId = new UserIdBoundary(platform, email);
 
         /**
          * The role of the user.
@@ -46,11 +47,7 @@ class UserBoundary {
     equals(other) {
         if (this === other) return true;
         if (other === null || this.constructor !== other.constructor) return false;
-        return (
-            this.userId.equals(other.userId) &&
-            this.role === other.role &&
-            this.username === other.username
-        );
+        return this.userId.equals(other.userId);
     }
 }
 

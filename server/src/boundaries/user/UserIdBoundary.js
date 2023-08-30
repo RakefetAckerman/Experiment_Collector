@@ -31,7 +31,7 @@ class UserIdBoundary {
     equals(other) {
       if (this === other) return true;
       if (other === null || this.constructor !== other.constructor) return false;
-      return this.platform === other.platform && this.email === other.email;
+      return this.email === other.email;
     }
 }
 

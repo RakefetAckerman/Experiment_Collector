@@ -6,11 +6,19 @@ class NewUserBoundary {
     /**
      * Create a NewUserBoundary.
      * @constructor
+     * @param {string} platform - The platform of the new user.
      * @param {string} email - The email of the new user.
      * @param {string} role - The role of the user.
      * @param {string} username - The username of the user.
+     * @param {object} userDetails - Additional information of the user.
      */
-    constructor(email, role, username) {
+    constructor(platform, email, role, username, userDetails) {
+        /**
+         * The email of the new user.
+         * @type {string}
+         */
+        this.platform = platform;
+
         /**
          * The email of the new user.
          * @type {string}
@@ -28,6 +36,12 @@ class NewUserBoundary {
          * @type {string}
          */
         this.username = username;
+
+        /**
+         * Additional information of the user.
+         * @type {object}
+         */
+        this.userDetails = userDetails;
     }
 
     /**
@@ -38,11 +52,7 @@ class NewUserBoundary {
     equals(other) {
         if (this === other) return true;
         if (other === null || this.constructor !== other.constructor) return false;
-        return (
-            this.email === other.email &&
-            this.role === other.role &&
-            this.username === other.username
-        );
+        return this.email === other.email;
     }
 }
 
