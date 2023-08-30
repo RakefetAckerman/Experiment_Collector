@@ -1,24 +1,26 @@
+import UserBoundary from "../../boundaries/user/UserBoundary.js";
+import UserModel from "../../models/UserModel.js";
+import userConverter from "../converters/UserConverter.js";
+import createHttpError from 'http-errors';
+
 const userService = {
-  setUserCrud: (userCrud) => {
-    this.userCrud = userCrud;
-  },
 
-  setConverter: (converter) => {
-    this.converter = converter;
-  },
+  createUser: async (newUser) => {
+    const existingUser = await UserModel.findOne({ 'userId.email': newUser.email });
 
-  setSuperapp: (superapp) => {
-    this.superapp = superapp;
-  },
+    if (existingUser)
+      throw new createHttpError.BadRequest("User already exists")
 
-  createUser: (user) => {
-    console.log("Creating new UserBoundary object");
-    // Implement validation and logic here
-  },
+    const userModel = userConverter.toModel(new UserBoundary(
+      newUser.platform,
+      newUser.email,
+      newUser.role,
+      newUser.username,
+      newUser.userDetails));
 
-  createUserFromNewUser: (user) => {
-    console.log("Creating new user from NewUserBoundary object");
-    // Implement logic here
+    userModel.save()
+
+    return userConverter.toBoundary(userModel);
   },
 
   login: (userSuperApp, userEmail) => {
