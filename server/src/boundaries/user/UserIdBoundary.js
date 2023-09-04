@@ -7,7 +7,7 @@ class UserIdBoundary {
      * Create a UserIdBoundary.
      * @constructor
      * @param {string} platform - The platform of the user.
-     * @param {string} outerIdentifier - The outerIdentifier that belongs to the user (in acse of Researcher the outerIdentifier will be email, for Participant it will be Prolific ID)
+     * @param {string} outerIdentifier - The outerIdentifier that belongs to the user (in case of Researcher the outerIdentifier will be email, for Participant it will be Prolific ID)
      */
     constructor(platform, outerIdentifier) {
       /**

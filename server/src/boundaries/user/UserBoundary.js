@@ -8,7 +8,8 @@ class UserBoundary {
      * Create a UserBoundary.
      * @constructor
      * @param {string} platform - The platform that user uses
-     * @param {string} outerIdentifier - The outerIdentifier that belongs to the user (in acse of Researcher the outerIdentifier will be email, for Participant it will be Prolific ID)
+     * @param {string} outerIdentifier - The outerIdentifier that belongs to the user (in case of Researcher the outerIdentifier will be email,
+     *  for Participant it will be Prolific ID)
      * @param {string} role - The role of the user.
      * @param {string} username - The username of the user.
      * @param {Object} userDetails - Additional data about the user.

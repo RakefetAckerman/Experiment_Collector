@@ -7,23 +7,24 @@ class NewUserBoundary {
      * Create a NewUserBoundary.
      * @constructor
      * @param {string} platform - The platform of the new user.
-     * @param {string} email - The email of the new user.
+     * @param {string} outerIdentifier - The outerIdentifier that belongs to the user (in case of Researcher the outerIdentifier will be email,
+     *  for Participant it will be Prolific ID)
      * @param {string} role - The role of the user.
      * @param {string} username - The username of the user.
      * @param {object} userDetails - Additional information of the user.
      */
-    constructor(platform, email, role, username, userDetails) {
+    constructor(platform, outerIdentifier, role, username, userDetails) {
         /**
-         * The email of the new user.
+         * The outerIdentifier of the new user.
          * @type {string}
          */
         this.platform = platform;
 
         /**
-         * The email of the new user.
+         * The outerIdentifier of the new user.
          * @type {string}
          */
-        this.email = email;
+        this.outerIdentifier = outerIdentifier;
 
         /**
          * The role of the user.
@@ -52,7 +53,7 @@ class NewUserBoundary {
     equals(other) {
         if (this === other) return true;
         if (other === null || this.constructor !== other.constructor) return false;
-        return this.email === other.email;
+        return this.outerIdentifier === other.outerIdentifier;
     }
 }
 
