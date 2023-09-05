@@ -8,18 +8,17 @@ class UserBoundary {
      * Create a UserBoundary.
      * @constructor
      * @param {string} platform - The platform that user uses
-     * @param {string} outerIdentifier - The outerIdentifier that belongs to the user (in case of Researcher the outerIdentifier will be email,
-     *  for Participant it will be Prolific ID)
+     * @param {string} email - The email that belongs to the user
      * @param {string} role - The role of the user.
      * @param {string} username - The username of the user.
      * @param {Object} userDetails - Additional data about the user.
      */
-    constructor(platform, outerIdentifier, role, username, userDetails) {
+    constructor(platform, email, role, username, userDetails) {
         /**
          * The UserIdBoundary instance of the user.
          * @type {UserIdBoundary}
          */
-        this.userId = new UserIdBoundary(platform, outerIdentifier);
+        this.userId = new UserIdBoundary(platform, email);
 
         /**
          * The role of the user.

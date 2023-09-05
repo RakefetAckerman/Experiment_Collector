@@ -7,10 +7,9 @@ class UserIdBoundary {
      * Create a UserIdBoundary.
      * @constructor
      * @param {string} platform - The platform of the user.
-     * @param {string} outerIdentifier - The outerIdentifier that belongs to the user (in case of Researcher the outerIdentifier will be email,
-     *  for Participant it will be Prolific ID)
+     * @param {string} email - The email of the user.
      */
-    constructor(platform, outerIdentifier) {
+    constructor(platform, email) {
       /**
        * The platform of the user.
        * @type {string}
@@ -18,10 +17,10 @@ class UserIdBoundary {
       this.platform = platform;
       
       /**
-       * The outerIdentifier of the user.
+       * The email of the user.
        * @type {string}
        */
-      this.outerIdentifier = outerIdentifier;
+      this.email = email;
     }
     
     /**
@@ -32,7 +31,7 @@ class UserIdBoundary {
     equals(other) {
       if (this === other) return true;
       if (other === null || this.constructor !== other.constructor) return false;
-      return this.outerIdentifier === other.outerIdentifier;
+      return this.email === other.email;
     }
 }
 
