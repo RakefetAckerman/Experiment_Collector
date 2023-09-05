@@ -1,21 +1,24 @@
 import jwt from "jsonwebtoken";
+import createHttpError from "http-errors";
 
 export const verifyToken = async (req, res, next) => {
+  console.log("In verify token");
   try {
     let token = req.header("Authorization");
 
     if (!token) {
-      return res.status(403).send("Access Denied");
+      throw new createHttpError.BadRequest("Access denied, missing token");
     }
+    const initalStr = "Bearer ";
 
-    if (token.startsWith("Bearer ")) {
-      token = token.slice(7, token.length).trimLeft();
+    if (token.startsWith(initalStr)) {
+      token = token.slice(initalStr.length, token.length).trimLeft();
     }
 
     const verified = jwt.verify(token, process.env.JWT_SECRET);
     req.user = verified;
     next();
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
   }
 };
