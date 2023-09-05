@@ -1,8 +1,14 @@
+// authRoutes.js
 import express from "express";
-import { login } from "../controllers/auth.js";
+import { verifyToken } from "../logic/middleware/auth.js";
+import userRoutes from "./users.js";
 
 const router = express.Router();
 
-router.post("/login", login);
+// Redirect to the user login route with query parameters
+router.get("/users", verifyToken, (req, res) => {
+    // Pass the query parameters to the user router
+    return userRoutes(req, res);
+  });
 
 export default router;

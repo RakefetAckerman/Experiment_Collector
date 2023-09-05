@@ -1,7 +1,6 @@
-import express from "express";
+import express, { response } from "express";
 import userService from "../logic/serivces/UsersService.js";
 import { verifyToken } from "../logic/middleware/auth.js";
-import NewUserBoundary from "../boundaries/user/NewUserBoundary.js";
 import UserBoundary from "../boundaries/user/UserBoundary.js";
 
 const router = express.Router();
@@ -10,28 +9,53 @@ const router = express.Router();
 router.post("/register", async (req, res) => {
   const userData = req.body; // Getting the body of the request containing the NewUserBoundary data
   try {
-    const newUserBoundary = new NewUserBoundary(
+    const reqUserBoundary = new UserBoundary(
       userData.platform,
       userData.email,
       userData.role,
       userData.username,
       userData.userDetails);
 
-    const userBoundary = await userService.createUser(newUserBoundary);
-    res.status(201).json(userBoundary);
+    const resUserBoundary = await userService.createUser(reqUserBoundary);
+    res.status(201).json(resUserBoundary);
   } catch (error) {
     res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
   }
 });
 
 // Route for user login
-router.get("/login", (req, res) => {
-  const { userSuperApp, userEmail } = req.body;
+router.post("/login", async (req, res) => {
+  const userData = req.body; // Getting the body of the request containing the NewUserBoundary data
   try {
-    const user = userService.login(userSuperApp, userEmail);
-    res.status(200).json(user);
+    const newUserBoundary = new UserBoundary(
+      userData.platform,
+      userData.email,
+      userData.role,
+      userData.username,
+      userData.userDetails);
+    const DBResponse = await userService.login(newUserBoundary);
+    res.status(200).json(DBResponse);
   } catch (error) {
-    res.status(401).json({ error: error.message });
+    res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
+  }
+});
+
+
+router.put("/:email/:platform", async (req, res) => {
+  const userEmail = req.query.email;
+  const userPlatform = req.query.platform;
+  const userData = req.body; // Getting the body of the request containing the NewUserBoundary data
+  try {
+    const userBoundary = new UserBoundary(
+      userData.platform,
+      userData.email,
+      userData.role,
+      userData.username,
+      userData.userDetails);
+    const DBResponse = await userService.updateUser(userEmail,userPlatform,);
+    res.status(200).json(DBResponse);
+  } catch (error) {
+    res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
   }
 });
 
