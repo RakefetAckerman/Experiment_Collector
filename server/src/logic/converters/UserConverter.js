@@ -17,14 +17,17 @@ const userConverter = {
         const role = userModel.role;
 
         // Check if the role is a valid role defined in the Roles enum
-        if (!Object.values(Roles).includes(userModel.role)) {
+        if (!Object.values(Roles).includes(role)) {
             throw new createHttpError.BadRequest("Invalid user role");
         }
 
+        //splitArr[0] = "example@email.org" splitArr[1] = "platformKind"
+        const splitArr = userModel.userId.split('$');
+
         // Create a new UserBoundary using data from UserModel
         const userBoundary = new UserBoundary(
-            userModel.userId.platform,
-            userModel.userId.outerIdentifier,
+            splitArr[1],
+            splitArr[0],
             userModel.role,
             userModel.username,
             userModel.userDetails
@@ -60,10 +63,8 @@ const userConverter = {
 
         // Create a new UserModel using data from UserBoundary
         const userModel = new UserModel({
-            userId: {
-                platform: userBoundary.userId.platform,
-                email: userBoundary.userId.outerIdentifier
-            },
+            //The userId will be constructed as "example@email.org$platformKind" for both of the users
+            userId: userBoundary.userId.email + "$" +userBoundary.userId.platform,
             role: mappedRole, // Use the mapped role value
             username: userBoundary.username,
             userDetails: userBoundary.userDetails
