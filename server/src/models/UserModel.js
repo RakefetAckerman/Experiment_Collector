@@ -7,27 +7,17 @@ import mongoose from "mongoose";
 const UserBoundarySchema = new mongoose.Schema(
   {
     /**
-     * The userId field containing platform and email information.
-     * @type {Object}
+     * The userId field containing platform and email information concatenated by '$' and will look this:"example@email.org$platformKind".
+     * The email of the Researcher it will be "examle@email.com",
+     * and for Participant from prolific it will be "58dbb652520ca20001e87f23@email.prolific.co" which is fictive.
+     * Regular Particpant will have will have an email similar to the Researcher email.
+     * The platform is where the request came from, whether from Experiment module or Experiment Builder platform 
+     * @type {String}
      */
     userId: {
-      /**
-       * The platform of the user.
-       * @type {String}
-       */
-      platform: {
-        type: String,
-        required: true
-      },
-      /**
-       * The email of the user.
-       * @type {String}
-       */
-      email: {
-        type: String,
-        required: true,
-        unique: true
-      },
+      type: String,
+      required: true,
+      unique: true
     },
     /**
      * The role of the user.
