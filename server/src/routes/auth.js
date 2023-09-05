@@ -6,9 +6,9 @@ import userRoutes from "./users.js";
 const router = express.Router();
 
 // Redirect to the user login route with query parameters
-router.get("/users", verifyToken, (req, res) => {
-    // Pass the query parameters to the user router
-    return userRoutes(req, res);
-  });
+router.patch("/users", verifyToken, (req, res) => {
+  // Pass the query parameters to the user router
+  return userRoutes(req, res);
+});
 
 export default router;

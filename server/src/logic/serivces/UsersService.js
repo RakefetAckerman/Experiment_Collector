@@ -11,20 +11,15 @@ const { Error } = mongoose;
 const userService = {
 
   createUser: async (reqUserBoundary) => {
-    console.log("In create, ", reqUserBoundary);
     const existingUser = await UserModel.findOne({
       'userId': reqUserBoundary.userId.email + "$" + reqUserBoundary.userId.platform
     });
-
-    console.log("In create the model is, ", existingUser);
 
     if (existingUser) {
       return userService.login(reqUserBoundary);
     }
 
     const userModel = userConverter.toModel(reqUserBoundary);
-
-    console.log("In create the model is, ", existingUser);
 
     return userModel.validate()
       .then(async () => {
@@ -52,8 +47,6 @@ const userService = {
       'userId': reqUserBoundary.userId.email + "$" + reqUserBoundary.userId.platform
     });
 
-    console.log("userModel--> ", existingUserModel);
-
     /* In case that none particpant with special authrizations tries to log in wihout signup first
     * The Client will have two seperate logins, one for authorized users with special premissions such
     * as Admin and Reseacher, which there users will have to go through signup and then login, the Particpants
@@ -67,7 +60,7 @@ const userService = {
       if (!isMatch)
         throw new createHttpError.BadRequest("Invalid credentials");
 
-      const token = jwt.sign({ id: existingUserModel._id }, process.env.JWT_SECRET);
+      const token = jwt.sign({ id: existingUserModel._id }, process.env.JWT_SECRET,{expiresIn:30});
       const userBoundary = userConverter.toBoundary(existingUserModel);
       delete userBoundary.userDetails.password;
       return { token, userBoundary };
@@ -75,7 +68,7 @@ const userService = {
     return userConverter.toBoundary(existingUserModel);
   },
 
-  updateUser: (userSuperApp, userEmail, update) => {
+  updateUser: async (userSuperApp, userEmail, updateUser) => {
     console.log("Updating a UserBoundary object");
     // Implement logic here
   },

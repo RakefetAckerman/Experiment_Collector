@@ -27,13 +27,13 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   const userData = req.body; // Getting the body of the request containing the NewUserBoundary data
   try {
-    const newUserBoundary = new UserBoundary(
+    const reqUserBoundary = new UserBoundary(
       userData.platform,
       userData.email,
       userData.role,
       userData.username,
       userData.userDetails);
-    const DBResponse = await userService.login(newUserBoundary);
+    const DBResponse = await userService.login(reqUserBoundary);
     res.status(200).json(DBResponse);
   } catch (error) {
     res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
@@ -41,18 +41,19 @@ router.post("/login", async (req, res) => {
 });
 
 
-router.put("/:email/:platform", async (req, res) => {
+router.patch("/:email/:platform", async (req, res) => {
   const userEmail = req.query.email;
   const userPlatform = req.query.platform;
   const userData = req.body; // Getting the body of the request containing the NewUserBoundary data
   try {
-    const userBoundary = new UserBoundary(
+    const reqUserBoundary = new UserBoundary(
       userData.platform,
       userData.email,
       userData.role,
       userData.username,
       userData.userDetails);
-    const DBResponse = await userService.updateUser(userEmail,userPlatform,);
+    console.log(reqUserBoundary);
+    const DBResponse = await userService.updateUser(userEmail,userPlatform, reqUserBoundary);
     res.status(200).json(DBResponse);
   } catch (error) {
     res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
