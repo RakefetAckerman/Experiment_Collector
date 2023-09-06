@@ -24,7 +24,7 @@ const userService = {
     return userModel.validate()
       .then(async () => {
         /*In case the user is an Admin or Researcher the client will send thier password within the UserDetails */
-        if ( userModel.role !== Roles.PARTICIPANT){
+        if (userModel.role !== Roles.PARTICIPANT) {
           const salt = await bcrypt.genSalt();
           if (!userModel.userDetails.hasOwnProperty('password')) {
             throw new Error.ValidationError();
@@ -60,7 +60,7 @@ const userService = {
       if (!isMatch)
         throw new createHttpError.BadRequest("Invalid credentials");
 
-      const token = jwt.sign({ id: existingUserModel._id }, process.env.JWT_SECRET,{expiresIn:30});
+      const token = jwt.sign({ id: existingUserModel._id }, process.env.JWT_SECRET, { expiresIn: 9999999 });
       const userBoundary = userConverter.toBoundary(existingUserModel);
       delete userBoundary.userDetails.password;
       return { token, userBoundary };
@@ -68,9 +68,27 @@ const userService = {
     return userConverter.toBoundary(existingUserModel);
   },
 
-  updateUser: async (userSuperApp, userEmail, updateUser) => {
-    console.log("Updating a UserBoundary object");
-    // Implement logic here
+  updateUser: async (userEmail, userPlatform, updateUser) => {
+    const existingUserModel = await UserModel.findOne({
+      'userId': userEmail + "$" + userPlatform
+    });
+
+    if (!existingUserModel)
+      throw new createHttpError.NotFound("User does not exists");
+
+    if (updateUser.username)
+      existingUserModel.username = updateUser.username;
+
+    if (updateUser.userDetails) {
+      const additionalDetails = updateUser.userDetails;
+      if (additionalDetails.hasOwnProperty("password")) {
+        const salt = await bcrypt.genSalt();
+        additionalDetails.password = await bcrypt.hash(additionalDetails.password, salt);
+      }
+      existingUserModel.userDetails = {...additionalDetails};
+    }
+    existingUserModel.save();
+    return userConverter.toBoundary(existingUserModel);
   },
 
   getAllUsers: (userSuperApp, userEmail, size, page) => {

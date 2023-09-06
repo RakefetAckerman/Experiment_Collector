@@ -41,9 +41,9 @@ router.post("/login", async (req, res) => {
 });
 
 
-router.patch("/:email/:platform", async (req, res) => {
-  const userEmail = req.query.email;
-  const userPlatform = req.query.platform;
+router.put("/:email/:platform", async (req, res) => {
+  const userEmail = req.params.email;
+  const userPlatform = req.params.platform;
   const userData = req.body; // Getting the body of the request containing the NewUserBoundary data
   try {
     const reqUserBoundary = new UserBoundary(
@@ -52,7 +52,6 @@ router.patch("/:email/:platform", async (req, res) => {
       userData.role,
       userData.username,
       userData.userDetails);
-    console.log(reqUserBoundary);
     const DBResponse = await userService.updateUser(userEmail,userPlatform, reqUserBoundary);
     res.status(200).json(DBResponse);
   } catch (error) {
