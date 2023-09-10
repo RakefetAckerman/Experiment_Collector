@@ -1,4 +1,4 @@
-import UserIdBoundary from "../../boundaries/user/UserIdBoundary";
+import UserIdBoundary from "../../boundaries/user/UserIdBoundary.js";
 /**
  * Represents a UserIdInvoker that encapsulates a UserIdBoundary object.
  * This class represents an infornation about the user who invoked a command or some obejct
@@ -21,7 +21,7 @@ class UserIdInvoker {
     /**
      * Checks if this UserIdInvoker is equal to another object.
      * @param {UserIdInvoker} other - The object to compare with.
-     * @returns {boolean} True if the objects are equal, false otherwise.
+     * @returns {Boolean} True if the objects are equal, false otherwise.
      */
     equals(other) {
         if (this === other) return true;
