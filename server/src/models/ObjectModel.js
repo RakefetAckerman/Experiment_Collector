@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
-import UserModel from './UserModel.js';
+
 /**
  * Mongoose schema for representing an ObjectBoundary object.
  * @class
  */
-const ObjectBoundarySchema = new mongoose.Schema({
+const ObjectSchema = new mongoose.Schema({
     /**
      * The platform of the object.
      * @type {String}
@@ -38,14 +38,6 @@ const ObjectBoundarySchema = new mongoose.Schema({
         required: true,
     },
     /**
-     * The creation timestamp of the object boundary.
-     * @type {Date}
-     */
-    creationTimestamp: {
-        type: Date,
-        required: true,
-    },
-    /**
      * The location of the object boundary.
      * @type {Location}
      */
@@ -66,14 +58,13 @@ const ObjectBoundarySchema = new mongoose.Schema({
             type: Number,
             required: true,
         },
-        required: true,
     },
     /**
      * A reference to the user who created the object boundary.
      * @type {mongoose.Schema}
      */
     createdBy: {
-        type: UserModel,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
     },
@@ -91,8 +82,10 @@ const ObjectBoundarySchema = new mongoose.Schema({
      */
     children: [
         {
-            type: ObjectBoundarySchema,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "ObjectBoundary",
+            default: [],
+            required: true,
         }
     ],
     /**
@@ -101,8 +94,10 @@ const ObjectBoundarySchema = new mongoose.Schema({
      */
     parents: [
         {
-            type: ObjectBoundarySchema,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "ObjectBoundary",
+            default: [],
+            required: true,
         }
     ]
 },
@@ -113,13 +108,13 @@ const ObjectBoundarySchema = new mongoose.Schema({
 );
 
 /**
- * Mongoose model based on the ObjectBoundarySchema schema.
+ * Mongoose model based on the ObjectSchema schema.
  * @type {Model}
  */
-const ObjectBoundaryModel = mongoose.model('ObjectBoundary', ObjectBoundarySchema);
+const ObjectModel = mongoose.model("ObjectBoundary", ObjectSchema);
 
 /**
- * Exporting the ObjectBoundaryModel for further use by other modules if needed.
+ * Exporting the ObjectModel for further use by other modules if needed.
  * @type {Model}
  */
-export default ObjectBoundaryModel;
+export default ObjectModel;
