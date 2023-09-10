@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 import createHttpError from "http-errors";
 
 export const verifyToken = async (req, res, next) => {
-  console.log("In verify token");
   try {
     let token = req.header("Authorization");
 
