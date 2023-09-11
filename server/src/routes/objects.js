@@ -17,18 +17,11 @@ const router = express.Router();
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.post("/", async (req, res) => {
-  const objectData = req.body; // Getting the body of the request containing the NewUserBoundary data
   try {
-    const reqObjectBoundary = new ObjectBoundary(
-      undefined,
-      objectData.type,
-      objectData.alias,
-      objectData.active,
-      undefined,
-      undefined,
-      objectData.location,
-      objectData.createdBy,
-      objectData.objectDetails);
+    const reqObjectBoundary = new ObjectBoundary();
+
+    /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundaryInstance*/
+    Object.assign(reqObjectBoundary, req.body); 
 
     const resUserBoundary = await objectsService.createObject(reqObjectBoundary);
     res.status(201).json(resUserBoundary);
@@ -38,34 +31,9 @@ router.post("/", async (req, res) => {
 });
 
 /**
- * Route for user login.
- * @name POST users/login
- * @function
- * @param {Object} req - Express request object formed as UserBoundary.
- * @param {Object} res - Express response object.
- * @returns {Object<UserBoundary>} JSON response of token and UserBoundary structure for the
- * user details in case the user is not Particpant, otherwise there will be no JWT token.
- * @throws {import("http-errors").HttpError} JSON response containing Http error message.
- */
-router.post("/login", async (req, res) => {
-  const userData = req.body; // Getting the body of the request containing the NewUserBoundary data
-  try {
-    const reqUserBoundary = new UserBoundary(
-      userData.platform,
-      userData.email,
-      userData.role,
-      userData.username,
-      userData.userDetails);
-    const DBResponse = await userService.login(reqUserBoundary);
-    res.status(200).json(DBResponse);
-  } catch (error) {
-    res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
-  }
-});
-
-/**
- * Route for updating user information.
- * @name PUT users/:email/:platform
+ * Route for updating an object.
+ * @note Except Participnats, any user can update any objects.
+ * @name PUT objects/:email/:platform
  * @function
  * @param {Object} req - Express request object formed as UserBoundary.
  * @param {Object} res - Express response object.
@@ -73,18 +41,17 @@ router.post("/login", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.put("/:email/:platform", async (req, res) => {
-  const userEmail = req.params.email;
-  const userPlatform = req.params.platform;
-  const userData = req.body; // Getting the body of the request containing the NewUserBoundary data
   try {
-    const reqUserBoundary = new UserBoundary(
-      userData.platform,
-      userData.email,
-      userData.role,
-      userData.username,
-      userData.userDetails);
-    const DBResponse = await userService.updateUser(userEmail,userPlatform, reqUserBoundary);
-    res.status(200).json(DBResponse);
+    const userEmail = req.params.email;
+    const userPlatform = req.params.platform;
+    const internalObjectid = req.query.objectId;
+
+    /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundaryInstance*/
+    const reqObjectBoundary = new ObjectBoundary();
+    Object.assign(reqObjectBoundary,req.body);
+    
+    await objectsService.updateObject(userEmail, userPlatform, internalObjectid, reqObjectBoundary);
+    res.status(200).send();
   } catch (error) {
     res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
   }
@@ -103,7 +70,7 @@ router.get("/:email/:platform", async (req, res) => {
   const userEmail = req.params.email;
   const userPlatform = req.params.platform;
   try {
-    const DBResponse = await userService.getAllUsers(userEmail,userPlatform);
+    const DBResponse = await userService.getAllUsers(userEmail, userPlatform);
     res.status(200).json(DBResponse);
   } catch (error) {
     res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
@@ -123,7 +90,7 @@ router.delete("/:email/:platform", async (req, res) => {
   const userEmail = req.params.email;
   const userPlatform = req.params.platform;
   try {
-    const DBResponse = await userService.deleteAllUsers(userEmail,userPlatform);
+    const DBResponse = await userService.deleteAllUsers(userEmail, userPlatform);
     res.status(200).json(DBResponse);
   } catch (error) {
     res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"

@@ -4,10 +4,9 @@ import UserModel from "../../models/UserModel.js";
 import userConverter from "../converters/UserConverter.js";
 import createHttpError from 'http-errors';
 import Roles from "../../utils/UserRole.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import ObjectModel from "../../models/ObjectModel.js";
 import objectConverter from "../converters/ObjectBoundaryConverter.js";
+import ObjectBoundary from "../../boundaries/object/ObjectBoundary.js";
 const { Error } = mongoose;
 
 /**
@@ -20,12 +19,18 @@ const objectsService = {
      * @async
      * @function
      * @param {UserBoundary} reqUserBoundary - The user details to create a new user.
-     * @returns {Promise<UserBoundary>} The created user details after saving it within the database.
+     * @returns {Promise<ObjectBoundary>} The created user details after saving it within the database.
      * @throws {Error} Throws an error if the user creation process encounters any issues.
      */
     createObject: async (reqObjectBoundary) => {
 
         const objectModel = await objectConverter.toModel(reqObjectBoundary);
+
+        const existingUser = userConverter.toBoundary(
+            await UserModel.findOne({ _id: objectModel.createdBy }));
+
+        if (!reqObjectBoundary.active && existingUser.role === Roles.PARTICIPANT)
+            throw new createHttpError.Forbidden(`The user ${existingUser.username} not allowed to create this kind of objects`);
 
         return objectModel.validate()
             .then(() => objectModel.save())
@@ -38,72 +43,82 @@ const objectsService = {
             .then(() => objectConverter.toBoundary(objectModel));
     },
     /**
-     * Logs in a user.
+     * Updates an object.
      * @async
      * @function
-     * @param {UserBoundary} reqUserBoundary - The user details for login.
-     * @returns {Promise<{ token: string, userBoundary: UserBoundary }>} The JWT token and user details.
-     * @throws {Error} Throws an error if the login process encounters any issues.
-     */
-    login: async (reqUserBoundary) => {
-        const existingUserModel = await UserModel.findOne({
-            'userId': reqUserBoundary.userId.email + "$" + reqUserBoundary.userId.platform
-        });
-
-        /* In case that none particpant with special authrizations tries to log in wihout signup first
-        * The Client will have two seperate logins, one for authorized users with special premissions such
-        * as Admin and Reseacher, which there users will have to go through signup and then login, the Particpants
-        * in other case will have to go everytimy by signup, if they are exist the server will return them 
-        */
-        if (!existingUserModel && reqUserBoundary.role !== Roles.PARTICIPANT)
-            throw new createHttpError.NotFound("User does not exists");
-
-        if (existingUserModel.role !== Roles.PARTICIPANT) {
-            const isMatch = await bcrypt.compare(reqUserBoundary.userDetails.password, existingUserModel.userDetails.password);
-            if (!isMatch)
-                throw new createHttpError.BadRequest("Invalid credentials");
-
-            const token = jwt.sign({ id: existingUserModel._id }, process.env.JWT_SECRET, { expiresIn: 99999 });
-            const userBoundary = userConverter.toBoundary(existingUserModel);
-            delete userBoundary.userDetails.password;
-            return { token, userBoundary };
-        }
-        return userConverter.toBoundary(existingUserModel);
-    },
-    /**
-     * Updates a user's information.
-     * @async
-     * @function
-     * @param {string} userEmail - The email of the user.
+     * @param {string} internalObjectId - The internal object id of the object.
+     * @param {string} userEmail - The email of the user making the request.
      * @param {string} userPlatform - The platform of the user.
-     * @param {UserBoundary} updateUser - The user details to update.
-     * @returns {Promise<UserBoundary>} The updated user details.
+     * @param {ObjectBoundary} objectToUpdate - The fields that user provide to update.
+     * @returns {Promise<ObjectBoundary>} The updated user details.
      * @throws {Error} Throws an error if the update process encounters any issues.
      */
-    updateUser: async (userEmail, userPlatform, updateUser) => {
-        const existingUserModel = await UserModel.findOne({
-            'userId': userEmail + "$" + userPlatform
-        });
+    updateObject: async (userEmail, userPlatform, internalObjectId, objectToUpdate) => {
+        //TODO: need to fix the creation of a new document as well for users maybe happens when converted!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        const existingUser = userConverter.toBoundary(
+            await UserModel.findOne({
+                'userId': userEmail + "$" + userPlatform
+            }));
 
-        if (!existingUserModel)
+        if (!existingUser)
             throw new createHttpError.NotFound("User does not exists");
 
-        if (updateUser.username)
-            existingUserModel.username = updateUser.username;
+        if (existingUser.role === Roles.PARTICIPANT)
+            throw new createHttpError.Forbidden(`The user ${existingUser.username} not allowed to updat objects`);
 
-        if (updateUser.userDetails) {
-            const additionalDetails = updateUser.userDetails;
-            if (additionalDetails.hasOwnProperty("password")) {
-                const salt = await bcrypt.genSalt();
-                additionalDetails.password = await bcrypt.hash(additionalDetails.password, salt);
-            }
-            existingUserModel.userDetails = {
-                ...existingUserModel.userDetails,
-                ...additionalDetails
+        const existingObject = await ObjectModel.findOne({ _id: internalObjectId });
+        // .then(async (objModel) => {
+        //     return await objectConverter.toBoundary(objModel);
+        // })
+        // .then((objectBoundary) => {
+        //     return objectBoundary;
+        // });
+
+        if (!existingObject)
+            throw new createHttpError.NotFound("Object does not exists");
+
+        if (objectToUpdate.type) {
+            if (objectToUpdate.type.length === 0)
+                throw new createHttpError.Forbidden("Object type should not be an empty string");
+            existingObject.type = objectToUpdate.type;
+        }
+
+        if (objectToUpdate.alias) {
+            if (objectToUpdate.alias.length === 0)
+                throw new createHttpError.Forbidden("Object alias should not be an empty string");
+            existingObject.alias = objectToUpdate.alias;
+        }
+
+        if (objectToUpdate.active !== undefined)
+            existingObject.active = objectToUpdate.active;
+
+        if (objectToUpdate.creationTimestamp)
+            throw new createHttpError.Forbidden("Creation timestamp cannot be changed");
+
+        if (objectToUpdate.location) {
+            if (objectToUpdate.location.lat)
+                existingObject.location.lat = objectToUpdate.location.lat;
+
+            if (objectToUpdate.location.lng)
+                existingObject.location.lng = objectToUpdate.location.lng;
+        }
+
+        if (objectToUpdate.objectDetails) {
+            existingObject.objectDetails = {
+                ...existingObject.objectDetails,
+                ...objectToUpdate.objectDetails
             };
         }
-        existingUserModel.save();
-        return userConverter.toBoundary(existingUserModel);
+
+        existingObject.validate()
+            .then(() => existingObject.save())
+            .catch((error) => {
+                if (error instanceof Error.ValidationError) {
+                    throw new createHttpError.BadRequest("Invalid input, some of the fields for updating new object are missing");
+                }
+                throw error;
+            });
+
     },
     /**
      * Gets all users (only accessible to Admins).

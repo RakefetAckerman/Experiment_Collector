@@ -11,8 +11,6 @@ import ObjectIdBoundary from "../../boundaries/object/ObjectIdBoundary.js";
 const objectConverter = {
     toBoundary: async (objectModel) => {
 
-        console.log("In object boundary conversion");
-
         const internalId = objectModel._id;
         const platform = objectModel.platform;
         const objectIdBoundary = new ObjectIdBoundary(platform, internalId);
@@ -23,8 +21,9 @@ const objectConverter = {
         const location = new Location(objectModel.location.lat, objectModel.location.lng);
 
         const userModel = await UserModel.findOne({ _id: objectModel.createdBy });
-
-        console.log("the objct model->", objectModel);
+        
+        if (!userModel)
+            throw new createHttpError.NotFound("User does not exists");
 
         //splitArr[0] = "example@email.org" splitArr[1] = "platformKind"
         const splitArr = userModel.
