@@ -1,8 +1,7 @@
 import express from "express";
-import userService from "../logic/serivces/UsersService.js";
-import UserBoundary from "../boundaries/user/UserBoundary.js";
 import ObjectBoundary from "../boundaries/object/ObjectBoundary.js";
 import objectsService from "../logic/serivces/ObjectsService.js";
+import ObjectIdBoundary from "../boundaries/object/ObjectIdBoundary.js";
 
 
 const router = express.Router();
@@ -21,7 +20,7 @@ router.post("/", async (req, res) => {
     const reqObjectBoundary = new ObjectBoundary();
 
     /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundaryInstance*/
-    Object.assign(reqObjectBoundary, req.body); 
+    Object.assign(reqObjectBoundary, req.body);
 
     const resUserBoundary = await objectsService.createObject(reqObjectBoundary);
     res.status(201).json(resUserBoundary);
@@ -29,6 +28,128 @@ router.post("/", async (req, res) => {
     res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
   }
 });
+
+
+
+/**
+ * Route for getting object details.
+ * @name GET objects/:internalObjectId
+ * @function
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {[Object]} An Array of JSON object structured as UserBoundary form.
+ * @throws {import("http-errors").HttpError} JSON response containing Http error message.
+ */
+router.get("/:internalObjectId", async (req, res) => {
+  try {
+    const internalObjectId = req.params.internalObjectId;
+    const userEmail = req.query.email;
+    const userPlatform = req.query.platform;
+
+    const DBResponse = await objectsService.getObject(internalObjectId, userEmail, userPlatform);
+    res.status(200).json(DBResponse);
+  } catch (error) {
+    res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
+  }
+});
+
+/**
+ * Route for getting all object, the retrieval is depened the presmissions of the user.
+ * @name GET objects?email=example@org.com&platform=userPlatform
+ * @function
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {[Object]} An Array of JSON object structured as UserBoundary form.
+ * @throws {import("http-errors").HttpError} JSON response containing Http error message.
+ */
+router.get("/", async (req, res) => {
+  try {
+    const userEmail = req.query.email;
+    const userPlatform = req.query.platform;
+
+    const DBResponse = await objectsService.getAllObjects(userEmail, userPlatform);
+    res.status(200).json(DBResponse);
+  } catch (error) {
+    res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
+  }
+});
+
+/**
+ * Route for deleting all users (only accessible to Admins).
+ * @name DELETE users/:email/:platform
+ * @function
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Object} JSON response containing deletion status.
+ * @throws {import("http-errors").HttpError} JSON response containing Http error message.
+ */
+router.delete("/", async (req, res) => {
+  const userEmail = req.query.email;
+  const userPlatform = req.query.platform;
+  try {
+    const DBResponse = await objectsService.deleteAllObjects(userEmail, userPlatform);
+    res.status(200).json(DBResponse);
+  } catch (error) {
+    res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
+  }
+});
+
+
+/**
+ * Route for binding two objects one to another.
+ * @note Except Participnats, any user can us this API.
+ * @name PUT objects/internalObjectId/bind?email=example@demo.org&platform=userPlatform
+ * @function
+ * @param {Object} req - Express request object formed as UserBoundary.
+ * @param {Object} res - Express response object.
+ * @returns {Object} An empty JSON reposne.
+ * @throws {import("http-errors").HttpError} JSON response containing Http error message.
+ */
+router.put("/:internalObjectId/bind", async (req, res) => {
+  try {
+    const internalObjectid = req.params.internalObjectId;
+    const userEmail = req.query.email;
+    const userPlatform = req.query.platform;
+
+    /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundaryInstance*/
+    const reqObjectIdBoundary = new ObjectIdBoundary();
+    Object.assign(reqObjectIdBoundary, req.body.objectId);
+
+    await objectsService.bindNewChild(internalObjectid, userEmail, userPlatform, reqObjectIdBoundary);
+    res.status(200).send();
+  } catch (error) {
+    res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
+  }
+});
+
+
+/**
+ * Route for unbinding two objects one to another.
+ * @note Except Participnats, any user can us this API.
+ * @name PUT objects/internalObjectId/unbind?email=example@demo.org&platform=userPlatform
+ * @function
+ * @param {Object} req - Express request object formed as UserBoundary.
+ * @param {Object} res - Express response object.
+ * @returns {Object} An empty JSON reposne.
+ * @throws {import("http-errors").HttpError} JSON response containing Http error message.
+ */
+router.put("/:internalObjectId/unbind", async (req, res) => {
+  try {
+    const internalObjectid = req.params.internalObjectId;
+    const userEmail = req.query.email;
+    const userPlatform = req.query.platform;
+
+    /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundaryInstance*/
+    const reqObjectIdBoundary = new ObjectIdBoundary();
+    Object.assign(reqObjectIdBoundary, req.body.objectId);
+
+    await objectsService.unbindChild(internalObjectid, userEmail, userPlatform, reqObjectIdBoundary);
+    res.status(200).send();
+  } catch (error) {
+    res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
+  }
+});
+
 
 /**
  * Route for updating an object.
@@ -48,8 +169,8 @@ router.put("/:email/:platform", async (req, res) => {
 
     /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundaryInstance*/
     const reqObjectBoundary = new ObjectBoundary();
-    Object.assign(reqObjectBoundary,req.body);
-    
+    Object.assign(reqObjectBoundary, req.body);
+
     await objectsService.updateObject(userEmail, userPlatform, internalObjectid, reqObjectBoundary);
     res.status(200).send();
   } catch (error) {
@@ -58,44 +179,48 @@ router.put("/:email/:platform", async (req, res) => {
 });
 
 /**
- * Route for getting user information.
- * @name GET users/:email/:platform
+ * Route for getting all children objects of specific object, the retrieval is depened the presmissions of the user.
+ * @name GET objects/internalObjectId/children?email=example@org.com&platform=userPlatform
  * @function
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
- * @returns {[Object]} An Array of JSON object structured as UserBoundary form.
+ * @returns {[ObjectBoundary]} An Array of JSON object structured as ObjectBoundary form.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
-router.get("/:email/:platform", async (req, res) => {
-  const userEmail = req.params.email;
-  const userPlatform = req.params.platform;
+router.get("/:internalObjectId/children", async (req, res) => {
   try {
-    const DBResponse = await userService.getAllUsers(userEmail, userPlatform);
+    const internalObjectId = req.params.internalObjectId;
+    const userEmail = req.query.email;
+    const userPlatform = req.query.platform;
+
+    const DBResponse = await objectsService.getAllChildren(internalObjectId, userEmail, userPlatform);
     res.status(200).json(DBResponse);
   } catch (error) {
     res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
   }
 });
+
 
 /**
- * Route for deleting all users (only accessible to Admins).
- * @name DELETE users/:email/:platform
+ * Route for getting all parents objects of specific object, the retrieval is depened the presmissions of the user.
+ * @name GET objects/internalObjectId/parents?email=example@org.com&platform=userPlatform
  * @function
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
- * @returns {Object} JSON response containing deletion status.
+ * @returns {[ObjectBoundary]} An Array of JSON object structured as ObjectBoundary form.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
-router.delete("/:email/:platform", async (req, res) => {
-  const userEmail = req.params.email;
-  const userPlatform = req.params.platform;
+router.get("/:internalObjectId/parents", async (req, res) => {
   try {
-    const DBResponse = await userService.deleteAllUsers(userEmail, userPlatform);
+    const internalObjectId = req.params.internalObjectId;
+    const userEmail = req.query.email;
+    const userPlatform = req.query.platform;
+
+    const DBResponse = await objectsService.getAllParents(internalObjectId, userEmail, userPlatform);
     res.status(200).json(DBResponse);
   } catch (error) {
     res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
   }
 });
-
 
 export default router;
