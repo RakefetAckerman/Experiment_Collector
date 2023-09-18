@@ -161,6 +161,7 @@ const objectsService = {
      * @throws {Error} Throws an error if the request encounters any issues.
      */
     getAllObjects: async (userEmail, userPlatform) => {
+        console.log('hereee')
         const existingUser = await UserModel.findOne({
             'userId': userEmail + "$" + userPlatform
         });
@@ -373,6 +374,33 @@ const objectsService = {
                 }).
                 map(async object => objectConverter.toBoundary(await object)));// Awaiting the object to be retrieved by mongoose 
         }
+    },
+    /**
+     * Gets all the objects of certain type, accessible to any user.
+     * Researcher and Admin are allowed to retrieve all the objects without any activation restriction, differently from 
+     * Paraticipant that allowed to retrieve only active objects.
+     * @async
+     * @function
+     * @param {string} targetType - The desired type of the objects
+     * @param {string} userEmail - The email of the user making the request.
+     * @param {string} userPlatform - The platform of the user making the request.
+     * @returns {Promise<ObjectBoundary[]>} An array of user models.
+     * @throws {Error} Throws an error if the request encounters any issues.
+    */
+    getAllObjectsByType: async (targetType, userEmail, userPlatform) => {
+        const existingUser = await UserModel.findOne({
+            'userId': userEmail + "$" + userPlatform
+        });
+
+        if (!existingUser)
+            throw new createHttpError.NotFound("User does not exists");
+
+        if (existingUser.role === Roles.PARTICIPANT) {
+            const allObjType = await ObjectModel.find({ type: targetType, active: true});
+            return Promise.all(allObjType.map(async object => objectConverter.toBoundary(await object)));
+        }
+        const allObjType = await ObjectModel.find({ type: targetType });
+        return Promise.all(allObjType.map(async object => objectConverter.toBoundary(await object)));
     }
 };
 
