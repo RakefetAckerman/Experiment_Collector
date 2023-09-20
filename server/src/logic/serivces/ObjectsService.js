@@ -161,7 +161,6 @@ const objectsService = {
      * @throws {Error} Throws an error if the request encounters any issues.
      */
     getAllObjects: async (userEmail, userPlatform) => {
-        console.log('hereee')
         const existingUser = await UserModel.findOne({
             'userId': userEmail + "$" + userPlatform
         });

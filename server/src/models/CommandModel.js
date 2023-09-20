@@ -1,12 +1,10 @@
 import mongoose from 'mongoose';
-import ObjectBoundaryModel from './ObjectModel.js';
-import UserModel from './UserModel.js';
 
 /**
  * Mongoose schema for representing a CommandBoundary object.
  * @class
  */
-const CommandBoundarySchema = new mongoose.Schema({
+const CommandSchema = new mongoose.Schema({
     /**
      * The platform of the object.
      * @type {String}
@@ -22,21 +20,20 @@ const CommandBoundarySchema = new mongoose.Schema({
     command: {
         type: String,
         required: true,
+        validate: {
+            validator: (value) => {
+                return Object.keys(value).length > 0;
+            },
+            message: () => `Command attributes cannot be empty.`
+        }
     },
     /**
      * A reference to the target object.
      * @type {mongoose.Schema.Model}
      */
     targetObject: {
-        type: ObjectBoundaryModel,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "ObjectBoundary",
-    },
-    /**
-     * The time when the command was invoked.
-     * @type {Date}
-     */
-    invocationTimestamp: {
-        type: Date,
         required: true,
     },
     /**
@@ -44,7 +41,8 @@ const CommandBoundarySchema = new mongoose.Schema({
      * @type {mongoose.Schema.Model}
      */
     invokedBy: {
-        type: UserModel,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
     },
     /**
@@ -56,20 +54,20 @@ const CommandBoundarySchema = new mongoose.Schema({
         required: true,
     }
 },
-/**
- * Additional options for the schema.
- */
-{ timestamps: true }
+    /**
+     * Additional options for the schema.
+     */
+    { timestamps: true }
 );
 
 /**
- * Mongoose model based on the CommandBoundarySchema schema.
+ * Mongoose model based on the CommandSchema schema.
  * @type {Model}
  */
-const CommandBoundaryModel = mongoose.model('CommandBoundary', CommandBoundarySchema);
+const CommandModel = mongoose.model('Command', CommandSchema);
 
 /**
- * Exporting the CommandBoundaryModel for further use by other modules if needed.
+ * Exporting the CommandModel for further use by other modules if needed.
  * @type {Model}
  */
-export default CommandBoundaryModel;
+export default CommandModel;

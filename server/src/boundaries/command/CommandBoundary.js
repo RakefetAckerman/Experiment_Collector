@@ -1,6 +1,6 @@
-import CommandIdBoundary from "./CommandIdBoundary";
-import ObjectIdInvoker from "../../utils/Invokers/ObjectIdinvoker"
-import UserIdInvoker from "../../utils/Invokers/UserIdInvoker"
+import CommandIdBoundary from "./CommandIdBoundary.js";
+import ObjectIdInvoker from "../../utils/Invokers/ObjectIdinvoker.js"
+import UserIdInvoker from "../../utils/Invokers/UserIdInvoker.js"
 /**
  * Represents a CommandBoundary that contains information about a command executed by a user on a mini app object.
  * @class
