@@ -1,4 +1,4 @@
-import ObjectIdBoundary from "../../boundaries/object/ObjectIdBoundary";
+import ObjectIdBoundary from "../../boundaries/object/ObjectIdBoundary.js";
 /**
  * Represents an ObjectIdInvoker responsible for invoking methods from ObjectIdBoundary.
  * @class
