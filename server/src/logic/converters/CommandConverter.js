@@ -75,5 +75,5 @@ const commandConverter = {
     }
 };
 
-// Export the objectConverter object for use in other modules
-export default objectConverter;
+// Export the commandConverter object for use in other modules
+export default commandConverter;
