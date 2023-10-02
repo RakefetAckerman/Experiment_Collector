@@ -2,8 +2,8 @@
  * This module exports different user objects used in requests.
  */
 
-// Participant object representing user details for a participant
-const Participant = {
+// participant object representing user details for a participant
+const participant = {
     platform: 'Experiment',
     email: 'bob@test.com',
     role: 'Participant',
@@ -11,8 +11,8 @@ const Participant = {
     userDetails: {}
 };
 
-// Researcher object representing user details for a researcher
-const Researcher = {
+// researcher object representing user details for a researcher
+const researcher = {
     platform: 'Builder',
     email: 'jill@test.org',
     role: 'Researcher',
@@ -22,19 +22,19 @@ const Researcher = {
     }
 };
 
-// Admin1 object representing user details for an admin (1)
-const Admin1 = {
+// admin1 object representing user details for an admin (1)
+const admin1 = {
     platform: 'Builder',
     email: 'admin1@test.org',
-    role: 'Researcher',
+    role: 'Admin',
     username: 'admin1',
     userDetails: {
         password: 'MyAdmin123'
     }
 };
 
-// Admin2 object representing user details for an admin (2)
-const Admin2 = {
+// admin2 object representing user details for an admin (2)
+const admin2 = {
     platform: 'Builder',
     email: 'admin2@test.org',
     role: 'Researcher',
@@ -45,4 +45,4 @@ const Admin2 = {
 };
 
 // Exporting the user objects for use in other modules
-export { Participant, Researcher, Admin1, Admin2 };
+export { participant, researcher, admin1, admin2 };
