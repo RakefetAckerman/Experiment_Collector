@@ -49,7 +49,7 @@ const userService = {
         }
         throw error;
       })
-      .then(() => userConverter.toBoundary(userModel));
+      .then(() => ({ body: userConverter.toBoundary(userModel) }));
   },
   /**
    * Logs in a user.
@@ -77,12 +77,17 @@ const userService = {
       if (!isMatch)
         throw new createHttpError.BadRequest("Invalid credentials");
 
-      const token = jwt.sign({ id: existingUserModel._id }, process.env.JWT_SECRET, { expiresIn: 99999 });
+      const token = jwt.sign({ id: existingUserModel._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION });
       const userBoundary = userConverter.toBoundary(existingUserModel);
       delete userBoundary.userDetails.password;
-      return { token, userBoundary };
+      const date = new Date();
+      return {
+        jwtToken: token,
+        body: userBoundary,
+        expirationCookie: new Date(date.getDate() + parseInt(process.env.JWT_EXPIRATION))// Adding the number of days to current date
+      };
     }
-    return userConverter.toBoundary(existingUserModel);
+    return { "body": userConverter.toBoundary(existingUserModel) };
   },
   /**
    * Updates a user's information.
