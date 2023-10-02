@@ -43,7 +43,8 @@ const UserBoundarySchema = new mongoose.Schema(
      */
     userDetails: {
       type: Object,
-      required: true
+      required: true,
+      default: {}
     }
   },
   /**
