@@ -1,23 +1,60 @@
 import jwt from "jsonwebtoken";
 import createHttpError from "http-errors";
 
+/**
+ * Middleware function to verify JWT token in a cookie.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Express next middleware function.
+ * @throws {createHttpError.Forbidden} If the JWT token is missing.
+ * @throws {createHttpError.Unauthorized} If the JWT token is expired or verification fails.
+ */
 export const verifyToken = async (req, res, next) => {
   try {
-    let token = req.header("Authorization");
+    const jwtCookie = req.cookies.jwt;
 
-    if (!token) {
-      throw new createHttpError.BadRequest("Access denied, missing token");
-    }
-    const initalStr = "Bearer ";
-
-    if (token.startsWith(initalStr)) {
-      token = token.slice(initalStr.length, token.length).trimLeft();
+    if (!jwtCookie) {
+      throw new createHttpError.Forbidden("Access denied, missing token");
     }
 
-    const verified = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = verified;
-    next();
+    jwt.verify(jwtCookie, process.env.JWT_SECRET, (err, verified) => {
+      if (err && err.name === 'TokenExpiredError') {
+        // The token has expired
+        console.error('Token has expired');
+        res.clearCookie('jwt');
+        throw new createHttpError.Unauthorized('Token has expired');
+
+      } else if (err) {
+        // Another error occurred during verification
+        console.log("Token verification failed");
+        throw new createHttpError.Unauthorized('Token verification failed');
+      } else {
+        // The token is valid
+        console.log('Decoded token:', verified);
+        req.user = verified;
+        next();
+      }
+    });
+
   } catch (error) {
-    res.status(error.status || 500).json({ error: error.message }); // Use "error.status" instead of "error.code"
+    res.status(error.status || 500).json({ error: error.message });
+  }
+};
+
+/**
+ * Function to set a JWT token in a cookie.
+ * @param {Object} req - Express response object.
+ * @param {Object} res - Express response object.
+ * @param {string} token - JWT token to be set.
+ * @param {Date} expiration - Expiration date of the cookie.
+ */
+export const setCookieIfNeeded = (req, res, token, expiration) => {
+  if (!req.cookies.jwt) {
+    res.cookie('jwt', token, {
+      expires: expiration, // Sent as Date object after the service operation
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // Set to true in production
+      sameSite: 'None' // Allowing Cross-Origin requests
+    });
   }
 };

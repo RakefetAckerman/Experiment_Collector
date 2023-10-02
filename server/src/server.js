@@ -1,5 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from 'dotenv-flow';
@@ -19,6 +20,7 @@ server.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 server.use(morgan("common"));
 server.use(bodyParser.json({ limit: "30mb", extended: true }));
 server.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+server.use(cookieParser());
 server.use(cors());
 
 /* ROUTES */
