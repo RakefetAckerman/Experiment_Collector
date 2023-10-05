@@ -21,6 +21,13 @@ const userService = {
    * @throws {Error} Throws an error if the user creation process encounters any issues.
    */
   createUser: async (reqUserBoundary) => {
+    if (!reqUserBoundary.userId.email ||
+      !reqUserBoundary.userId.platform ||
+      !reqUserBoundary.role ||
+      !reqUserBoundary.username ||
+      !reqUserBoundary.userDetails)
+      throw new createHttpError.BadRequest("Some of the user credentials are undefined");
+
     if (!reqUserBoundary.userId || reqUserBoundary.userId.email.length === 0 || reqUserBoundary.userId.platform === 0)
       throw new createHttpError.BadRequest("Email or platform name cannot be an empty string");
 
@@ -63,6 +70,13 @@ const userService = {
    * @throws {Error} Throws an error if the login process encounters any issues.
    */
   login: async (reqUserBoundary) => {
+    if (!reqUserBoundary.userId.email ||
+      !reqUserBoundary.userId.platform ||
+      !reqUserBoundary.role ||
+      !reqUserBoundary.username ||
+      !reqUserBoundary.userDetails)
+      throw new createHttpError.BadRequest("Some of the user credentials are undefined");
+
     if (!reqUserBoundary.userId || reqUserBoundary.userId.email.length === 0 || reqUserBoundary.userId.platform === 0)
       throw new createHttpError.BadRequest("Email or platform name cannot be an empty string");
 
@@ -112,7 +126,7 @@ const userService = {
    */
   updateUser: async (userEmail, userPlatform, updateUser) => {
     if (userEmail.length === 0 || userPlatform.platform === 0)
-    throw new createHttpError.BadRequest("Email or platform name cannot be an empty string");
+      throw new createHttpError.BadRequest("Email or platform name cannot be an empty string");
 
     const existingUserModel = await UserModel.findOne({
       'userId': userEmail + "$" + userPlatform
@@ -121,7 +135,7 @@ const userService = {
     if (!existingUserModel)
       throw new createHttpError.NotFound("User does not exists");
 
-    if (updateUser.username)
+    if (updateUser.username && updateUser.username.length > 0)
       existingUserModel.username = updateUser.username;
 
     if (updateUser.userDetails) {

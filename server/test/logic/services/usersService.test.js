@@ -61,6 +61,8 @@ describe('User Service Tests', () => {
      * @param {function} done - Callback function to signal completion.
      */
     afterEach('Clearing the database', (done) => {
+        const agent = chai.request.agent(server); // Create an agent to manage cookies
+
         // Delete all users after each test
         chai.request(server)
             .delete(`/auth/users/${admin1.email}/${admin1.platform}`)
@@ -68,13 +70,15 @@ describe('User Service Tests', () => {
             .end((err, res) => {
                 res.should.have.status(200);
                 usersCookies = {};
+                agent.jar.setCookies([]);
+                agent.close();
                 done();
             });
     });
 
     /**
      * Registers a new researcher and checks if the registration was successful.
-     * @note This test case apply also to an Admin role.
+     * @note This test case apply also to all roles.
      * @function
      * @name it
      */
@@ -87,6 +91,22 @@ describe('User Service Tests', () => {
                 res.body.should.be.a('object');
                 res.body.should.have.property('userId');
                 res.body.userId.email.should.equal(researcher.email);
+                done();
+            });
+    });
+
+    /**
+     * Attempts to register a new researcher and checks if the creation did not happend.
+     * @note This test case apply also all roles.
+     * @function
+     * @name it
+     */
+    it('should not register a new Resercher (the body is undefined)', (done) => {
+        chai.request(server)
+            .post('/users/register')
+            .send()
+            .end((err, res) => {
+                res.should.have.status(400);
                 done();
             });
     });
@@ -387,6 +407,21 @@ describe('User Service Tests', () => {
         chai.request(server)
             .post('/users/login')
             .send(newReseacher)
+            .end((err, res) => {
+                res.should.have.status(400);
+                done();
+            });
+    });
+
+    /**
+     * This test case checks if a user cannot successfully log after missing credentials.
+     * @function
+     * @name it
+     */
+    it('should not make successful login, there is no body attached to the request ', (done) => {
+        chai.request(server)
+            .post('/users/login')
+            .send()
             .end((err, res) => {
                 res.should.have.status(400);
                 done();
