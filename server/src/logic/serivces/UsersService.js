@@ -21,6 +21,9 @@ const userService = {
    * @throws {Error} Throws an error if the user creation process encounters any issues.
    */
   createUser: async (reqUserBoundary) => {
+    if (!reqUserBoundary.userId || reqUserBoundary.userId.email.length === 0 || reqUserBoundary.userId.platform === 0)
+      throw new createHttpError.BadRequest("Email or platform name cannot be an empty string");
+
     const existingUser = await UserModel.findOne({
       'userId': reqUserBoundary.userId.email + "$" + reqUserBoundary.userId.platform
     });
@@ -60,6 +63,9 @@ const userService = {
    * @throws {Error} Throws an error if the login process encounters any issues.
    */
   login: async (reqUserBoundary) => {
+    if (!reqUserBoundary.userId || reqUserBoundary.userId.email.length === 0 || reqUserBoundary.userId.platform === 0)
+      throw new createHttpError.BadRequest("Email or platform name cannot be an empty string");
+
     const existingUserModel = await UserModel.findOne({
       'userId': reqUserBoundary.userId.email + "$" + reqUserBoundary.userId.platform
     });
@@ -69,17 +75,22 @@ const userService = {
     * as Admin and Reseacher, which there users will have to go through signup and then login, the Particpants
     * in other case will have to go everytimy by signup, if they are exist the server will return them 
     */
-    if (!existingUserModel && reqUserBoundary.role !== Roles.PARTICIPANT)
+    if (!existingUserModel)
       throw new createHttpError.NotFound("User does not exists");
 
-    if (existingUserModel.role !== Roles.PARTICIPANT) {
-      const isMatch = await bcrypt.compare(reqUserBoundary.userDetails.password, existingUserModel.userDetails.password);
+    if (existingUserModel.role && existingUserModel.role !== Roles.PARTICIPANT) {
+      let isMatch = false;
+      if (reqUserBoundary.userDetails && reqUserBoundary.userDetails.password)
+        isMatch = await bcrypt.compare(reqUserBoundary.userDetails.password, existingUserModel.userDetails.password);
+      else
+        throw new createHttpError.BadRequest("Invalid credentials, missing password");
+
       if (!isMatch)
         throw new createHttpError.BadRequest("Invalid credentials");
 
       const token = jwt.sign({ id: existingUserModel._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION });
       const userBoundary = userConverter.toBoundary(existingUserModel);
-      delete userBoundary.userDetails.password;
+      // delete userBoundary.userDetails.password;
       const date = new Date();
       return {
         jwtToken: token,
@@ -100,6 +111,9 @@ const userService = {
    * @throws {Error} Throws an error if the update process encounters any issues.
    */
   updateUser: async (userEmail, userPlatform, updateUser) => {
+    if (userEmail.length === 0 || userPlatform.platform === 0)
+    throw new createHttpError.BadRequest("Email or platform name cannot be an empty string");
+
     const existingUserModel = await UserModel.findOne({
       'userId': userEmail + "$" + userPlatform
     });
@@ -141,7 +155,7 @@ const userService = {
     if (!existingUserModel)
       throw new createHttpError.NotFound("User does not exists");
 
-    if (existingUserModel.role === Roles.ADMIN) {
+    if (existingUserModel.role && existingUserModel.role === Roles.ADMIN) {
       const usersArr = await UserModel.find();
       return usersArr;
     }

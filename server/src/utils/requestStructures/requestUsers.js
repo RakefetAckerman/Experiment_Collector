@@ -37,7 +37,7 @@ const admin1 = {
 const admin2 = {
     platform: 'Builder',
     email: 'admin2@test.org',
-    role: 'Researcher',
+    role: 'Admin',
     username: 'admin2',
     userDetails: {
         password: 'MyAdmin123'
