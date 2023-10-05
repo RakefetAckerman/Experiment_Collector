@@ -20,17 +20,14 @@ export const verifyToken = async (req, res, next) => {
     jwt.verify(jwtCookie, process.env.JWT_SECRET, (err, verified) => {
       if (err && err.name === 'TokenExpiredError') {
         // The token has expired
-        console.error('Token has expired');
         res.clearCookie('jwt');
         throw new createHttpError.Unauthorized('Token has expired');
 
       } else if (err) {
-        // Another error occurred during verification
-        console.log("Token verification failed");
+        // Another error occurred during verification, verification has been failed
         throw new createHttpError.Unauthorized('Token verification failed');
       } else {
         // The token is valid
-        console.log('Decoded token:', verified);
         req.user = verified;
         next();
       }
