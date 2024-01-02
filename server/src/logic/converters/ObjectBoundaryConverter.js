@@ -1,11 +1,11 @@
 import ObjectBoundary from "../../boundaries/object/ObjectBoundary.js"; // Import ObjectBoundary class
 import UserIdBoundary from "../../boundaries/user/UserIdBoundary.js";
-import ObjectModel from "../../models/ObjectModel.js"; // Import ObjectModel class
+import ObjectModel from "../../models/ObjectModel.js"; // Import ObjectModel
 import createHttpError from "http-errors"; // Import createHttpError for HTTP error handling
-import Location from "../../utils/Location.js";
-import UserModel from "../../models/UserModel.js";
-import UserIdInvoker from "../../utils/Invokers/UserIdInvoker.js";
-import ObjectIdBoundary from "../../boundaries/object/ObjectIdBoundary.js";
+import Location from "../../utils/Location.js"; // Import Location class
+import UserModel from "../../models/UserModel.js"; // Import UserModel
+import UserIdInvoker from "../../utils/Invokers/UserIdInvoker.js"; // Import UserIdInvoker class
+import ObjectIdBoundary from "../../boundaries/object/ObjectIdBoundary.js"; // Import ObjectIdBoundary class
 
 
 const objectConverter = {
@@ -21,7 +21,7 @@ const objectConverter = {
         const location = new Location(objectModel.location.lat, objectModel.location.lng);
 
         const userModel = await UserModel.findOne({ _id: objectModel.createdBy });
-        
+
         if (!userModel)
             throw new createHttpError.NotFound("User does not exists");
 
@@ -55,6 +55,9 @@ const objectConverter = {
         const userPlatform = objectBoundary.createdBy.userId.platform;
 
         const userModel = await UserModel.findOne({ "userId": userEmail + "$" + userPlatform });
+
+        if(!userModel)
+            throw new createHttpError.NotFound("User does not exist");
 
         const objectModel = new ObjectModel({
             platform: userPlatform,
