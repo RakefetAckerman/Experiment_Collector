@@ -23,11 +23,25 @@ const objectsService = {
      * @throws {Error} Throws an error if the user creation process encounters any issues.
      */
     createObject: async (reqObjectBoundary) => {
+        if (!reqObjectBoundary)
+            throw new createHttpError.BadRequest("There is no object to create");
+
+        //Checking for undefined properties, alias, creationTimestamp,modificationTimestamp and location are optional
+        if (!reqObjectBoundary.type ||
+            !reqObjectBoundary.active === undefined ||
+            !reqObjectBoundary.createdBy ||
+            !reqObjectBoundary.createdBy.userId.platform ||
+            !reqObjectBoundary.createdBy.userId.email ||
+            !reqObjectBoundary.objectDetails)
+            throw new createHttpError.BadRequest("Some of the objects properties are undefined");
 
         const objectModel = await objectConverter.toModel(reqObjectBoundary);
 
         const existingUser = userConverter.toBoundary(
-            await UserModel.findOne({ _id: objectModel.createdBy }));
+            await UserModel.findOne({ _id: objectModel.createdBy._id }));
+
+        if (!existingUser)
+            throw new createHttpError.NotFound("User does not found");
 
         if (!reqObjectBoundary.active && existingUser.role === Roles.PARTICIPANT)
             throw new createHttpError.Forbidden(`The user ${existingUser.username} not allowed to create this kind of objects`);
@@ -395,7 +409,7 @@ const objectsService = {
             throw new createHttpError.NotFound("User does not exists");
 
         if (existingUser.role === Roles.PARTICIPANT) {
-            const allObjType = await ObjectModel.find({ type: targetType, active: true});
+            const allObjType = await ObjectModel.find({ type: targetType, active: true });
             return Promise.all(allObjType.map(async object => objectConverter.toBoundary(await object)));
         }
         const allObjType = await ObjectModel.find({ type: targetType });
