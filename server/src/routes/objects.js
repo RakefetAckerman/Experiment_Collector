@@ -74,7 +74,7 @@ router.get("/", async (req, res) => {
 
 /**
  * Route for deleting all objects (only accessible to Admins).
- * @name DELETE objects/:email/:platform
+ * @name DELETE objects?email=adminEmail&platform=adminPlatform
  * @function
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
