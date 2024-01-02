@@ -3,7 +3,7 @@
  */
 
 // Example object for a researcher
-const exampleResearcherObj = {
+const researcherObj = {
     type: "dummyType",
     alias: "demo instance",
     active: true,
@@ -26,7 +26,7 @@ const exampleResearcherObj = {
 };
 
 // Example object for a participant
-const exampleParticipantObj = {
+const participantObj = {
     type: "dummyType",
     alias: "demo instance",
     active: true,
@@ -36,7 +36,7 @@ const exampleParticipantObj = {
     },
     createdBy: {
         userId: {
-            platform: "Builder",
+            platform: "Experiment",
             email: "bob@test.com"
         }
     },
@@ -49,4 +49,4 @@ const exampleParticipantObj = {
 };
 
 // Exporting the example objects for use in other modules
-export { exampleResearcherObj, exampleParticipantObj };
+export { researcherObj, participantObj };
