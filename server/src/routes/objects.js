@@ -30,7 +30,7 @@ router.post("/", async (req, res) => {
 });
 
 /**
- * Route for getting object details.
+ * Route for getting specific object.
  * @name GET objects/:internalObjectId
  * @function
  * @param {Object} req - Express request object.
@@ -152,24 +152,24 @@ router.put("/:internalObjectId/unbind", async (req, res) => {
 /**
  * Route for updating an object.
  * @note Except Participnats, any user can update any objects.
- * @name PUT objects/:email/:platform
+ * @name PUT objects/internalObjectid?email=example@demo.org&platform=userPlatform
  * @function
  * @param {Object} req - Express request object formed as UserBoundary.
  * @param {Object} res - Express response object.
  * @returns {Object} An empty JSON reposne.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
-router.put("/:email/:platform", async (req, res) => {
+router.put("/:internalObjectId", async (req, res) => {
   try {
-    const userEmail = req.params.email;
-    const userPlatform = req.params.platform;
-    const internalObjectid = req.query.objectId;
+    const internalObjectId = req.params.internalObjectId;
+    const userEmail = req.query.email;
+    const userPlatform = req.query.platform;
 
     /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
     const reqObjectBoundary = new ObjectBoundary();
     Object.assign(reqObjectBoundary, req.body);
 
-    await objectsService.updateObject(userEmail, userPlatform, internalObjectid, reqObjectBoundary);
+    await objectsService.updateObject(userEmail, userPlatform, internalObjectId, reqObjectBoundary);
     res.status(200).send();
   } catch (error) {
     res.status(error.status || 500).json({ error: error.message });

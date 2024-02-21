@@ -44,7 +44,7 @@ const objectsService = {
             throw new createHttpError.NotFound("User does not found");
 
         if (!reqObjectBoundary.active && existingUser.role === Roles.PARTICIPANT)
-            throw new createHttpError.Forbidden(`The user ${existingUser.username} not allowed to create this kind of objects`);
+            throw new createHttpError.Forbidden(`The user ${existingUser.username} does not allowed to create this kind of objects`);
 
         return objectModel.validate()
             .then(() => objectModel.save())
@@ -78,15 +78,9 @@ const objectsService = {
             throw new createHttpError.NotFound("User does not exists");
 
         if (existingUser.role === Roles.PARTICIPANT)
-            throw new createHttpError.Forbidden(`The user ${existingUser.username} not allowed to updat objects`);
+            throw new createHttpError.Forbidden(`The user ${existingUser.username} not allowed to update objects`);
 
         const existingObject = await ObjectModel.findOne({ _id: internalObjectId });
-        // .then(async (objModel) => {
-        //     return await objectConverter.toBoundary(objModel);
-        // })
-        // .then((objectBoundary) => {
-        //     return objectBoundary;
-        // });
 
         if (!existingObject)
             throw new createHttpError.NotFound("Object does not exists");
@@ -179,17 +173,14 @@ const objectsService = {
             'userId': userEmail + "$" + userPlatform
         });
 
-        if (!existingUser)
-            throw new createHttpError.NotFound("User does not exists");
+        /*if (!existingUser)
+            throw new createHttpError.NotFound("User does not exists");*/
 
         if (existingUser.role !== Roles.PARTICIPANT) {
             const allObjectsArr = await ObjectModel.find();
+            //console.log("hereeeeeeeeeee ",userEmail," ", userPlatform);
             return Promise.all(allObjectsArr.map(object => objectConverter.toBoundary(object)));
         }
-        else {
-            return Promise.all(allActiveObjectsArr.map(object => objectConverter.toBoundary(object)));
-        }
-
     },
     /**
      * Deletes all objects (only accessible to Admins).
