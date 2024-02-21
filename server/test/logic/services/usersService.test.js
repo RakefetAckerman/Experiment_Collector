@@ -9,7 +9,7 @@
 // Importing necessary libraries and modules
 import chai from 'chai';
 import chaiHttp from 'chai-http';
-import server from '../../../src/server.js';
+import app from '../../../src/app.js';
 import { participant, researcher, admin1, admin2 } from '../../../src/utils/requestStructures/requestUsers.js';
 import bcrypt from "bcrypt";
 
@@ -33,7 +33,7 @@ describe('User Service Tests', () => {
      */
     beforeEach('Registering and logining in ad admin', (done) => {
         // Register and login admin before each test
-        chai.request(server)
+        chai.request(app)
             .post('/users/register')
             .send(admin1)
             .end((err, res) => {
@@ -41,7 +41,7 @@ describe('User Service Tests', () => {
                 res.body.should.be.a('object');
 
                 // Login in the admin
-                chai.request(server)
+                chai.request(app)
                     .post('/users/login')
                     .send(admin1)
                     .end((err, res) => {
@@ -61,10 +61,10 @@ describe('User Service Tests', () => {
      * @param {function} done - Callback function to signal completion.
      */
     afterEach('Clearing the database', (done) => {
-        const agent = chai.request.agent(server); // Create an agent to manage cookies
+        const agent = chai.request.agent(app); // Create an agent to manage cookies
 
         // Delete all users after each test
-        chai.request(server)
+        chai.request(app)
             .delete(`/auth/users/${admin1.email}/${admin1.platform}`)
             .set('Cookie', usersCookies[admin1.email])
             .end((err, res) => {
@@ -83,7 +83,7 @@ describe('User Service Tests', () => {
      * @name it
      */
     it('should register a new Resercher', (done) => {
-        chai.request(server)
+        chai.request(app)
             .post('/users/register')
             .send(researcher)
             .end((err, res) => {
@@ -102,7 +102,7 @@ describe('User Service Tests', () => {
      * @name it
      */
     it('should not register a new Resercher (the body is undefined)', (done) => {
-        chai.request(server)
+        chai.request(app)
             .post('/users/register')
             .send()
             .end((err, res) => {
@@ -112,7 +112,7 @@ describe('User Service Tests', () => {
     });
 
     /**
-     * Attempts to register a Researcher without a password, and checks if the server returns a 400 error.
+     * Attempts to register a Researcher without a password, and checks if the app returns a 400 error.
      * @note This test case apply also to an Admin role.
      * @function
      * @name it
@@ -121,12 +121,12 @@ describe('User Service Tests', () => {
         const newReseacher = { ...researcher };
         newReseacher.userDetails = { ...researcher.userDetails };
         delete newReseacher.userDetails.password;
-        chai.request(server)
+        chai.request(app)
             .post('/users/register')
             .send(newReseacher)
             .end((err, res) => {
                 res.should.have.status(400);
-                chai.request(server)
+                chai.request(app)
                     .get(`/auth/users/${admin1.email}/${admin1.platform}`)
                     .set('Cookie', usersCookies[admin1.email])
                     .send()
@@ -146,19 +146,19 @@ describe('User Service Tests', () => {
      * @name it
      */
     it('should register a Researcher, and in the second registration it should assign a JWT token to it and not recreate it', (done) => {
-        chai.request(server)
+        chai.request(app)
             .post('/users/register')
             .send(researcher)
             .then(res => {
                 res.should.have.status(201);
-                return chai.request(server)
+                return chai.request(app)
                     .post('/users/register')
                     .send(researcher);
             }).then((res) => {
                 res.should.have.status(201);
                 res.body.should.be.a('object');
                 res.headers.should.have.property('set-cookie');
-                return chai.request(server)
+                return chai.request(app)
                     .get(`/auth/users/${admin1.email}/${admin1.platform}`)
                     .set('Cookie', usersCookies[admin1.email])
                     .send();
@@ -177,7 +177,7 @@ describe('User Service Tests', () => {
      * @name it
      */
     it('should register a new Participant', (done) => {
-        chai.request(server)
+        chai.request(app)
             .post('/users/register')
             .send(participant)
             .end((err, res) => {
@@ -190,12 +190,12 @@ describe('User Service Tests', () => {
     });
 
     /**
-     * Attempts to register a participant twice and checks if the server returns an existing participant.
+     * Attempts to register a participant twice and checks if the app returns an existing participant.
      * @function
      * @name it
      */
     it('should not recreate a new Participant, should return an existing Participant', (done) => {
-        chai.request(server)
+        chai.request(app)
             .post('/users/register')
             .send(participant)
             .then(res => {
@@ -206,7 +206,7 @@ describe('User Service Tests', () => {
                 return res;
             })
             .then((res) => {
-                return chai.request(server)
+                return chai.request(app)
                     .post('/users/register')
                     .send(participant)
                     .end((err, anotherRes) => {
@@ -217,7 +217,7 @@ describe('User Service Tests', () => {
                     });
             })
             .then(() => {
-                chai.request(server)
+                chai.request(app)
                     .get(`/auth/users/${admin1.email}/${admin1.platform}`)
                     .set('Cookie', usersCookies[admin1.email])
                     .send()
@@ -232,7 +232,7 @@ describe('User Service Tests', () => {
     });
 
     /**
-     * Attempts to register a user with missing email and platform and checks if the server returns a 400 error.
+     * Attempts to register a user with missing email and platform and checks if the app returns a 400 error.
      * @note This test case apply also to all roles.
      * @function
      * @name it
@@ -241,7 +241,7 @@ describe('User Service Tests', () => {
         const newReseacher = { ...researcher };
         newReseacher.email = '';
         newReseacher.platform = '';
-        chai.request(server)
+        chai.request(app)
             .post('/users/register')
             .send(newReseacher)
             .end((err, res) => {
@@ -257,13 +257,13 @@ describe('User Service Tests', () => {
      * @name it
      */
     it('should successful login a Reseacher after registration', (done) => {
-        chai.request(server)
+        chai.request(app)
             .post('/users/register')
             .send(researcher)
             .end((err, res) => {
                 res.should.have.status(201);
                 res.body.should.be.a('object');
-                chai.request(server)
+                chai.request(app)
                     .post('/users/login')
                     .send(researcher)
                     .end((err, res) => {
@@ -284,14 +284,14 @@ describe('User Service Tests', () => {
      * @name it
      */
     it('should not change JWT token when Participant login twice', (done) => {
-        chai.request(server)
+        chai.request(app)
             .post('/users/register')
             .send(researcher)
             .then((res) => {
                 res.should.have.status(201);
                 res.body.should.be.a('object');
                 return new Promise((resolve) => {
-                    chai.request(server)
+                    chai.request(app)
                         .post('/users/login')
                         .send(researcher)
                         .end((err, res) => {
@@ -307,7 +307,7 @@ describe('User Service Tests', () => {
                 });
             })
             .then(() => {
-                chai.request(server)
+                chai.request(app)
                     .post('/users/login')
                     .send(researcher)
                     .end((err, res) => {
@@ -332,7 +332,7 @@ describe('User Service Tests', () => {
      * @name it
      */
     it('should not make successful login to a Reseacher after registration (missing password)', (done) => {
-        chai.request(server)
+        chai.request(app)
             .post('/users/register')
             .send(researcher)
             .end((err, res) => {
@@ -341,7 +341,7 @@ describe('User Service Tests', () => {
                 const newReseacher = { ...researcher };
                 newReseacher.userDetails = { ...researcher.userDetails };
                 delete newReseacher.userDetails.password;
-                chai.request(server)
+                chai.request(app)
                     .post('/users/login')
                     .send(newReseacher)
                     .end((err, res) => {
@@ -357,7 +357,7 @@ describe('User Service Tests', () => {
      * @name it
      */
     it('should not make successful login to a Reseacher after registration (incorrect password)', (done) => {
-        chai.request(server)
+        chai.request(app)
             .post('/users/register')
             .send(researcher)
             .end((err, res) => {
@@ -366,7 +366,7 @@ describe('User Service Tests', () => {
                 const newReseacher = { ...researcher };
                 newReseacher.userDetails = { ...researcher.userDetails };
                 newReseacher.userDetails.password = 'sS654321';
-                chai.request(server)
+                chai.request(app)
                     .post('/users/login')
                     .send(newReseacher)
                     .end((err, res) => {
@@ -385,7 +385,7 @@ describe('User Service Tests', () => {
         const newReseacher = { ...researcher };
         newReseacher.userDetails = { ...researcher.userDetails };
         newReseacher.email = 'someotheremail@test.org';
-        chai.request(server)
+        chai.request(app)
             .post('/users/login')
             .send(newReseacher)
             .end((err, res) => {
@@ -404,7 +404,7 @@ describe('User Service Tests', () => {
         newReseacher.userDetails = { ...researcher.userDetails };
         newReseacher.email = '';
         newReseacher.email = '';
-        chai.request(server)
+        chai.request(app)
             .post('/users/login')
             .send(newReseacher)
             .end((err, res) => {
@@ -419,7 +419,7 @@ describe('User Service Tests', () => {
      * @name it
      */
     it('should not make successful login, there is no body attached to the request ', (done) => {
-        chai.request(server)
+        chai.request(app)
             .post('/users/login')
             .send()
             .end((err, res) => {
@@ -434,7 +434,7 @@ describe('User Service Tests', () => {
      * @name it
      */
     it('should prevent Participant to use auth route', (done) => {
-        chai.request(server)
+        chai.request(app)
             .post('/users/register')
             .send(participant)
             .end((err, res) => {
@@ -442,7 +442,7 @@ describe('User Service Tests', () => {
                 res.body.should.be.a('object');
             });
 
-        chai.request(server)
+        chai.request(app)
             .get(`/auth/users/${participant.email}/${participant.platform}`)
             .send()
             .end((err, res) => {
@@ -465,7 +465,7 @@ describe('User Service Tests', () => {
                 additionalKey: 9.90
             }
         };
-        chai.request(server)
+        chai.request(app)
             .post('/users/register')
             .send(researcher)
             .end((err, res) => {
@@ -479,14 +479,14 @@ describe('User Service Tests', () => {
                     ...researcher.userDetails,
                     ...updatedUserData.userDetails
                 };
-                chai.request(server)
+                chai.request(app)
                     .put(`/users/${updatedReseacher.email}/${updatedReseacher.platform}`)
                     .send(updatedReseacher)
                     .then(res => {
                         res.should.have.status(200);
                     })
                     .then(() => {
-                        chai.request(server)
+                        chai.request(app)
                             .post('/users/login')
                             .send(updatedReseacher)
                             .end(async (err, res) => {
@@ -515,7 +515,7 @@ describe('User Service Tests', () => {
         updatedReseacher.email = 'otheremail@test.org';
         updatedReseacher.platform = 'Experiment';
 
-        chai.request(server)
+        chai.request(app)
             .put('/users/register')
             .send(researcher)
             .end((err, res) => {
@@ -536,7 +536,7 @@ describe('User Service Tests', () => {
         // Using Promise.all to wait for all requests to complete
         Promise.all(usersArr.map((user) => {
             return new Promise((resolve) => {
-                chai.request(server)
+                chai.request(app)
                     .post(`/users/register`)
                     .send(user)
                     .end((err, res) => {
@@ -550,7 +550,7 @@ describe('User Service Tests', () => {
             });
         }))
             .then(() => {
-                chai.request(server)
+                chai.request(app)
                     .get(`/users/${admin1.email}/${admin1.platform}`)
                     .end((err, res) => {
                         res.should.have.status(200);
@@ -577,7 +577,7 @@ describe('User Service Tests', () => {
         // Using Promise.all to wait for all requests to complete
         Promise.all(usersArr.map((user) => {
             return new Promise((resolve) => {
-                chai.request(server)
+                chai.request(app)
                     .post(`/users/register`)
                     .send(user)
                     .end((err, res) => {
@@ -591,7 +591,7 @@ describe('User Service Tests', () => {
             });
         }))
             .then(() => {
-                chai.request(server)
+                chai.request(app)
                     .get(`/users/${researcher.email}/${researcher.platform}`)
                     .end((err, res) => {
                         res.should.have.status(403);
@@ -613,7 +613,7 @@ describe('User Service Tests', () => {
 
         Promise.all(usersArr.map((user) => {
             return new Promise((resolve) => {
-                chai.request(server)
+                chai.request(app)
                     .post(`/users/register`)
                     .send(user)
                     .end((err, res) => {
@@ -627,7 +627,7 @@ describe('User Service Tests', () => {
             })
         }))
             .then(() => {
-                const res = chai.request(server)
+                const res = chai.request(app)
                     .delete(`/users/${admin2.email}/${admin2.platform}`);
                 res.should.have.status(200);
                 res.should.have.property('text');
@@ -637,7 +637,7 @@ describe('User Service Tests', () => {
             });
 
         // Register and login admin before each test
-        chai.request(server)
+        chai.request(app)
             .post('/users/register')
             .send(admin1)
             .end((err, res) => {
@@ -645,7 +645,7 @@ describe('User Service Tests', () => {
                 res.body.should.be.a('object');
 
                 // Login in the admin
-                chai.request(server)
+                chai.request(app)
                     .post('/users/login')
                     .send(admin1)
                     .end((err, res) => {
@@ -668,7 +668,7 @@ describe('User Service Tests', () => {
 
         Promise.all(usersArr.map((user) => {
             return new Promise((resolve) => {
-                chai.request(server)
+                chai.request(app)
                     .post(`/users/register`)
                     .send(user)
                     .end((err, res) => {
@@ -682,7 +682,7 @@ describe('User Service Tests', () => {
             })
         }))
             .then(() => {
-                chai.request(server)
+                chai.request(app)
                     .delete(`/users/${researcher.email}/${researcher.platform}`)
                     .end((err, res) => {
                         res.should.have.status(403);
