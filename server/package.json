@@ -11,7 +11,9 @@
     "http-errors": "^2.0.0",
     "jsonwebtoken": "^9.0.1",
     "mongoose": "^7.4.3",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "strftime": "^0.10.2",
+    "winston": "^3.11.0"
   },
   "name": "experiment_collector_server",
   "description": "An implementation to the collector system server",
@@ -20,8 +22,8 @@
   "type": "module",
   "scripts": {
     "test": "cross-env NODE_ENV=test mocha --recursive --exit",
-    "dev": "cross-env NODE_ENV=dev nodemon src/server.js",
-    "prod": "node src/server.js"
+    "dev": "cross-env NODE_ENV=dev nodemon src/app.js",
+    "prod": "node src/app.js"
   },
   "keywords": [],
   "author": "",
