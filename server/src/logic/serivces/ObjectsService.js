@@ -1,12 +1,29 @@
-import mongoose from "mongoose";
-import UserModel from "../../models/UserModel.js";
-import userConverter from "../converters/UserConverter.js";
-import createHttpError from 'http-errors';
-import Roles from "../../utils/UserRole.js";
-import ObjectModel from "../../models/ObjectModel.js";
-import objectConverter from "../converters/ObjectBoundaryConverter.js";
-import ObjectBoundary from "../../boundaries/object/ObjectBoundary.js";
-const { Error } = mongoose;
+/**
+ * Module: ObjectService.js
+ * Description: Handles object-related operations like creating, updating, and deleting objects, and also attaching objects
+ * Author: Shoval Shabi
+ */
+import mongoose from "mongoose";// Import mongoose for interacting with MongoDB
+import UserModel from "../../models/UserModel.js";// Import the UserModel for database operations related to users
+import userConverter from "../converters/UserConverter.js";// Import the userConverter for converting user objects between different formats
+import createHttpError from 'http-errors';// Import createHttpError for creating HTTP error objects
+import Roles from "../../utils/UserRole.js";// Import Roles for defining user roles and permissions
+import ObjectModel from "../../models/ObjectModel.js";// Import ObjectModel for database operations related to objects
+import objectConverter from "../converters/ObjectBoundaryConverter.js";// Import the objectConverter for converting object objects between different formats
+import ObjectBoundary from "../../boundaries/object/ObjectBoundary.js";// Import ObjectBoundary for defining the structure of object objects
+import createCustomLogger from "../../config/logger.js";// Import the configured logger for logging user-related activities
+import path from 'path';// Import path for identifying file paths, used for logging purposes
+
+
+const { Error } = mongoose;// Import the Error class from mongoose for handling database errors
+
+//Logger configuration fo the ObjectService module
+const logger = createCustomLogger({
+    moduleFilename: path.parse(new URL(import.meta.url).pathname).name,
+    logToFile: true,
+    logLevel: process.env.INFO_LOG,
+    logRotation: true
+});
 
 /**
  * @description Object Service handles object-related operations like creating, updating, and deleting objects, and also attaching objects
@@ -22,8 +39,10 @@ const objectsService = {
      * @throws {Error} Throws an error if the user creation process encounters any issues.
      */
     createObject: async (reqObjectBoundary) => {
-        if (!reqObjectBoundary)
+        if (!reqObjectBoundary) {
+            logger.error("There is no object to create")
             throw new createHttpError.BadRequest("There is no object to create");
+        }
 
         //Checking for undefined properties, alias, creationTimestamp,modificationTimestamp and location are optional
         if (!reqObjectBoundary.type ||
@@ -31,24 +50,34 @@ const objectsService = {
             !reqObjectBoundary.createdBy ||
             !reqObjectBoundary.createdBy.userId.platform ||
             !reqObjectBoundary.createdBy.userId.email ||
-            !reqObjectBoundary.objectDetails)
+            !reqObjectBoundary.objectDetails) {
+            logger.error("Some of the objects properties are undefined")
             throw new createHttpError.BadRequest("Some of the objects properties are undefined");
+        }
 
         const objectModel = await objectConverter.toModel(reqObjectBoundary);
 
         const existingUser = userConverter.toBoundary(
             await UserModel.findOne({ _id: objectModel.createdBy._id }));
 
-        if (!existingUser)
-            throw new createHttpError.NotFound("User does not found");
+        if (!existingUser) {
+            logger.error(`User with userId ${reqObjectBoundary.createdBy.userId.email + "$" + reqObjectBoundary.createdBy.userId.platform} does not exists`);
+            throw new createHttpError.NotFound("User not found");
+        }
 
-        if (!reqObjectBoundary.active && existingUser.role === Roles.PARTICIPANT)
+        if (!reqObjectBoundary.active && existingUser.role === Roles.PARTICIPANT) {
+            logger.warn(`User with userId ${reqObjectBoundary.createdBy.userId.email + "$" + reqObjectBoundary.createdBy.userId.platform} tried to create inactive object`);
             throw new createHttpError.Forbidden(`The user ${existingUser.username} does not allowed to create this kind of objects`);
+        }
 
         return objectModel.validate()
-            .then(() => objectModel.save())
+            .then(() => {
+                objectModel.save();
+                logger.info(`The user ${reqObjectBoundary.createdBy.userId.email + "$" + reqObjectBoundary.createdBy.userId.platform} successfully created an object`)
+            })
             .catch((error) => {
                 if (error instanceof Error.ValidationError) {
+                    logger.error(`Invalid input, some of the fields for creating new object are missing`);
                     throw new createHttpError.BadRequest("Invalid input, some of the fields for creating new object are missing");
                 }
                 throw error;

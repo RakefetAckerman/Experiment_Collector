@@ -5,7 +5,7 @@
  */
 
 import mongoose from "mongoose"; // Import Mongoose for interacting with MongoDB
-import UserBoundary from "../../boundaries/user/UserBoundary.js"; // Import UserBoundary for defining user data boundaries
+import UserBoundary from "../../boundaries/user/UserBoundary.js"; // Import UserBoundary for defining user data for the communication layer
 import UserModel from "../../models/UserModel.js"; // Import UserModel for interacting with the user database model
 import userConverter from "../converters/UserConverter.js"; // Import userConverter for converting user data formats
 import createHttpError from 'http-errors'; // Import createHttpError for generating HTTP error responses
@@ -15,7 +15,7 @@ import jwt from "jsonwebtoken"; // Import jwt for handling JSON Web Tokens
 import createCustomLogger from "../../config/logger.js"; // Import the configured logger for logging user-related activities
 import path from 'path'; // Import path for identifying file paths, used for logging purposes
 
-
+// Import the Error class from the mongoose module
 const { Error } = mongoose;
 
 //Logger configuration fo the UserService module
