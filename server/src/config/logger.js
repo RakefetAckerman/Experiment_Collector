@@ -42,7 +42,7 @@ const logFormat = printf(({ level, message, timestamp, moduleFilename }) => {
  * @param {boolean} [logRotation=false] - Whether to enable log rotation (optional).
  * @returns {Object} - The configured logger object.
  */
-const createCustomLogger = ({ moduleFilename, logToFile = undefined, logLevel = 'info', logRotation = false }) => {
+const createCustomLogger = ({ moduleFilename, logToFile = false, logLevel = 'info', logRotation = false }) => {
     const transportsArray = [
         // Log to the console
         new transports.Console({
