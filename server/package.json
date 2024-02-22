@@ -13,7 +13,8 @@
     "mongoose": "^7.4.3",
     "morgan": "^1.10.0",
     "strftime": "^0.10.2",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "name": "experiment_collector_server",
   "description": "An implementation to the collector system server",
@@ -23,7 +24,7 @@
   "scripts": {
     "test": "cross-env NODE_ENV=test mocha --recursive --exit",
     "dev": "cross-env NODE_ENV=dev nodemon src/app.js",
-    "prod": "node src/app.js"
+    "prod": "cross-env NODE_ENV=prod node src/app.js"
   },
   "keywords": [],
   "author": "",

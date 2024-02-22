@@ -7,6 +7,7 @@
 // Import required modules from Winston
 import { createLogger, format, transports } from 'winston';
 import strftime from 'strftime'; // Import strftime for custom date formatting
+import winstonDailyRotateFile from 'winston-daily-rotate-file'; // Import DailyRotateFile for log rotation
 
 // Destructure format object
 const { combine, timestamp, printf } = format;
@@ -29,8 +30,8 @@ const logFormat = printf(({ level, message, timestamp, moduleFilename }) => {
  * Function: createCustomLogger
  * Description: Create a custom logger.
  * @param {string} moduleFilename - The filename of the module where the logger is created.
- * @param {string} [loggingFileName='logfile.log'] - The filename for logging to a file (optional).
- * @param {string} [logLevel='trace'] - The logging level that designated to the logging file if supplied (optional). Possible values are:
+ * @param {string} [logToFile=false] - Whether to enable logging to a file (optional).
+ * @param {string} [logLevel='info'] - The logging level for both console and file if loggingFileName is supplied (optional). Possible values are:
  *                                      - error
  *                                      - warn
  *                                      - info
@@ -38,9 +39,10 @@ const logFormat = printf(({ level, message, timestamp, moduleFilename }) => {
  *                                      - verbose
  *                                      - debug
  *                                      - silly
+ * @param {boolean} [logRotation=false] - Whether to enable log rotation (optional).
  * @returns {Object} - The configured logger object.
  */
-const createCustomLogger = ({ moduleFilename, loggingFileName = undefined, logLevel = 'info' }) => {
+const createCustomLogger = ({ moduleFilename, logToFile = undefined, logLevel = 'info', logRotation = false }) => {
     const transportsArray = [
         // Log to the console
         new transports.Console({
@@ -48,14 +50,29 @@ const createCustomLogger = ({ moduleFilename, loggingFileName = undefined, logLe
         })
     ];
 
-    // Add file transport if loggingFileName is supplied
-    if (loggingFileName) {
-        transportsArray.push(
-            new transports.File({
-                filename: loggingFileName,
-                level: 'error' // Log only error levels and more severe levels to the file
-            })
-        );
+    // Add file transport if logToFile is supplied
+    if (logToFile) {
+
+        const baseLogsPath = './logs'
+        // Define log rotation options
+        const fileTransportOptions = {
+            dirname: `${baseLogsPath}/${process.env.NODE_ENV}/${moduleFilename}`, // Specify the directory for log files based on environment (test/dev/prod)
+            filename: `${moduleFilename}-%DATE%.log`, // Filename with date stamp from the date pattern down below
+            datePattern: 'DD-MMM-YYYY', // Use your desired date pattern
+            maxSize: '20m', // File's storage will be up to 20MB
+            level: 'warn' // the baseline necessary information that should stored in file logs
+        };
+
+        // Add log rotation if enabled
+        if (logRotation) {
+            fileTransportOptions.frequency = 'custom',
+                fileTransportOptions.maxFiles = '14d', // Retain log files for two weeks (14 days)
+                fileTransportOptions.auditFile = `${baseLogsPath}/${process.env.NODE_ENV}/${moduleFilename}/audit.json`, // Specify an audit file for rotation tracking
+                transportsArray.push(new winstonDailyRotateFile(fileTransportOptions));
+        } else {
+            // If log rotation is disabled, use regular file transport
+            transportsArray.push(new transports.File(fileTransportOptions));
+        }
     }
 
     return createLogger({

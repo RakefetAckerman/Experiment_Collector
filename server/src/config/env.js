@@ -15,11 +15,11 @@ dotenv.config();
 
 //Creating tailored logger for environment variables setup
 const logger = createCustomLogger({
-    moduleFilename: path.basename(new URL(import.meta.url).pathname),
-    loggingFileName: "errorLog.log",
-    logLevel: process.env.ERROR_LOG
-  });
-
+  moduleFilename: path.parse(new URL(import.meta.url).pathname).name,
+  loggingFileName: true,
+  logLevel: process.env.INFO_LOG,
+  logRotation: true
+});
 
 // Log a message indicating that environment variables are being loaded
 logger.info("Loading environment variables");

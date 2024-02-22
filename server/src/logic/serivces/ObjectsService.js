@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import UserBoundary from "../../boundaries/user/UserBoundary.js";
 import UserModel from "../../models/UserModel.js";
 import userConverter from "../converters/UserConverter.js";
 import createHttpError from 'http-errors';

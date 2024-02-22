@@ -12,10 +12,11 @@ import path from 'path';// Import the path identification for logging purposes
 
 //Creating tailored logger for database connectivity
 const logger = createCustomLogger({
-    moduleFilename: path.basename(new URL(import.meta.url).pathname),
-    loggingFileName: "errorLog.log",
-    logLevel: process.env.ERROR_LOG
-  });
+    moduleFilename: path.parse(new URL(import.meta.url).pathname).name,
+    loggingFileName: true,
+    logLevel: process.env.INFO_LOG,
+    logRotation: true
+});
 
 /**
  * Function: connectToDatabase
