@@ -22,6 +22,7 @@ import path from 'path';// Import the path identification for logging purposes
 // Create an instance of Express application
 const app = express();
 
+//Logger configuration fo the app module
 const logger = createCustomLogger({
   moduleFilename: path.parse(new URL(import.meta.url).pathname).name,
   logToFile: true,

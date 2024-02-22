@@ -1,12 +1,30 @@
-import mongoose from "mongoose";
-import UserBoundary from "../../boundaries/user/UserBoundary.js";
-import UserModel from "../../models/UserModel.js";
-import userConverter from "../converters/UserConverter.js";
-import createHttpError from 'http-errors';
-import Roles from "../../utils/UserRole.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+/**
+ * Module: UserService.js
+ * Description: Handles user-related operations like creating, updating, and deleting users.
+ * Author: Shoval Shabi
+ */
+
+import mongoose from "mongoose"; // Import Mongoose for interacting with MongoDB
+import UserBoundary from "../../boundaries/user/UserBoundary.js"; // Import UserBoundary for defining user data boundaries
+import UserModel from "../../models/UserModel.js"; // Import UserModel for interacting with the user database model
+import userConverter from "../converters/UserConverter.js"; // Import userConverter for converting user data formats
+import createHttpError from 'http-errors'; // Import createHttpError for generating HTTP error responses
+import Roles from "../../utils/UserRole.js"; // Import Roles for defining user roles and permissions
+import bcrypt from "bcrypt"; // Import bcrypt for hashing passwords
+import jwt from "jsonwebtoken"; // Import jwt for handling JSON Web Tokens
+import createCustomLogger from "../../config/logger.js"; // Import the configured logger for logging user-related activities
+import path from 'path'; // Import path for identifying file paths, used for logging purposes
+
+
 const { Error } = mongoose;
+
+//Logger configuration fo the UserService module
+const logger = createCustomLogger({
+  moduleFilename: path.parse(new URL(import.meta.url).pathname).name,
+  logToFile: true,
+  logLevel: process.env.INFO_LOG,
+  logRotation: true
+});
 
 /**
  * @description User Service handles user-related operations like creating, updating, and deleting users.
@@ -25,17 +43,22 @@ const userService = {
       !reqUserBoundary.userId.platform ||
       !reqUserBoundary.role ||
       !reqUserBoundary.username ||
-      !reqUserBoundary.userDetails)
-      throw new createHttpError.BadRequest("Some of the user credentials are undefined");
+      !reqUserBoundary.userDetails){
+        logger.error(`A user tried to signup with illeagal credentials`);
+        throw new createHttpError.BadRequest("Some of the user credentials are undefined");
+      }
 
-    if (!reqUserBoundary.userId || reqUserBoundary.userId.email.length === 0 || reqUserBoundary.userId.platform === 0)
+    if (!reqUserBoundary.userId || reqUserBoundary.userId.email.length === 0 || reqUserBoundary.userId.platform === 0){
+      logger.error("User has entered email or platform name as an empty string");
       throw new createHttpError.BadRequest("Email or platform name cannot be an empty string");
+    }
 
     const existingUser = await UserModel.findOne({
       'userId': reqUserBoundary.userId.email + "$" + reqUserBoundary.userId.platform
     });
 
     if (existingUser) {
+      logger.info(`The user already exits with the credentials email:${reqUserBoundary.userId.email} paltform:${reqUserBoundary.userId.platform}`);
       return userService.login(reqUserBoundary);
     }
 
@@ -47,14 +70,20 @@ const userService = {
         if (userModel.role !== Roles.PARTICIPANT) {
           const salt = await bcrypt.genSalt();
           if (!userModel.userDetails.hasOwnProperty('password')) {
+            logger.error(`User with role ${userModel.role} did not attach password for encryption`);
             throw new Error.ValidationError();
           }
           userModel.userDetails.password = await bcrypt.hash(userModel.userDetails.password, salt);
+          logger.info(`Encrypted the user [${userModel.userId}] password`);
         }
       })
-      .then(() => userModel.save())
+      .then(() => {
+        userModel.save();
+        logger.info(`Saved user [${userModel.userId}] successfully to database`);
+      })
       .catch((error) => {
         if (error instanceof Error.ValidationError) {
+          logger.error(`Invalid input, some of the fields for creating new user are missing"`);
           throw new createHttpError.BadRequest("Invalid input, some of the fields for creating new user are missing");
         }
         throw error;
@@ -74,11 +103,15 @@ const userService = {
       !reqUserBoundary.userId.platform ||
       !reqUserBoundary.role ||
       !reqUserBoundary.username ||
-      !reqUserBoundary.userDetails)
-      throw new createHttpError.BadRequest("Some of the user credentials are undefined");
+      !reqUserBoundary.userDetails){
+        logger.error(`A user tried to sign in with illeagal credentials`);
+        throw new createHttpError.BadRequest("Some of the user credentials are undefined");
+      }
 
-    if (!reqUserBoundary.userId || reqUserBoundary.userId.email.length === 0 || reqUserBoundary.userId.platform === 0)
+    if (!reqUserBoundary.userId || reqUserBoundary.userId.email.length === 0 || reqUserBoundary.userId.platform === 0){
+      logger.error("User has entered email or platform name as an empty string");
       throw new createHttpError.BadRequest("Email or platform name cannot be an empty string");
+    }
 
     const existingUserModel = await UserModel.findOne({
       'userId': reqUserBoundary.userId.email + "$" + reqUserBoundary.userId.platform
@@ -89,23 +122,30 @@ const userService = {
     * as Admin and Reseacher, which there users will have to go through signup and then login, the Particpants
     * in other case will have to go everytimy by signup, if they are exist the server will return them 
     */
-    if (!existingUserModel)
+    if (!existingUserModel){
+      logger.error(`User with userId ${reqUserBoundary.userId.email + "$" + reqUserBoundary.userId.platform} does not exists`);
       throw new createHttpError.NotFound("User does not exists");
+    }
 
     if (existingUserModel.role && existingUserModel.role !== Roles.PARTICIPANT) {
       let isMatch = false;
       if (reqUserBoundary.userDetails && reqUserBoundary.userDetails.password)
         isMatch = await bcrypt.compare(reqUserBoundary.userDetails.password, existingUserModel.userDetails.password);
-      else
+      else{
+        logger.error(`User with userId ${existingUserModel.userId} has entered invalid credentials, missing password`);
         throw new createHttpError.BadRequest("Invalid credentials, missing password");
+      }
 
-      if (!isMatch)
+      if (!isMatch){
+        logger.warn(`User with userId ${existingUserModel.userId} has entered invalid password`);
         throw new createHttpError.BadRequest("Invalid credentials");
+      }
 
       const token = jwt.sign({ id: existingUserModel._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION });
       const userBoundary = userConverter.toBoundary(existingUserModel);
-      // delete userBoundary.userDetails.password;
       const date = new Date();
+
+      logger.info(`User with userId ${existingUserModel.userId} successfully signed in into the system`);
       return {
         jwtToken: token,
         body: userBoundary,
@@ -125,15 +165,19 @@ const userService = {
    * @throws {Error} Throws an error if the update process encounters any issues.
    */
   updateUser: async (userEmail, userPlatform, updateUser) => {
-    if (userEmail.length === 0 || userPlatform.platform === 0)
+    if (userEmail.length === 0 || userPlatform.platform === 0){
+      logger.error(`A user tried to edit his information with illeagal credentials`);
       throw new createHttpError.BadRequest("Email or platform name cannot be an empty string");
+    }
 
     const existingUserModel = await UserModel.findOne({
       'userId': userEmail + "$" + userPlatform
     });
 
-    if (!existingUserModel)
+    if (!existingUserModel){
+      logger.error(`User with userId ${userEmail + "$" + userPlatform} does not exists`);
       throw new createHttpError.NotFound("User does not exists");
+    }
 
     if (updateUser.username && updateUser.username.length > 0)
       existingUserModel.username = updateUser.username;
@@ -150,6 +194,7 @@ const userService = {
       };
     }
     existingUserModel.save();
+    logger.info(`User with userId ${existingUserModel.userId} successfully updated his information`);
     return userConverter.toBoundary(existingUserModel);
   },
   /**
@@ -166,15 +211,20 @@ const userService = {
       'userId': userEmail + "$" + userPlatform
     });
 
-    if (!existingUserModel)
+    if (!existingUserModel){
+      logger.error(`User with userId ${userEmail + "$" + userPlatform} does not exists`);
       throw new createHttpError.NotFound("User does not exists");
+    }
 
     if (existingUserModel.role && existingUserModel.role === Roles.ADMIN) {
       const usersArr = await UserModel.find();
+      logger.info(`User with userId ${existingUserModel.userId} successfully retrieved all users`);
       return usersArr;
     }
-    else
+    else{
+      logger.error(`User with userId ${userEmail + "$" + userPlatform} tried to retrieve all users without while he is not authorized`);
       throw new createHttpError.Forbidden("You are not allowed to make this request");
+    }
   },
   /**
    * Deletes all users (only accessible to Admins).
@@ -190,15 +240,20 @@ const userService = {
       'userId': userEmail + "$" + userPlatform
     });
 
-    if (!existingUserModel)
+    if (!existingUserModel){
+      logger.error(`User with userId ${userEmail + "$" + userPlatform} does not exists`);
       throw new createHttpError.NotFound("User does not exists");
+    }
 
     if (existingUserModel.role === Roles.ADMIN) {
       const usersArr = await UserModel.deleteMany();
+      logger.info(`User with userId ${existingUserModel.userId} successfully deleted all users`);
       return usersArr;
     }
-    else
+    else{
+      logger.error(`User with userId ${userEmail + "$" + userPlatform} tried to delete all users without while he is not authorized`);
       throw new createHttpError.Forbidden("You are not allowed to make this request");
+    }
   }
 };
 
