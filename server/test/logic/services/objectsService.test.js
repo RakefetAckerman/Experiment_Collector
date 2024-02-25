@@ -234,6 +234,217 @@ describe('Objects Service Tests', () => {
 
     it('should update an object', (done) => {
         const otherObj = { ...researcherObj };
+        otherObj.objectDetails = { ...researcherObj.objectDetails }
+        let objID;
+
+        chai.request(app)
+            .post('/objects')
+            .send(researcherObj)
+            .then((res) => {
+                res.should.have.status(201);
+                res.body.should.be.a('object');
+                res.body.should.have.property('objectId');
+                res.body.objectId.should.have.property('internalObjectId');
+                objID = res.body.objectId.internalObjectId;
+
+                otherObj.type = 'newType';
+                otherObj.alias = 'newAlias';
+                otherObj.active = false;
+                otherObj.objectDetails.key1 = 0
+
+                return chai.request(app)
+                    .put(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .send(otherObj);
+            })
+            .then((putRes) => {
+                putRes.should.have.status(200);
+                putRes.body.should.be.empty;
+
+                // Make the GET request inside the .then() block
+                return chai.request(app)
+                    .get(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`);
+            })
+            .then((getRes) => {
+                getRes.should.have.status(200);
+                getRes.body.should.not.be.empty;
+                getRes.body.should.have.a.property('objectId');
+                getRes.body.objectId.should.have.property('internalObjectId');
+                getRes.body.objectId.internalObjectId.should.be.equal(objID);
+                getRes.body.should.have.a.property('type');
+                getRes.body.type.should.be.equal(otherObj.type);
+                getRes.body.should.have.a.property('alias');
+                getRes.body.alias.should.be.equal(otherObj.alias);
+                getRes.body.should.have.a.property('active');
+                getRes.body.active.should.be.equal(otherObj.active);
+                getRes.body.should.have.a.property('objectDetails');
+                getRes.body.objectDetails.should.have.a.property('key1');
+                getRes.body.objectDetails.key1.should.be.equal(otherObj.objectDetails.key1);
+
+                // Call done() after all assertions have been made
+                done();
+            })
+            .catch((error) => {
+                done(error);
+            });
+    });
+
+    it('should not update update an object, the user is participant', (done) => {
+        const otherObj = { ...researcherObj };
+        otherObj.objectDetails = { ...researcherObj.objectDetails }
+        let objID;
+
+        chai.request(app)
+            .post('/objects')
+            .send(researcherObj)
+            .then((res) => {
+                res.should.have.status(201);
+                res.body.should.be.a('object');
+                res.body.should.have.property('objectId');
+                res.body.objectId.should.have.property('internalObjectId');
+                objID = res.body.objectId.internalObjectId;
+
+                otherObj.type = 'newType';
+                otherObj.alias = 'newAlias';
+                otherObj.active = false;
+                otherObj.objectDetails.key1 = 0
+
+                return chai.request(app)
+                    .put(`/objects/${objID}?email=${participant.email}&platform=${participant.platform}`)
+                    .send(otherObj);
+            })
+            .then((putRes) => {
+                putRes.should.have.status(403);
+
+                // Make the GET request inside the .then() block
+                return chai.request(app)
+                    .get(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`);
+            })
+            .then((getRes) => {
+                // The proof that the object has not changed at all
+                getRes.should.have.status(200);
+                getRes.body.should.not.be.empty;
+                getRes.body.should.have.a.property('objectId');
+                getRes.body.objectId.should.have.property('internalObjectId');
+                getRes.body.objectId.internalObjectId.should.be.equal(objID);
+                getRes.body.should.have.a.property('type');
+                getRes.body.type.should.be.equal(researcherObj.type);
+                getRes.body.should.have.a.property('alias');
+                getRes.body.alias.should.be.equal(researcherObj.alias);
+                getRes.body.should.have.a.property('active');
+                getRes.body.active.should.be.equal(researcherObj.active);
+                getRes.body.should.have.a.property('objectDetails');
+                getRes.body.objectDetails.should.have.a.property('key1');
+                getRes.body.objectDetails.key1.should.be.equal(researcherObj.objectDetails.key1);
+
+                // Call done() after all assertions have been made
+                done();
+            })
+            .catch((error) => {
+                done(error);
+            });
+    });
+
+    it('should not update update an object, the object does not exists', (done) => {
+        const otherObj = { ...researcherObj };
+        otherObj.objectDetails = { ...researcherObj.objectDetails}
+        let objID;
+    
+        chai.request(app)
+            .post('/objects')
+            .send(researcherObj)
+            .then((res) => {
+                res.should.have.status(201);
+                res.body.should.be.a('object');
+                res.body.should.have.property('objectId');
+                res.body.objectId.should.have.property('internalObjectId');
+                objID = '123';
+    
+                otherObj.type = 'newType';
+                otherObj.alias = 'newAlias';
+                otherObj.active = false;
+                otherObj.objectDetails.key1 = 0
+    
+                return chai.request(app)
+                    .put(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .send(otherObj);
+            })
+            .then((putRes) => {
+                putRes.should.have.status(400);
+                done();
+            })            
+            .catch((error) => {
+                done(error);
+            });
+    });
+
+    it('should not update update an object, given an empty type string', (done) => {
+        const otherObj = { ...researcherObj };
+        otherObj.objectDetails = { ...researcherObj.objectDetails}
+        let objID;
+    
+        chai.request(app)
+            .post('/objects')
+            .send(researcherObj)
+            .then((res) => {
+                res.should.have.status(201);
+                res.body.should.be.a('object');
+                res.body.should.have.property('objectId');
+                res.body.objectId.should.have.property('internalObjectId');
+                objID = res.body.objectId.internalObjectId;
+    
+                otherObj.type = '';
+                otherObj.alias = 'newAlias';
+                otherObj.active = false;
+                otherObj.objectDetails.key1 = 0
+    
+                return chai.request(app)
+                    .put(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .send(otherObj);
+            })
+            .then((putRes) => {
+                putRes.should.have.status(403);
+                done();
+            })            
+            .catch((error) => {
+                done(error);
+            });
+    });
+
+    it('should not update update an object, given an empty alias string', (done) => {
+        const otherObj = { ...researcherObj };
+        otherObj.objectDetails = { ...researcherObj.objectDetails}
+        let objID;
+    
+        chai.request(app)
+            .post('/objects')
+            .send(researcherObj)
+            .then((res) => {
+                res.should.have.status(201);
+                res.body.should.be.a('object');
+                res.body.should.have.property('objectId');
+                res.body.objectId.should.have.property('internalObjectId');
+                objID = res.body.objectId.internalObjectId;
+    
+                otherObj.type = 'newType';
+                otherObj.alias = '';
+                otherObj.active = false;
+                otherObj.objectDetails.key1 = 0
+    
+                return chai.request(app)
+                    .put(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .send(otherObj);
+            })
+            .then((putRes) => {
+                putRes.should.have.status(403);
+                done();
+            })            
+            .catch((error) => {
+                done(error);
+            });
+    });
+
+    it('should not update update an object, given a new creation timestamp', (done) => {
+        const otherObj = { ...researcherObj };
         otherObj.objectDetails = { ...researcherObj.objectDetails}
         let objID;
     
@@ -251,41 +462,19 @@ describe('Objects Service Tests', () => {
                 otherObj.alias = 'newAlias';
                 otherObj.active = false;
                 otherObj.objectDetails.key1 = 0
+                otherObj.creationTimestamp = new Date();
     
                 return chai.request(app)
                     .put(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
                     .send(otherObj);
             })
             .then((putRes) => {
-                putRes.should.have.status(200);
-                putRes.body.should.be.empty;
-            
-                // Make the GET request inside the .then() block
-                return chai.request(app)
-                    .get(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`);
-            })            
-            .then((getRes) => {
-                getRes.should.have.status(200);
-                getRes.body.should.not.be.empty;
-                getRes.body.should.have.a.property('objectId');
-                getRes.body.objectId.should.have.property('internalObjectId');
-                getRes.body.objectId.internalObjectId.should.be.equal(objID);
-                getRes.body.should.have.a.property('type');
-                getRes.body.type.should.be.equal(otherObj.type);
-                getRes.body.should.have.a.property('alias');
-                getRes.body.alias.should.be.equal(otherObj.alias);
-                getRes.body.should.have.a.property('active');
-                getRes.body.active.should.be.equal(otherObj.active);
-                getRes.body.should.have.a.property('objectDetails');
-                getRes.body.objectDetails.should.have.a.property('key1');
-                getRes.body.objectDetails.key1.should.be.equal(otherObj.objectDetails.key1);
-                
-                // Call done() after all assertions have been made
+                putRes.should.have.status(403);
                 done();
-            })
+            })            
             .catch((error) => {
                 done(error);
             });
     });
-    
+
 });
