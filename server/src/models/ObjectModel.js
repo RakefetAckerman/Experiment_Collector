@@ -83,7 +83,7 @@ const ObjectSchema = new mongoose.Schema({
     children: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "ObjectBoundary",
+            ref: "ObjectEntity",
             default: [],
             required: true,
         }
@@ -95,7 +95,7 @@ const ObjectSchema = new mongoose.Schema({
     parents: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "ObjectBoundary",
+            ref: "ObjectEntity",
             default: [],
             required: true,
         }
@@ -111,7 +111,7 @@ const ObjectSchema = new mongoose.Schema({
  * Mongoose model based on the ObjectSchema schema.
  * @type {Model}
  */
-const ObjectModel = mongoose.model("ObjectBoundary", ObjectSchema);
+const ObjectModel = mongoose.model("ObjectEntity", ObjectSchema);
 
 /**
  * Exporting the ObjectModel for further use by other modules if needed.

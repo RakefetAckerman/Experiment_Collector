@@ -13,6 +13,7 @@ import objectConverter from "../converters/ObjectBoundaryConverter.js";// Import
 import ObjectBoundary from "../../boundaries/object/ObjectBoundary.js";// Import ObjectBoundary for defining the structure of object objects
 import createCustomLogger from "../../config/logger.js";// Import the configured logger for logging user-related activities
 import path from 'path';// Import path for identifying file paths, used for logging purposes
+import { error } from "console";
 
 
 const { Error } = mongoose;// Import the Error class from mongoose for handling database errors
@@ -102,34 +103,52 @@ const objectsService = {
                 'userId': userEmail + "$" + userPlatform
             }));
 
-        if (!existingUser)
-            throw new createHttpError.NotFound("User does not exists");
+        if (!existingUser) {
+            logger.error(`User with userId ${userEmail + "$" + userPlatform} does not exists`);
+            throw new createHttpError.NotFound("User not found");
+        }
 
-        if (existingUser.role === Roles.PARTICIPANT)
+        if (existingUser.role === Roles.PARTICIPANT) {
+            logger.warn(`User with userId: ${existingUser.userId} with role: ${existingUser.role} tried to update an object while he is not allowed to`);
             throw new createHttpError.Forbidden(`The user ${existingUser.username} not allowed to update objects`);
+        }
 
-        const existingObject = await ObjectModel.findOne({ _id: internalObjectId });
+        if (!mongoose.Types.ObjectId.isValid(internalObjectId)) {
+            // Handle the case where internalObjectId is not a valid ObjectId
+            logger.error(`InternalObjectId is not a valid ObjectId:${internalObjectId}`);
+            throw new createHttpError.BadRequest("InternalObjectId is not a valid ObjectId");
+        } 
 
-        if (!existingObject)
+        const existingObject = await ObjectModel.findOne({ _id: internalObjectId });       
+
+        if (!existingObject) {
+            logger.error(`Object does not exists with internalObjectId:${internalObjectId}`);
             throw new createHttpError.NotFound("Object does not exists");
+        }
 
-        if (objectToUpdate.type) {
-            if (objectToUpdate.type.length === 0)
+        if (objectToUpdate.type != null) {
+            if (objectToUpdate.type.length === 0) {
+                logger.error(`The user ${existingUser.userId} tried to update an object type should with an empty string`);
                 throw new createHttpError.Forbidden("Object type should not be an empty string");
+            }
             existingObject.type = objectToUpdate.type;
         }
 
-        if (objectToUpdate.alias) {
-            if (objectToUpdate.alias.length === 0)
+        if (objectToUpdate.alias != null) {
+            if (objectToUpdate.alias.length === 0) {
+                logger.error(`The user ${existingUser.userId} tried to update an object alias should with an empty string`);
                 throw new createHttpError.Forbidden("Object alias should not be an empty string");
+            }
             existingObject.alias = objectToUpdate.alias;
         }
 
-        if (objectToUpdate.active !== undefined)
+        if (objectToUpdate.active !== null)
             existingObject.active = objectToUpdate.active;
 
-        if (objectToUpdate.creationTimestamp)
+        if (objectToUpdate.creationTimestamp) {
+            logger.error(`The user ${existingUser.userId} tried to update an object creation timestamp`);
             throw new createHttpError.Forbidden("Creation timestamp cannot be changed");
+        }
 
         if (objectToUpdate.location) {
             if (objectToUpdate.location.lat)
@@ -147,9 +166,13 @@ const objectsService = {
         }
 
         existingObject.validate()
-            .then(() => existingObject.save())
+            .then(() => {
+                existingObject.save();
+                logger.info(`Successfully updtated an object with internalObjectId:${internalObjectId} by the user ${existingUser.userId}`)
+            })
             .catch((error) => {
                 if (error instanceof Error.ValidationError) {
+                    log.error(`Invalid input, some of the fields for updating new object are missing for updating object with internalObjectId:${internalObjectId}`)
                     throw new createHttpError.BadRequest("Invalid input, some of the fields for updating new object are missing");
                 }
                 throw error;
@@ -171,17 +194,25 @@ const objectsService = {
             'userId': userEmail + "$" + userPlatform
         });
 
-        if (!existingUser)
-            throw new createHttpError.NotFound("User does not exists");
+        if (!existingUser) {
+            logger.error(`User with userId ${userEmail + "$" + userPlatform} does not exists`);
+            throw new createHttpError.NotFound("User not found");
+        }
 
         const existingObject = await ObjectModel.findOne({ _id: internalObjectId });
 
-        if (!existingObject)
+        if (!existingObject) {
+            logger.error(`Object does not exists with internalObjectId:${internalObjectId}`);
             throw new createHttpError.NotFound("Object does not exists");
+        }
 
 
-        if (existingUser.role === Roles.PARTICIPANT && !existingObject.active)
-            throw new createHttpError.Forbidden(`The user ${existingUser.username} is not allowed to retrieve this object`);
+        if (existingUser.role === Roles.PARTICIPANT && !existingObject.active) {
+            logger.error(`User with userId ${existingUser.userId} tried to retrieve an inactive object`);
+            throw new createHttpError.Forbidden(`The user ${existingUser.userId} is not allowed to retrieve this object`);
+        }
+
+        logger.info(`User with userId ${existingUser.userId} successfully retrieved an object with internalObjectId ${internalObjectId}`);
 
         return objectConverter.toBoundary(existingObject);
     },
@@ -201,13 +232,19 @@ const objectsService = {
             'userId': userEmail + "$" + userPlatform
         });
 
-        /*if (!existingUser)
-            throw new createHttpError.NotFound("User does not exists");*/
+        if (!existingUser) {
+            logger.error(`User with userId ${userEmail + "$" + userPlatform} does not exists`);
+            throw new createHttpError.NotFound("User not found");
+        }
 
         if (existingUser.role !== Roles.PARTICIPANT) {
             const allObjectsArr = await ObjectModel.find();
-            //console.log("hereeeeeeeeeee ",userEmail," ", userPlatform);
+            logger.info(`User with userId ${existingUser.userId} successfully retrieved all objects`);
             return Promise.all(allObjectsArr.map(object => objectConverter.toBoundary(object)));
+        }
+        else {
+            logger.error(`User with userId ${existingUser.userId} tried to retrieve all objects while he is not allowed to`);
+            throw new createHttpError.Forbidden(`The user ${existingUser.userId} is not allowed to retrieve all objects`);
         }
     },
     /**
@@ -224,15 +261,20 @@ const objectsService = {
             'userId': userEmail + "$" + userPlatform
         });
 
-        if (!existingUser)
-            throw new createHttpError.NotFound("User does not exists");
+        if (!existingUser) {
+            logger.error(`User with userId ${userEmail + "$" + userPlatform} does not exists`);
+            throw new createHttpError.NotFound("User not found");
+        }
 
         if (existingUser.role === Roles.ADMIN) {
             const allObjectsArr = await ObjectModel.deleteMany();
+            logger.info(`User with userId ${existingUser.userId} successfully deleted all objects`);
             return allObjectsArr;
         }
-        else
+        else {
+            logger.error(`User with userId ${existingUser.userId} tried to delete all objects while he is not allowed to`);
             throw new createHttpError.Forbidden("You are not allowed to make this request");
+        }
     },
     /**
     * Binds between two objects (accessible to any user except Participant).
@@ -251,27 +293,36 @@ const objectsService = {
             'userId': userEmail + "$" + userPlatform
         });
 
-        if (!existingUser)
-            throw new createHttpError.NotFound("User does not exists");
+        if (!existingUser) {
+            logger.error(`User with userId ${userEmail + "$" + userPlatform} does not exists`);
+            throw new createHttpError.NotFound("User not found");
+        }
 
-        if (existingUser.role === Roles.PARTICIPANT)
+        if (existingUser.role === Roles.PARTICIPANT) {
+            logger.error(`User with userId ${existingUser.userId} tried to bind one object to another while he is not allowed to`);
             throw new createHttpError.Forbidden("You are not allowed to make this request");
+        }
 
         const childObj = await ObjectModel.findOne({ _id: objectIdBoundary.internalObjectId });
 
-        if (!childObj)
+        if (!childObj) {
+            logger.error(`Child object does not exists with internalObjectId:${objectIdBoundary.internalObjectId}`);
             throw new createHttpError.NotFound("Child object does not exists");
+        }
 
         const parentObj = await ObjectModel.findOne({ _id: internalObjectId });
 
-        if (!parentObj)
+        if (!parentObj) {
+            logger.error(`Parent object does not exists with internalObjectId:${internalObjectId}`);
             throw new createHttpError.NotFound("Parent object does not exists");
+        }
 
         parentObj.children.push(childObj);
         childObj.parents.push(parentObj);
 
         childObj.save();
         parentObj.save();
+        logger.info(`User with userId ${existingUser.userId} successfully bind parent object:${internalObjectId} to a child object:${objectIdBoundary.internalObjectId} and vice versa`);
     },
     /**
      * Unbinds between two objects (accessible to any user except Participant).
@@ -290,21 +341,29 @@ const objectsService = {
             'userId': userEmail + "$" + userPlatform
         });
 
-        if (!existingUser)
-            throw new createHttpError.NotFound("User does not exists");
+        if (!existingUser) {
+            logger.error(`User with userId ${userEmail + "$" + userPlatform} does not exists`);
+            throw new createHttpError.NotFound("User not found");
+        }
 
-        if (existingUser.role === Roles.PARTICIPANT)
+        if (existingUser.role === Roles.PARTICIPANT) {
+            logger.error(`User with userId ${existingUser.userId} tried to bind one object to another while he is not allowed to`);
             throw new createHttpError.Forbidden("You are not allowed to make this request");
+        }
 
         const childObj = await ObjectModel.findOne({ _id: objectIdBoundary.internalObjectId });
 
-        if (!childObj)
+        if (!childObj) {
+            logger.error(`Child object does not exists with internalObjectId:${objectIdBoundary.internalObjectId}`);
             throw new createHttpError.NotFound("Child object does not exists");
+        }
 
         const parentObj = await ObjectModel.findOne({ _id: internalObjectId });
 
-        if (!parentObj)
+        if (!parentObj) {
+            logger.error(`Parent object does not exists with internalObjectId:${internalObjectId}`);
             throw new createHttpError.NotFound("Parent object does not exists");
+        }
 
         parentObj.children = parentObj.
             children.
@@ -316,6 +375,8 @@ const objectsService = {
 
         childObj.save();
         parentObj.save();
+        logger.info(`User with userId ${existingUser.userId} successfully unbind parent object:${internalObjectId} to a child object:${objectIdBoundary.internalObjectId} and vice versa`);
+
     },
     /**
      * Gets all the children objects of certain object, accessible to any user.
@@ -334,15 +395,20 @@ const objectsService = {
             'userId': userEmail + "$" + userPlatform
         });
 
-        if (!existingUser)
-            throw new createHttpError.NotFound("User does not exists");
+        if (!existingUser) {
+            logger.error(`User with userId ${userEmail + "$" + userPlatform} does not exists`);
+            throw new createHttpError.NotFound("User not found");
+        }
 
         const parentObj = await ObjectModel.findOne({ _id: internalObjectId });
 
-        if (!parentObj)
+        if (!parentObj) {
+            logger.error(`Parent object does not exists with internalObjectId:${internalObjectId}`);
             throw new createHttpError.NotFound("Object does not exists");
+        }
 
         if (existingUser.role === Roles.PARTICIPANT) {
+            logger.info(`User with userId ${existingUser.userId} successfully retrieved all children objects of parent object:${internalObjectId}`);
             return Promise.all(parentObj.children
                 .map(async objectId => {
                     const childObj = await ObjectModel.findOne({ _id: objectId, active: true });
@@ -354,6 +420,7 @@ const objectsService = {
                 });
         }
         else {
+            logger.info(`User with userId ${existingUser.userId} successfully retrieved all children objects of parent object:${internalObjectId} which are inactive`);
             return Promise.all(parentObj.children.
                 map(async objectId => {
                     const childObj = await ObjectModel.findOne({ _id: objectId })
@@ -379,15 +446,20 @@ const objectsService = {
             'userId': userEmail + "$" + userPlatform
         });
 
-        if (!existingUser)
-            throw new createHttpError.NotFound("User does not exists");
+        if (!existingUser) {
+            logger.error(`User with userId ${userEmail + "$" + userPlatform} does not exists`);
+            throw new createHttpError.NotFound("User not found");
+        }
 
         const childObj = await ObjectModel.findOne({ _id: internalObjectId });
 
-        if (!childObj)
+        if (!childObj) {
+            logger.error(`Child object does not exists with internalObjectId:${internalObjectId}`);
             throw new createHttpError.NotFound("Object does not exists");
+        }
 
         if (existingUser.role === Roles.PARTICIPANT) {
+            logger.info(`User with userId ${existingUser.userId} successfully retrieved all parents objects of child object:${internalObjectId}`);
             return Promise.all(childObj.parents
                 .map(async objectId => {
                     const parentObj = await ObjectModel.findOne({ _id: objectId, active: true });
@@ -399,6 +471,7 @@ const objectsService = {
                 });
         }
         else {
+            logger.info(`User with userId ${existingUser.userId} successfully retrieved all parents objects of child object:${internalObjectId} which are inactive`);
             return Promise.all(childObj.parents.
                 map(async objectId => {
                     const parentObj = await ObjectModel.findOne({ _id: objectId })
@@ -424,14 +497,18 @@ const objectsService = {
             'userId': userEmail + "$" + userPlatform
         });
 
-        if (!existingUser)
-            throw new createHttpError.NotFound("User does not exists");
+        if (!existingUser) {
+            logger.error(`User with userId ${userEmail + "$" + userPlatform} does not exists`);
+            throw new createHttpError.NotFound("User not found");
+        }
 
         if (existingUser.role === Roles.PARTICIPANT) {
             const allObjType = await ObjectModel.find({ type: targetType, active: true });
+            logger.info(`User with userId ${existingUser.userId} successfully retrieved all objects of by type:${targetType} which are inactive`);
             return Promise.all(allObjType.map(async object => objectConverter.toBoundary(await object)));
         }
         const allObjType = await ObjectModel.find({ type: targetType });
+        logger.info(`User with userId ${existingUser.userId} successfully retrieved all objects of by type:${targetType}`);
         return Promise.all(allObjType.map(async object => objectConverter.toBoundary(await object)));
     }
 };
