@@ -690,14 +690,12 @@ describe('Objects Service Tests', () => {
             })
             .then(() => {
                 // Bind child objects to parent
-                return Promise.all(childArr.map((obj) => {
-                    return chai.request(app)
+                return Promise.all(childArr.map(async (obj) => {
+                    const res = await chai.request(app)
                         .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
-                        .send(obj)
-                        .then((res) => {
-                            res.should.have.status(200);
-                            res.body.should.be.empty;
-                        });
+                        .send(obj);
+                    res.should.have.status(200);
+                    res.body.should.be.empty;
                 }));
             })
             .then(() => {
@@ -723,4 +721,295 @@ describe('Objects Service Tests', () => {
                 done(error);
             });
     });
+
+    it('should not bind between two objects, the requesting user is a partcipant', (done) => {
+        const parentObj = { ...researcherObj };
+        parentObj.objectDetails = { ...researcherObj.objectDetails };
+
+        let parentObjID;
+
+        const childObj = { ...researcherObj };
+        childObj.objectDetails = { ...researcherObj.objectDetails };
+
+        chai.request(app)
+            .post(`/objects`)
+            .send(parentObj)
+            .then(async (postRes) => {
+                postRes.should.have.status(201);
+                postRes.body.should.not.be.empty;
+                postRes.body.should.have.a.property('objectId');
+                postRes.body.objectId.should.have.property('internalObjectId');
+                parentObjID = postRes.body.objectId.internalObjectId;
+
+                // Post child object
+                const res = await chai.request(app)
+                    .post(`/objects`)
+                    .send(childObj);
+                res.should.have.status(201);
+                res.body.should.not.be.empty;
+                res.body.should.have.a.property('objectId');
+                res.body.objectId.should.have.property('internalObjectId');
+            })
+            .then(async () => {
+                // Try to bind child object to parent
+                const res = await chai.request(app)
+                    .put(`/objects/${parentObjID}/bind?email=${participant.email}&platform=${participant.platform}`)
+                    .send(childObj);
+                res.should.have.status(403);
+                done();
+            });
+    });
+
+    it('should not bind between two objects, the parent object does not exist', (done) => {
+        let parentObjID = '123';
+    
+        const childObj = { ...researcherObj };
+        childObj.objectDetails = { ...researcherObj.objectDetails };
+    
+        chai.request(app)
+            .post(`/objects`)
+            .send(childObj)
+            .then(async (postRes) => {
+                postRes.should.have.status(201);
+                postRes.body.should.not.be.empty;
+                postRes.body.should.have.a.property('objectId');
+                postRes.body.objectId.should.have.property('internalObjectId');
+    
+                // Attempt to bind child object to non-existent parent
+                const res = await chai.request(app)
+                    .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                    .send(childObj);
+                res.should.have.status(404);
+            })
+            .then(() => {
+                // Call done() to indicate that the test has completed
+                done();
+            })
+            .catch((error) => {
+                // Call done() with the error if any promise rejects
+                done(error);
+            });
+    });
+
+    it('should not bind between two objects, the child object does not exist', (done) => {
+        let parentObjID;
+    
+        const parentObj = { ...researcherObj };
+        parentObj.objectDetails = { ...researcherObj.objectDetails };
+
+        let childObj;
+    
+        chai.request(app)
+            .post(`/objects`)
+            .send(parentObj)
+            .then(async (postRes) => {
+                postRes.should.have.status(201);
+                postRes.body.should.not.be.empty;
+                postRes.body.should.have.a.property('objectId');
+                postRes.body.objectId.should.have.property('internalObjectId');
+                parentObjID = postRes.body.objectId.internalObjectId;
+
+                childObj = { ...postRes.body };
+                childObj.objectDetails = { ...postRes.body.objectDetails };
+                childObj.objectId.internalObjectId = '123'
+    
+                // Attempt to bind child object to non-existent parent
+                const res = await chai.request(app)
+                    .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                    .send(childObj);
+                res.should.have.status(404);
+            })
+            .then(() => {
+                // Call done() to indicate that the test has completed
+                done();
+            })
+            .catch((error) => {
+                // Call done() with the error if any promise rejects
+                done(error);
+            });
+    });
+
+    ///////////////unbinding/////////////////////////////
+
+    it('should unbind two objects', (done) => {
+        const numObjects = 10;
+
+        const parentObj = { ...researcherObj };
+        parentObj.objectDetails = { ...researcherObj.objectDetails };
+
+        let parentObjID;
+        const reqObjArr = new Array();
+        const childArr = new Array();
+
+        for (let index = 0; index < numObjects; index++) {
+            reqObjArr.push(researcherObj);
+        }
+
+        chai.request(app)
+            .post(`/objects`)
+            .send(parentObj)
+            .then((postRes) => {
+                postRes.should.have.status(201);
+                postRes.body.should.not.be.empty;
+                postRes.body.should.have.a.property('objectId');
+                postRes.body.objectId.should.have.property('internalObjectId');
+                parentObjID = postRes.body.objectId.internalObjectId;
+
+                // Post child objects
+                return Promise.all(reqObjArr.map(async (obj) => {
+                    const res = await chai.request(app)
+                        .post(`/objects`)
+                        .send(obj);
+                    res.should.have.status(201);
+                    res.body.should.not.be.empty;
+                    res.body.should.have.a.property('objectId');
+                    res.body.objectId.should.have.property('internalObjectId');
+                    childArr.push(Object.assign(new ObjectBoundary(), res.body));
+                }));
+            })
+            .then(() => {
+                // Bind child objects to parent
+                return Promise.all(childArr.map(async (obj) => {
+                    const res = await chai.request(app)
+                        .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .send(obj);
+                    res.should.have.status(200);
+                    res.body.should.be.empty;
+                }));
+            })
+            .then(() => {
+                // Unbind child objects to parent
+                return Promise.all(childArr.map(async (obj) => {
+                    const res = await chai.request(app)
+                        .put(`/objects/${parentObjID}/unbind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .send(obj);
+                    res.should.have.status(200);
+                    res.body.should.be.empty;
+                }));
+            })
+            .then(() => {
+                // Get children of parent
+                return chai.request(app)
+                    .get(`/objects/${parentObjID}/children?email=${participant.email}&platform=${participant.platform}`)
+                    .send();
+            })
+            .then((res) => {
+                res.should.have.status(200);
+                res.body.should.be.empty;
+                res.body.should.be.a('array');
+                res.body.length.should.be.equal(0);
+                done();
+            })
+            .catch((error) => {
+                done(error);
+            });
+    });
+
+    it('should not unbind between two objects, the requesting user is a partcipant', (done) => {
+        const parentObj = { ...researcherObj };
+        parentObj.objectDetails = { ...researcherObj.objectDetails };
+
+        let parentObjID;
+
+        const childObj = { ...researcherObj };
+        childObj.objectDetails = { ...researcherObj.objectDetails };
+
+        chai.request(app)
+            .post(`/objects`)
+            .send(parentObj)
+            .then(async (postRes) => {
+                postRes.should.have.status(201);
+                postRes.body.should.not.be.empty;
+                postRes.body.should.have.a.property('objectId');
+                postRes.body.objectId.should.have.property('internalObjectId');
+                parentObjID = postRes.body.objectId.internalObjectId;
+
+                // Post child object
+                const res = await chai.request(app)
+                    .post(`/objects`)
+                    .send(childObj);
+                res.should.have.status(201);
+                res.body.should.not.be.empty;
+                res.body.should.have.a.property('objectId');
+                res.body.objectId.should.have.property('internalObjectId');
+            })
+            .then(async () => {
+                // Try to bind child object to parent
+                const res = await chai.request(app)
+                    .put(`/objects/${parentObjID}/unbind?email=${participant.email}&platform=${participant.platform}`)
+                    .send(childObj);
+                res.should.have.status(403);
+                done();
+            });
+    });
+
+    it('should not unbind between two objects, the parent object does not exist', (done) => {
+        let parentObjID = '123';
+    
+        const childObj = { ...researcherObj };
+        childObj.objectDetails = { ...researcherObj.objectDetails };
+    
+        chai.request(app)
+            .post(`/objects`)
+            .send(childObj)
+            .then(async (postRes) => {
+                postRes.should.have.status(201);
+                postRes.body.should.not.be.empty;
+                postRes.body.should.have.a.property('objectId');
+                postRes.body.objectId.should.have.property('internalObjectId');
+    
+                // Attempt to bind child object to non-existent parent
+                const res = await chai.request(app)
+                    .put(`/objects/${parentObjID}/unbind?email=${researcher.email}&platform=${researcher.platform}`)
+                    .send(childObj);
+                res.should.have.status(404);
+            })
+            .then(() => {
+                // Call done() to indicate that the test has completed
+                done();
+            })
+            .catch((error) => {
+                // Call done() with the error if any promise rejects
+                done(error);
+            });
+    });
+
+    it('should not unbind between two objects, the child object does not exist', (done) => {
+        let parentObjID;
+    
+        const parentObj = { ...researcherObj };
+        parentObj.objectDetails = { ...researcherObj.objectDetails };
+
+        let childObj;
+    
+        chai.request(app)
+            .post(`/objects`)
+            .send(parentObj)
+            .then(async (postRes) => {
+                postRes.should.have.status(201);
+                postRes.body.should.not.be.empty;
+                postRes.body.should.have.a.property('objectId');
+                postRes.body.objectId.should.have.property('internalObjectId');
+                parentObjID = postRes.body.objectId.internalObjectId;
+
+                childObj = { ...postRes.body };
+                childObj.objectDetails = { ...postRes.body.objectDetails };
+                childObj.objectId.internalObjectId = '123'
+    
+                // Attempt to bind child object to non-existent parent
+                const res = await chai.request(app)
+                    .put(`/objects/${parentObjID}/unbind?email=${researcher.email}&platform=${researcher.platform}`)
+                    .send(childObj);
+                res.should.have.status(404);
+            })
+            .then(() => {
+                // Call done() to indicate that the test has completed
+                done();
+            })
+            .catch((error) => {
+                // Call done() with the error if any promise rejects
+                done(error);
+            });
+    });
+    
 });

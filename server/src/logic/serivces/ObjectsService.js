@@ -117,9 +117,9 @@ const objectsService = {
             // Handle the case where internalObjectId is not a valid ObjectId
             logger.error(`InternalObjectId is not a valid ObjectId:${internalObjectId}`);
             throw new createHttpError.NotFound("InternalObjectId is not a valid ObjectId");
-        } 
+        }
 
-        const existingObject = await ObjectModel.findOne({ _id: internalObjectId });       
+        const existingObject = await ObjectModel.findOne({ _id: internalObjectId });
 
         if (!existingObject) {
             logger.error(`Object does not exists with internalObjectId:${internalObjectId}`);
@@ -166,8 +166,8 @@ const objectsService = {
         }
 
         existingObject.validate()
-            .then(() => {
-                existingObject.save();
+            .then(async () => {
+                await existingObject.save();
                 logger.info(`Successfully updtated an object with internalObjectId:${internalObjectId} by the user ${existingUser.userId}`)
             })
             .catch((error) => {
@@ -203,7 +203,7 @@ const objectsService = {
             // Handle the case where internalObjectId is not a valid ObjectId
             logger.error(`InternalObjectId is not a valid ObjectId:${internalObjectId}`);
             throw new createHttpError.NotFound("InternalObjectId is not a valid ObjectId");
-        } 
+        }
 
         const existingObject = await ObjectModel.findOne({ _id: internalObjectId });
 
@@ -313,7 +313,7 @@ const objectsService = {
             // Handle the case where internalObjectId is not a valid ObjectId
             logger.error(`Child internalObjectId is not a valid ObjectId:${objectIdBoundary.internalObjectId}`);
             throw new createHttpError.NotFound("InternalObjectId is not a valid ObjectId");
-        } 
+        }
 
         const childObj = await ObjectModel.findOne({ _id: objectIdBoundary.internalObjectId });
 
@@ -326,7 +326,7 @@ const objectsService = {
             // Handle the case where internalObjectId is not a valid ObjectId
             logger.error(`Parent internalObjectId is not a valid ObjectId:${internalObjectId}`);
             throw new createHttpError.NotFound("InternalObjectId is not a valid ObjectId");
-        } 
+        }
 
         const parentObj = await ObjectModel.findOne({ _id: internalObjectId });
 
@@ -338,8 +338,8 @@ const objectsService = {
         parentObj.children.push(childObj);
         childObj.parents.push(parentObj);
 
-        childObj.save();
-        parentObj.save();
+        await childObj.save();
+        await parentObj.save();
         logger.info(`User with userId ${existingUser.userId} successfully bind parent object:${internalObjectId} to a child object:${objectIdBoundary.internalObjectId} and vice versa`);
     },
     /**
@@ -369,30 +369,24 @@ const objectsService = {
             throw new createHttpError.Forbidden("You are not allowed to make this request");
         }
 
-        const childObj = await ObjectModel.findOne({ _id: objectIdBoundary.internalObjectId });
-
-        if (!childObj) {
-            logger.error(`Child object does not exists with internalObjectId:${objectIdBoundary.internalObjectId}`);
-            throw new createHttpError.NotFound("Child object does not exists");
+        if (!mongoose.Types.ObjectId.isValid(objectIdBoundary.internalObjectId)) {
+            // Handle the case where internalObjectId is not a valid ObjectId
+            logger.error(`Child internalObjectId is not a valid ObjectId:${objectIdBoundary.internalObjectId}`);
+            throw new createHttpError.NotFound("InternalObjectId is not a valid ObjectId");
         }
 
-        const parentObj = await ObjectModel.findOne({ _id: internalObjectId });
-
-        if (!parentObj) {
-            logger.error(`Parent object does not exists with internalObjectId:${internalObjectId}`);
-            throw new createHttpError.NotFound("Parent object does not exists");
+        if (!mongoose.Types.ObjectId.isValid(internalObjectId)) {
+            // Handle the case where internalObjectId is not a valid ObjectId
+            logger.error(`Parent internalObjectId is not a valid ObjectId:${internalObjectId}`);
+            throw new createHttpError.NotFound("InternalObjectId is not a valid ObjectId");
         }
 
-        parentObj.children = parentObj.
-            children.
-            filter(internalId => internalId._id.toString() !== objectIdBoundary.internalObjectId);
+        // Unbind child object from parent
+        await ObjectModel.findByIdAndUpdate(internalObjectId, { $pull: { children: objectIdBoundary.internalObjectId } });
 
-        childObj.parents = childObj.
-            parents.
-            filter(internalId => internalId._id.toString() !== parentObj._id.toString());;
+        // Unbind parent object from child
+        await ObjectModel.findByIdAndUpdate(objectIdBoundary.internalObjectId, { $pull: { parents: internalObjectId } });
 
-        childObj.save();
-        parentObj.save();
         logger.info(`User with userId ${existingUser.userId} successfully unbind parent object:${internalObjectId} to a child object:${objectIdBoundary.internalObjectId} and vice versa`);
 
     },
