@@ -116,7 +116,7 @@ const objectsService = {
         if (!mongoose.Types.ObjectId.isValid(internalObjectId)) {
             // Handle the case where internalObjectId is not a valid ObjectId
             logger.error(`InternalObjectId is not a valid ObjectId:${internalObjectId}`);
-            throw new createHttpError.BadRequest("InternalObjectId is not a valid ObjectId");
+            throw new createHttpError.NotFound("InternalObjectId is not a valid ObjectId");
         } 
 
         const existingObject = await ObjectModel.findOne({ _id: internalObjectId });       
@@ -199,6 +199,12 @@ const objectsService = {
             throw new createHttpError.NotFound("User not found");
         }
 
+        if (!mongoose.Types.ObjectId.isValid(internalObjectId)) {
+            // Handle the case where internalObjectId is not a valid ObjectId
+            logger.error(`InternalObjectId is not a valid ObjectId:${internalObjectId}`);
+            throw new createHttpError.NotFound("InternalObjectId is not a valid ObjectId");
+        } 
+
         const existingObject = await ObjectModel.findOne({ _id: internalObjectId });
 
         if (!existingObject) {
@@ -237,7 +243,7 @@ const objectsService = {
             throw new createHttpError.NotFound("User not found");
         }
 
-        if (existingUser.role !== Roles.PARTICIPANT) {
+        if (existingUser.role === Roles.ADMIN) {
             const allObjectsArr = await ObjectModel.find();
             logger.info(`User with userId ${existingUser.userId} successfully retrieved all objects`);
             return Promise.all(allObjectsArr.map(object => objectConverter.toBoundary(object)));
@@ -303,12 +309,24 @@ const objectsService = {
             throw new createHttpError.Forbidden("You are not allowed to make this request");
         }
 
+        if (!mongoose.Types.ObjectId.isValid(objectIdBoundary.internalObjectId)) {
+            // Handle the case where internalObjectId is not a valid ObjectId
+            logger.error(`Child internalObjectId is not a valid ObjectId:${objectIdBoundary.internalObjectId}`);
+            throw new createHttpError.NotFound("InternalObjectId is not a valid ObjectId");
+        } 
+
         const childObj = await ObjectModel.findOne({ _id: objectIdBoundary.internalObjectId });
 
         if (!childObj) {
             logger.error(`Child object does not exists with internalObjectId:${objectIdBoundary.internalObjectId}`);
             throw new createHttpError.NotFound("Child object does not exists");
         }
+
+        if (!mongoose.Types.ObjectId.isValid(internalObjectId)) {
+            // Handle the case where internalObjectId is not a valid ObjectId
+            logger.error(`Parent internalObjectId is not a valid ObjectId:${internalObjectId}`);
+            throw new createHttpError.NotFound("InternalObjectId is not a valid ObjectId");
+        } 
 
         const parentObj = await ObjectModel.findOne({ _id: internalObjectId });
 
