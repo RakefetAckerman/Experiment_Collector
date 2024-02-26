@@ -22,7 +22,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "cross-env NODE_ENV=test mocha --recursive --exit",
+    "test": "cross-env NODE_ENV=test PORT=0 mocha --recursive --exit",
     "dev": "cross-env NODE_ENV=dev nodemon src/app.js",
     "prod": "cross-env NODE_ENV=prod node src/app.js"
   },
