@@ -111,11 +111,35 @@ describe('Objects Service Tests', () => {
 
     });
 
-    it('should create new object by Resercher', (done) => {
+    /**
+     * Test case to verify the creation of a new object by a researcher.
+     * 
+     * @param {function} done - The callback function to signal the end of the test.
+     */
+    it('should create new object by Researcher', (done) => {
+        /*
+        Scenario: Researcher creates a new object
+            Given a researcher wants to create a new object
+            When the researcher sends a POST request to create the object
+            Then the system should respond with a 201 status code
+            And the response body should contain the created object details
+            And the created object should have all required properties
+            And the createdBy field should match the researcher's details
+        
+        Scenario: Verify the created object
+            Given the system has only one object
+            When an admin retrieves all objects
+            Then the system should respond with a 200 status code
+            And the response body should contain an array of objects
+            And the array length should be 1
+            And the retrieved object should match the created object
+        */
+
         chai.request(app)
             .post('/objects')
             .send(researcherObj)
             .end((err, res) => {
+                // Assertion for object creation
                 res.should.have.status(201);
                 res.body.should.be.a('object');
                 res.body.should.have.property('objectId');
@@ -133,11 +157,12 @@ describe('Objects Service Tests', () => {
                 res.body.createdBy.userId.email.should.equal(researcher.email);
                 const createdObj = res.body;
 
-                //getting all objects
+                // Retrieving all objects to verify the created object
                 chai.request(app)
                     .get(`/objects?email=${admin1.email}&platform=${admin1.platform}`)
                     .send()
                     .end((err, res) => {
+                        // Assertion for verifying the created object
                         res.should.have.status(200);
                         res.body.should.be.a('array');
                         res.body.should.have.lengthOf(1);
@@ -150,16 +175,34 @@ describe('Objects Service Tests', () => {
             });
     });
 
-    it('should not create new object by Resercher, the object properties are invalid', (done) => {
+    /**
+  * Test case to verify that a new object cannot be created by a researcher when the object properties are invalid.
+  * 
+  * @param {function} done - The callback function to signal the end of the test.
+  */
+    it('should not create new object by Researcher, the object properties are invalid', (done) => {
+        /*
+        Scenario: Researcher attempts to create a new object with invalid properties
+            Given a researcher wants to create a new object
+            When the researcher sends a POST request to create the object with invalid properties
+            Then the system should respond with a 400 status code
+            And the system should not create any new objects
+            And when an admin retrieves all objects
+            Then the system should respond with a 200 status code
+            And the response body should contain an empty array
+        */
+
         chai.request(app)
             .post('/objects')
             .send()
             .end((err, res) => {
+                // Assertion for invalid object creation
                 res.should.have.status(400);
                 chai.request(app)
                     .get(`/objects?email=${admin1.email}&platform=${admin1.platform}`)
                     .send()
                     .end((err, res) => {
+                        // Assertion for verifying no new objects are created
                         res.should.have.status(200);
                         res.body.should.be.a('array');
                         res.body.should.have.lengthOf(0);
@@ -169,19 +212,38 @@ describe('Objects Service Tests', () => {
     });
 
 
-    it('should not create new object by Particpant, the object is set to inactive', (done) => {
+    /**
+     * Test case to verify that a new object cannot be created by a Participant when the object is set to inactive.
+     * 
+     * @param {function} done - The callback function to signal the end of the test.
+     */
+    it('should not create new object by Participant, the object is set to inactive', (done) => {
+        /*
+        Scenario: Participant attempts to create a new object with inactive status
+            Given a participant wants to create a new object
+            When the participant sends a POST request to create the object with inactive status
+            Then the system should respond with a 403 status code
+            And the system should not create any new objects
+            And when an admin retrieves all objects
+            Then the system should respond with a 200 status code
+            And the response body should contain an empty array
+        */
+
         const otherObj = { ...participantObj };
         otherObj.createdBy = { ...participantObj.createdBy };
         otherObj.active = false;
+
         chai.request(app)
             .post('/objects')
             .send(otherObj)
             .end((err, res) => {
+                // Assertion for inactive object creation by participant
                 res.should.have.status(403);
                 chai.request(app)
                     .get(`/objects?email=${admin1.email}&platform=${admin1.platform}`)
                     .send()
                     .end((err, res) => {
+                        // Assertion for verifying no new objects are created
                         res.should.have.status(200);
                         res.body.should.be.a('array');
                         res.body.should.have.lengthOf(0);
@@ -190,21 +252,40 @@ describe('Objects Service Tests', () => {
             });
     });
 
+    /**
+     * Test case to verify that a new object cannot be created when the user specified in the createdBy field does not exist.
+     * 
+     * @param {function} done - The callback function to signal the end of the test.
+     */
     it('should not create new object by the user, the user does not exist', (done) => {
+        /*
+        Scenario: User attempts to create a new object with a non-existent user
+            Given a user wants to create a new object
+            When the user sends a POST request to create the object with a createdBy field referencing a non-existent user
+            Then the system should respond with a 404 status code
+            And the system should not create any new objects
+            And when an admin retrieves all objects
+            Then the system should respond with a 200 status code
+            And the response body should contain an empty array
+        */
+
         const otherObj = { ...participantObj };
         otherObj.createdBy = { ...participantObj.createdBy };
         otherObj.createdBy.userId = { ...participantObj.createdBy.userId };
         otherObj.createdBy.userId.email = 'someotheremail@test.org';
         otherObj.createdBy.userId.platform = 'Builder';
+
         chai.request(app)
             .post('/objects')
             .send(otherObj)
             .end((err, res) => {
+                // Assertion for creation with non-existent user
                 res.should.have.status(404);
                 chai.request(app)
                     .get(`/objects?email=${admin1.email}&platform=${admin1.platform}`)
                     .send()
                     .end((err, res) => {
+                        // Assertion for verifying no new objects are created
                         res.should.have.status(200);
                         res.body.should.be.a('array');
                         res.body.should.have.lengthOf(0);
@@ -213,18 +294,37 @@ describe('Objects Service Tests', () => {
             });
     });
 
+    /**
+     * Test case to verify that a participant cannot create a new inactive object.
+     * 
+     * @param {function} done - The callback function to signal the end of the test.
+     */
     it('should not create new object by the user, the participant is not allowed to create inactive objects', (done) => {
+        /*
+        Scenario: Participant attempts to create a new inactive object
+            Given a participant wants to create a new object
+            When the participant sends a POST request to create the object with the active field set to false
+            Then the system should respond with a 403 status code
+            And the system should not create any new objects
+            And when an admin retrieves all objects
+            Then the system should respond with a 200 status code
+            And the response body should contain an empty array
+        */
+
         const otherObj = { ...participantObj };
         otherObj.active = false;
+
         chai.request(app)
             .post('/objects')
             .send(otherObj)
             .end((err, res) => {
+                // Assertion for creation of inactive object by participant
                 res.should.have.status(403);
                 chai.request(app)
                     .get(`/objects?email=${admin1.email}&platform=${admin1.platform}`)
                     .send()
                     .end((err, res) => {
+                        // Assertion for verifying no new objects are created
                         res.should.have.status(200);
                         res.body.should.be.a('array');
                         res.body.should.have.lengthOf(0);
@@ -233,39 +333,60 @@ describe('Objects Service Tests', () => {
             });
     });
 
+    /**
+  * Test case to verify the updating of an object.
+  * 
+  * @param {function} done - The callback function to signal the end of the test.
+  */
     it('should update an object', (done) => {
+        /*
+        Scenario: Updating an existing object
+            Given a researcher wants to update an existing object
+            When the researcher sends a PUT request with updated object details
+            Then the system should respond with a 200 status code
+            And the system should not return any response body
+            And when the researcher retrieves the updated object
+            Then the system should respond with a 200 status code
+            And the response body should contain the updated object details
+        */
+
         const otherObj = { ...researcherObj };
-        otherObj.objectDetails = { ...researcherObj.objectDetails }
+        otherObj.objectDetails = { ...researcherObj.objectDetails };
         let objID;
 
         chai.request(app)
             .post('/objects')
             .send(researcherObj)
             .then((res) => {
+                // Assertion for successful creation of the object
                 res.should.have.status(201);
                 res.body.should.be.a('object');
                 res.body.should.have.property('objectId');
                 res.body.objectId.should.have.property('internalObjectId');
                 objID = res.body.objectId.internalObjectId;
 
+                // Update object details
                 otherObj.type = 'newType';
                 otherObj.alias = 'newAlias';
                 otherObj.active = false;
-                otherObj.objectDetails.key1 = 0
+                otherObj.objectDetails.key1 = 0;
 
+                // Send PUT request to update the object
                 return chai.request(app)
                     .put(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
                     .send(otherObj);
             })
             .then((putRes) => {
+                // Assertion for successful update of the object
                 putRes.should.have.status(200);
                 putRes.body.should.be.empty;
 
-                // Make the GET request inside the .then() block
+                // Retrieve the updated object
                 return chai.request(app)
                     .get(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`);
             })
             .then((getRes) => {
+                // Assertion for retrieving the updated object
                 getRes.should.have.status(200);
                 getRes.body.should.not.be.empty;
                 getRes.body.should.have.a.property('objectId');
@@ -285,43 +406,63 @@ describe('Objects Service Tests', () => {
                 done();
             })
             .catch((error) => {
+                // Handle any errors
                 done(error);
             });
     });
 
+    /**
+  * Test case to verify that a participant cannot update an object.
+  * 
+  * @param {function} done - The callback function to signal the end of the test.
+  */
     it('should not update an object, the user is participant', (done) => {
+        /*
+        Scenario: Participant attempting to update an object
+            Given a participant wants to update an existing object
+            When the participant sends a PUT request with updated object details
+            Then the system should respond with a 403 Forbidden status code
+            And when the researcher retrieves the object
+            Then the system should respond with a 200 status code
+            And the retrieved object details should remain unchanged
+        */
+
         const otherObj = { ...researcherObj };
-        otherObj.objectDetails = { ...researcherObj.objectDetails }
+        otherObj.objectDetails = { ...researcherObj.objectDetails };
         let objID;
 
         chai.request(app)
             .post('/objects')
             .send(researcherObj)
             .then((res) => {
+                // Assertion for successful creation of the object
                 res.should.have.status(201);
                 res.body.should.be.a('object');
                 res.body.should.have.property('objectId');
                 res.body.objectId.should.have.property('internalObjectId');
                 objID = res.body.objectId.internalObjectId;
 
+                // Update object details
                 otherObj.type = 'newType';
                 otherObj.alias = 'newAlias';
                 otherObj.active = false;
-                otherObj.objectDetails.key1 = 0
+                otherObj.objectDetails.key1 = 0;
 
+                // Send PUT request to update the object by participant
                 return chai.request(app)
                     .put(`/objects/${objID}?email=${participant.email}&platform=${participant.platform}`)
                     .send(otherObj);
             })
             .then((putRes) => {
+                // Assertion for Forbidden status code when participant attempts to update
                 putRes.should.have.status(403);
 
-                // Make the GET request inside the .then() block
+                // Retrieve the object to verify it remains unchanged
                 return chai.request(app)
                     .get(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`);
             })
             .then((getRes) => {
-                // The proof that the object has not changed at all
+                // Assertion for retrieving the unchanged object
                 getRes.should.have.status(200);
                 getRes.body.should.not.be.empty;
                 getRes.body.should.have.a.property('objectId');
@@ -341,161 +482,245 @@ describe('Objects Service Tests', () => {
                 done();
             })
             .catch((error) => {
+                // Handle any errors
                 done(error);
             });
     });
 
-    it('should not update an object, the object does not exists', (done) => {
+    /**
+  * Test case to verify that an object cannot be updated if it does not exist.
+  * 
+  * @param {function} done - The callback function to signal the end of the test.
+  */
+    it('should not update an object, the object does not exist', (done) => {
+        /*
+        Scenario: Updating a non-existent object
+            Given an attempt is made to update a non-existent object
+            When a PUT request is sent with updated object details
+            Then the system should respond with a 404 Not Found status code
+        */
+
         const otherObj = { ...researcherObj };
-        otherObj.objectDetails = { ...researcherObj.objectDetails }
+        otherObj.objectDetails = { ...researcherObj.objectDetails };
         let objID;
 
         chai.request(app)
             .post('/objects')
             .send(researcherObj)
             .then((res) => {
+                // Assertion for successful creation of the object
                 res.should.have.status(201);
                 res.body.should.be.a('object');
                 res.body.should.have.property('objectId');
                 res.body.objectId.should.have.property('internalObjectId');
-                objID = '123';
+                objID = '123'; // Assigning a non-existent object ID
 
+                // Update object details
                 otherObj.type = 'newType';
                 otherObj.alias = 'newAlias';
                 otherObj.active = false;
-                otherObj.objectDetails.key1 = 0
+                otherObj.objectDetails.key1 = 0;
 
+                // Send PUT request to update the non-existent object
                 return chai.request(app)
                     .put(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
                     .send(otherObj);
             })
             .then((putRes) => {
+                // Assertion for Not Found status code when attempting to update non-existent object
                 putRes.should.have.status(404);
                 done();
             })
             .catch((error) => {
+                // Handle any errors
                 done(error);
             });
     });
 
+    /**
+     * Test case to verify that an object cannot be updated if the type string is empty.
+     * 
+     * @param {function} done - The callback function to signal the end of the test.
+     */
     it('should not update an object, given an empty type string', (done) => {
+        /*
+        Scenario: Attempting to update an object with an empty type string
+            Given an attempt is made to update an object with an empty type string
+            When a PUT request is sent with updated object details
+            Then the system should respond with a 403 Forbidden status code
+        */
+
         const otherObj = { ...researcherObj };
-        otherObj.objectDetails = { ...researcherObj.objectDetails }
+        otherObj.objectDetails = { ...researcherObj.objectDetails };
         let objID;
 
         chai.request(app)
             .post('/objects')
             .send(researcherObj)
             .then((res) => {
+                // Assertion for successful creation of the object
                 res.should.have.status(201);
                 res.body.should.be.a('object');
                 res.body.should.have.property('objectId');
                 res.body.objectId.should.have.property('internalObjectId');
                 objID = res.body.objectId.internalObjectId;
 
+                // Update object details with empty type string
                 otherObj.type = '';
                 otherObj.alias = 'newAlias';
                 otherObj.active = false;
-                otherObj.objectDetails.key1 = 0
+                otherObj.objectDetails.key1 = 0;
 
+                // Send PUT request to update the object with empty type string
                 return chai.request(app)
                     .put(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
                     .send(otherObj);
             })
             .then((putRes) => {
+                // Assertion for Forbidden status code when updating object with empty type string
                 putRes.should.have.status(403);
                 done();
             })
             .catch((error) => {
+                // Handle any errors
                 done(error);
             });
     });
 
+    /**
+ * Test case to verify that an object cannot be updated if the alias string is empty.
+ * 
+ * @param {function} done - The callback function to signal the end of the test.
+ */
     it('should not update an object, given an empty alias string', (done) => {
+        /*
+        Scenario: Attempting to update an object with an empty alias string
+            Given an attempt is made to update an object with an empty alias string
+            When a PUT request is sent with updated object details
+            Then the system should respond with a 403 Forbidden status code
+        */
+
         const otherObj = { ...researcherObj };
-        otherObj.objectDetails = { ...researcherObj.objectDetails }
+        otherObj.objectDetails = { ...researcherObj.objectDetails };
         let objID;
 
         chai.request(app)
             .post('/objects')
             .send(researcherObj)
             .then((res) => {
+                // Assertion for successful creation of the object
                 res.should.have.status(201);
                 res.body.should.be.a('object');
                 res.body.should.have.property('objectId');
                 res.body.objectId.should.have.property('internalObjectId');
                 objID = res.body.objectId.internalObjectId;
 
+                // Update object details with empty alias string
                 otherObj.type = 'newType';
                 otherObj.alias = '';
                 otherObj.active = false;
-                otherObj.objectDetails.key1 = 0
+                otherObj.objectDetails.key1 = 0;
 
+                // Send PUT request to update the object with empty alias string
                 return chai.request(app)
                     .put(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
                     .send(otherObj);
             })
             .then((putRes) => {
+                // Assertion for Forbidden status code when updating object with empty alias string
                 putRes.should.have.status(403);
                 done();
             })
             .catch((error) => {
+                // Handle any errors
                 done(error);
             });
     });
 
+    /**
+ * Test case to verify that an object cannot be updated with a new creation timestamp.
+ * 
+ * @param {function} done - The callback function to signal the end of the test.
+ */
     it('should not update an object, given a new creation timestamp', (done) => {
+        /*
+        Scenario: Attempting to update an object with a new creation timestamp
+            Given an attempt is made to update an object with a new creation timestamp
+            When a PUT request is sent with updated object details
+            Then the system should respond with a 403 Forbidden status code
+        */
+
         const otherObj = { ...researcherObj };
-        otherObj.objectDetails = { ...researcherObj.objectDetails }
+        otherObj.objectDetails = { ...researcherObj.objectDetails };
         let objID;
 
         chai.request(app)
             .post('/objects')
             .send(researcherObj)
             .then((res) => {
+                // Assertion for successful creation of the object
                 res.should.have.status(201);
                 res.body.should.be.a('object');
                 res.body.should.have.property('objectId');
                 res.body.objectId.should.have.property('internalObjectId');
                 objID = res.body.objectId.internalObjectId;
 
+                // Update object details with a new creation timestamp
                 otherObj.type = 'newType';
                 otherObj.alias = 'newAlias';
                 otherObj.active = false;
-                otherObj.objectDetails.key1 = 0
+                otherObj.objectDetails.key1 = 0;
                 otherObj.creationTimestamp = new Date();
 
+                // Send PUT request to update the object with a new creation timestamp
                 return chai.request(app)
                     .put(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
                     .send(otherObj);
             })
             .then((putRes) => {
+                // Assertion for Forbidden status code when updating object with a new creation timestamp
                 putRes.should.have.status(403);
                 done();
             })
             .catch((error) => {
+                // Handle any errors
                 done(error);
             });
     });
 
-    //This should also for inactive object in case the requesting user is a researcher or admin
+    /**
+ * Test case to verify that an object can be fetched by a researcher or admin.
+ * This should also work for inactive objects.
+ * 
+ * @param {function} done - The callback function to signal the end of the test.
+ */
     it('should fetch an object', (done) => {
+        /*
+        Scenario: Fetching an object by researcher or admin
+            Given an object is created
+            When a GET request is sent to fetch the object
+            Then the system should respond with the object details
+        */
+
         let objID;
 
         chai.request(app)
             .post('/objects')
             .send(researcherObj)
             .then((res) => {
+                // Assertion for successful creation of the object
                 res.should.have.status(201);
                 res.body.should.be.a('object');
                 res.body.should.have.property('objectId');
                 res.body.objectId.should.have.property('internalObjectId');
                 objID = res.body.objectId.internalObjectId;
 
+                // Send GET request to fetch the object details
                 return chai.request(app)
                     .get(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`);
             })
             .then((getRes) => {
+                // Assertion for successful retrieval of the object details
                 getRes.should.have.status(200);
                 getRes.body.should.not.be.empty;
                 getRes.body.should.have.a.property('objectId');
@@ -511,26 +736,54 @@ describe('Objects Service Tests', () => {
                 done();
             })
             .catch((error) => {
+                // Handle any errors
                 done(error);
             });
     });
 
+    /**
+     * Test case to verify that an object cannot be fetched if it does not exist.
+     * 
+     * @param {function} done - The callback function to signal the end of the test.
+     */
     it('should not fetch an object, the object does not exist', (done) => {
-        let objID = '123'; //Non existant object id
+        /*
+        Scenario: Attempting to fetch a non-existent object
+            Given an object with a non-existent ID
+            When a GET request is sent to fetch the object
+            Then the system should respond with a 404 status code
+        */
+
+        let objID = '123'; // Non-existent object id
 
         chai.request(app)
             .get(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
             .then((res) => {
+                // Assertion for 404 status code
                 res.should.have.status(404);
 
                 done();
             })
             .catch((error) => {
+                // Handle any errors
                 done(error);
             });
     });
 
+    /**
+ * Test case to verify that an object cannot be fetched if it is inactive and the user is a participant.
+ * 
+ * @param {function} done - The callback function to signal the end of the test.
+ */
     it('should not fetch an object, the object is currently inactive and the user is participant', (done) => {
+        /*
+        Scenario: Attempting to fetch an inactive object as a participant
+            Given an inactive object
+            And the user is a participant
+            When a GET request is sent to fetch the object
+            Then the system should respond with a 403 status code
+        */
+
         const otherObj = { ...researcherObj };
         otherObj.objectDetails = { ...researcherObj.objectDetails }
         otherObj.active = false;
@@ -540,40 +793,61 @@ describe('Objects Service Tests', () => {
             .post('/objects')
             .send(otherObj)
             .then((res) => {
+                // Assertion for successful creation of the object
                 res.should.have.status(201);
                 res.body.should.be.a('object');
                 res.body.should.have.property('objectId');
                 res.body.objectId.should.have.property('internalObjectId');
                 objID = res.body.objectId.internalObjectId;
 
+                // Send a GET request to fetch the object
                 return chai.request(app)
                     .get(`/objects/${objID}?email=${participant.email}&platform=${participant.platform}`)
                     .send(otherObj);
             })
             .then((getRes) => {
+                // Assertion for 403 status code
                 getRes.should.have.status(403);
                 done();
             })
             .catch((error) => {
+                // Handle any errors
                 done(error);
             });
     });
 
+    /**
+     * Test case to verify that all objects can be fetched when the requesting user is an admin.
+     * 
+     * @param {function} done - The callback function to signal the end of the test.
+     */
     it('should fetch all the objects, the requesting user is an admin', (done) => {
-        const numObjects = 10;// could be any number
+        /*
+        Scenario: Fetching all objects as an admin user
+            Given there are multiple objects in the system
+            And the user is an admin
+            When a GET request is sent to fetch all objects
+            Then the system should respond with a 200 status code
+            And the response should contain all the objects
+        */
+
+        const numObjects = 10; // Could be any number
 
         const objArr = new Array();
 
+        // Create an array of objects
         for (let index = 0; index < numObjects; index++) {
             objArr.push(researcherObj);
         }
 
+        // Create all objects asynchronously
         Promise.all(objArr.map((obj) => {
             return new Promise((resolve) => {
                 chai.request(app)
                     .post(`/objects`)
                     .send(obj)
                     .end((err, res) => {
+                        // Assert that the object creation was successful
                         res.body.should.not.be.empty;
                         res.body.should.have.a.property('objectId');
                         res.body.objectId.should.have.property('internalObjectId');
@@ -582,9 +856,11 @@ describe('Objects Service Tests', () => {
             });
         }))
             .then(() => {
+                // Fetch all objects as an admin
                 chai.request(app)
                     .get(`/objects?email=${admin1.email}&platform=${admin1.platform}`)
                     .end((err, res) => {
+                        // Assert that the request was successful and all objects are returned
                         res.should.have.status(200);
                         res.body.should.not.be.empty;
                         res.body.should.be.a('array');
@@ -594,43 +870,74 @@ describe('Objects Service Tests', () => {
             });
     });
 
-    //This test should work also for a participant
+    /**
+     * Test case to verify that all objects cannot be fetched when the requesting user is a researcher.
+     * 
+     * @param {function} done - The callback function to signal the end of the test.
+     */
     it('should not fetch all the objects, the requesting user is a researcher', (done) => {
+        /*
+        Scenario: Attempting to fetch all objects as a researcher user
+            Given the user is a researcher
+            When a GET request is sent to fetch all objects
+            Then the system should respond with a 403 status code
+        */
+
+        // Attempt to fetch all objects as a researcher
         chai.request(app)
             .get(`/objects?email=${researcher.email}&platform=${researcher.platform}`)
             .end((err, res) => {
+                // Assert that the request was forbidden
                 res.should.have.status(403);
                 done();
             });
     });
 
+    /**
+    * Test case to verify that all objects can be deleted when the requesting user is an admin.
+    * 
+    * @param {function} done - The callback function to signal the end of the test.
+    */
     it('should delete all the objects, the requesting user is an admin', (done) => {
-        const numObjects = 10;// could be any number
+        /*
+        Scenario: Deleting all objects as an admin user
+            Given the user is an admin
+            When a DELETE request is sent to delete all objects
+            Then the system should respond with a 200 status code
+            And the response should contain the count of deleted objects
+            And the count of deleted objects should be equal to the total number of objects created
+        */
 
+        const numObjects = 10; // Number of objects to create
+
+        // Array to store promises for creating objects
         const objArr = new Array();
 
+        // Create objects
         for (let index = 0; index < numObjects; index++) {
-            objArr.push(researcherObj);
-        }
-
-        Promise.all(objArr.map((obj) => {
-            return new Promise((resolve) => {
+            objArr.push(new Promise((resolve) => {
                 chai.request(app)
                     .post(`/objects`)
-                    .send(obj)
+                    .send(researcherObj)
                     .end((err, res) => {
+                        // Assert that the object creation was successful
                         res.should.have.status(201);
                         res.body.should.not.be.empty;
                         res.body.should.have.a.property('objectId');
                         res.body.objectId.should.have.property('internalObjectId');
                         resolve(); // Resolve the promise after the request is complete
                     });
-            });
-        }))
+            }));
+        }
+
+        // Wait for all object creation promises to resolve
+        Promise.all(objArr)
             .then(() => {
+                // Send a DELETE request to delete all objects
                 chai.request(app)
                     .delete(`/objects?email=${admin1.email}&platform=${admin1.platform}`)
                     .end((err, res) => {
+                        // Assert that the deletion was successful
                         res.should.have.status(200);
                         res.body.should.not.be.empty;
                         res.body.should.have.property('deletedCount');
@@ -640,36 +947,62 @@ describe('Objects Service Tests', () => {
             });
     });
 
-    //This test should work also for a participant
+    /**
+  * Test case to verify that an attempt to delete all objects is denied when the requesting user is a researcher.
+  * 
+  * @param {function} done - The callback function to signal the end of the test.
+  */
     it('should not delete all the objects, the requesting user is a researcher', (done) => {
+        /*
+        Scenario: Attempting to delete all objects as a researcher
+            Given the user is a researcher
+            When a DELETE request is sent to delete all objects
+            Then the system should respond with a 403 status code indicating forbidden access
+        */
+
+        // Send a DELETE request to delete all objects as a researcher
         chai.request(app)
             .delete(`/objects?email=${researcher.email}&platform=${researcher.platform}`)
             .end((err, res) => {
+                // Assert that the access is forbidden
                 res.should.have.status(403);
                 done();
             });
     });
 
-    //Binding is a relation between two objects one is the child object and the other one is the father, in general father object can have more 
-    //than one child and vice versa when
+    /**
+ * Test case to verify the binding between two objects.
+ * 
+ * @param {function} done - The callback function to signal the end of the test.
+ */
     it('should bind between two objects', (done) => {
-        const numObjects = 10;
+        /*
+        Scenario: Binding between two objects
+            Given a parent object and multiple child objects
+            When the child objects are bound to the parent object
+            Then the system should correctly establish the binding
+            And the parent object should have all the child objects associated with it
+        */
 
+        // Initialize variables
+        const numObjects = 10;
         const parentObj = { ...researcherObj };
         parentObj.objectDetails = { ...researcherObj.objectDetails };
-
         let parentObjID;
         const reqObjArr = new Array();
         const childArr = new Array();
 
+        // Create an array of child objects
         for (let index = 0; index < numObjects; index++) {
             reqObjArr.push(researcherObj);
         }
 
+        // Post the parent object
         chai.request(app)
             .post(`/objects`)
             .send(parentObj)
             .then((postRes) => {
+                // Assert that the parent object is successfully created
                 postRes.should.have.status(201);
                 postRes.body.should.not.be.empty;
                 postRes.body.should.have.a.property('objectId');
@@ -681,6 +1014,7 @@ describe('Objects Service Tests', () => {
                     const res = await chai.request(app)
                         .post(`/objects`)
                         .send(obj);
+                    // Assert that each child object is successfully created
                     res.should.have.status(201);
                     res.body.should.not.be.empty;
                     res.body.should.have.a.property('objectId');
@@ -694,6 +1028,7 @@ describe('Objects Service Tests', () => {
                     const res = await chai.request(app)
                         .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
                         .send(obj);
+                    // Assert that each child object is successfully bound to the parent
                     res.should.have.status(200);
                     res.body.should.be.empty;
                 }));
@@ -705,15 +1040,20 @@ describe('Objects Service Tests', () => {
                     .send();
             })
             .then((res) => {
+                // Assert that the correct number of child objects are associated with the parent
                 res.should.have.status(200);
                 res.body.should.not.be.empty;
                 res.body.should.be.a('array');
                 res.body.length.should.be.equal(numObjects);
                 const resArr = res.body;
 
+                // Extract internal object IDs from the response
                 const resInternalObjectIds = resArr.map(obj => obj.objectId.internalObjectId);
+
+                // Filter child objects that match the response internal object IDs
                 const matchingObjects = childArr.filter(obj => resInternalObjectIds.includes(obj.objectId.internalObjectId));
 
+                // Assert that all child objects are correctly associated with the parent
                 matchingObjects.should.have.lengthOf(numObjects);
                 done();
             })
@@ -722,63 +1062,100 @@ describe('Objects Service Tests', () => {
             });
     });
 
-    it('should not bind between two objects, the requesting user is a partcipant', (done) => {
+    /**
+     * Test case to verify that binding between two objects is not allowed for a participant user.
+     * 
+     * @param {function} done - The callback function to signal the end of the test.
+     */
+    it('should not bind between two objects, the requesting user is a participant', (done) => {
+        /*
+        Scenario: Participant user attempting to bind objects
+            Given a participant user
+            And a parent object and a child object
+            When the participant user attempts to bind the child object to the parent object
+            Then the system should reject the binding request
+        */
+
+        // Initialize variables
         const parentObj = { ...researcherObj };
         parentObj.objectDetails = { ...researcherObj.objectDetails };
-
         let parentObjID;
-
         const childObj = { ...researcherObj };
         childObj.objectDetails = { ...researcherObj.objectDetails };
 
+        // Post the parent object
         chai.request(app)
             .post(`/objects`)
             .send(parentObj)
             .then(async (postRes) => {
+                // Assert that the parent object is successfully created
                 postRes.should.have.status(201);
                 postRes.body.should.not.be.empty;
                 postRes.body.should.have.a.property('objectId');
                 postRes.body.objectId.should.have.property('internalObjectId');
                 parentObjID = postRes.body.objectId.internalObjectId;
 
-                // Post child object
+                // Post the child object
                 const res = await chai.request(app)
                     .post(`/objects`)
                     .send(childObj);
+                // Assert that the child object is successfully created
                 res.should.have.status(201);
                 res.body.should.not.be.empty;
                 res.body.should.have.a.property('objectId');
                 res.body.objectId.should.have.property('internalObjectId');
             })
             .then(async () => {
-                // Try to bind child object to parent
+                // Attempt to bind the child object to the parent object
                 const res = await chai.request(app)
                     .put(`/objects/${parentObjID}/bind?email=${participant.email}&platform=${participant.platform}`)
                     .send(childObj);
+                // Assert that the binding request is rejected
                 res.should.have.status(403);
                 done();
+            })
+            .catch((error) => {
+                done(error);
             });
     });
 
+    /**
+  * Test case to verify that binding between two objects is not allowed when the parent object does not exist.
+  * 
+  * @param {function} done - The callback function to signal the end of the test.
+  */
     it('should not bind between two objects, the parent object does not exist', (done) => {
+        /*
+        Scenario: Attempt to bind objects with a non-existent parent object
+            Given a non-existent parent object ID
+            And a child object
+            When attempting to bind the child object to the non-existent parent object
+            Then the system should reject the binding request
+        */
+
+        // Set the ID of the non-existent parent object
         let parentObjID = '123';
 
+        // Create the child object
         const childObj = { ...researcherObj };
         childObj.objectDetails = { ...researcherObj.objectDetails };
 
+        // Post the child object
         chai.request(app)
             .post(`/objects`)
             .send(childObj)
             .then(async (postRes) => {
+                // Assert that the child object is successfully created
                 postRes.should.have.status(201);
                 postRes.body.should.not.be.empty;
                 postRes.body.should.have.a.property('objectId');
                 postRes.body.objectId.should.have.property('internalObjectId');
 
-                // Attempt to bind child object to non-existent parent
+                // Attempt to bind the child object to the non-existent parent object
                 const res = await chai.request(app)
                     .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
                     .send(childObj);
+                // Assert that the binding request is rejected
                 res.should.have.status(404);
             })
             .then(() => {
@@ -791,32 +1168,48 @@ describe('Objects Service Tests', () => {
             });
     });
 
+    /**
+  * Test case to verify that binding between two objects is not allowed when the child object does not exist.
+  * 
+  * @param {function} done - The callback function to signal the end of the test.
+  */
     it('should not bind between two objects, the child object does not exist', (done) => {
-        let parentObjID;
+        /*
+        Scenario: Attempt to bind objects with a non-existent child object
+            Given an existing parent object
+            And a non-existent child object ID
+            When attempting to bind the non-existent child object to the parent object
+            Then the system should reject the binding request
+        */
 
+        let parentObjID;
+        let childObj;
+
+        // Create the parent object
         const parentObj = { ...researcherObj };
         parentObj.objectDetails = { ...researcherObj.objectDetails };
-
-        let childObj;
 
         chai.request(app)
             .post(`/objects`)
             .send(parentObj)
             .then(async (postRes) => {
+                // Assert that the parent object is successfully created
                 postRes.should.have.status(201);
                 postRes.body.should.not.be.empty;
                 postRes.body.should.have.a.property('objectId');
                 postRes.body.objectId.should.have.property('internalObjectId');
                 parentObjID = postRes.body.objectId.internalObjectId;
 
+                // Create the child object with a non-existent object ID
                 childObj = { ...postRes.body };
                 childObj.objectDetails = { ...postRes.body.objectDetails };
-                childObj.objectId.internalObjectId = '123'
+                childObj.objectId.internalObjectId = '123';
 
-                // Attempt to bind child object to non-existent parent
+                // Attempt to bind the non-existent child object to the parent object
                 const res = await chai.request(app)
                     .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
                     .send(childObj);
+                // Assert that the binding request is rejected
                 res.should.have.status(404);
             })
             .then(() => {
@@ -829,15 +1222,27 @@ describe('Objects Service Tests', () => {
             });
     });
 
+    /**
+ * Test case to verify that unbinding between two objects is successful.
+ * 
+ * @param {function} done - The callback function to signal the end of the test.
+ */
     it('should unbind two objects', (done) => {
+        /*
+        Scenario: Unbind objects successfully
+            Given a parent object and multiple child objects bound to it
+            When unbinding each child object from the parent object
+            Then all child objects should be successfully unbound
+        */
+
         const numObjects = 10;
-
-        const parentObj = { ...researcherObj };
-        parentObj.objectDetails = { ...researcherObj.objectDetails };
-
         let parentObjID;
         const reqObjArr = new Array();
         const childArr = new Array();
+
+        // Create parent object
+        const parentObj = { ...researcherObj };
+        parentObj.objectDetails = { ...researcherObj.objectDetails };
 
         for (let index = 0; index < numObjects; index++) {
             reqObjArr.push(researcherObj);
@@ -847,6 +1252,7 @@ describe('Objects Service Tests', () => {
             .post(`/objects`)
             .send(parentObj)
             .then((postRes) => {
+                // Assert that the parent object is successfully created
                 postRes.should.have.status(201);
                 postRes.body.should.not.be.empty;
                 postRes.body.should.have.a.property('objectId');
@@ -858,6 +1264,7 @@ describe('Objects Service Tests', () => {
                     const res = await chai.request(app)
                         .post(`/objects`)
                         .send(obj);
+                    // Assert that each child object is successfully created
                     res.should.have.status(201);
                     res.body.should.not.be.empty;
                     res.body.should.have.a.property('objectId');
@@ -871,16 +1278,18 @@ describe('Objects Service Tests', () => {
                     const res = await chai.request(app)
                         .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
                         .send(obj);
+                    // Assert that each child object is successfully bound to the parent object
                     res.should.have.status(200);
                     res.body.should.be.empty;
                 }));
             })
             .then(() => {
-                // Unbind child objects to parent
+                // Unbind child objects from parent
                 return Promise.all(childArr.map(async (obj) => {
                     const res = await chai.request(app)
                         .put(`/objects/${parentObjID}/unbind?email=${researcher.email}&platform=${researcher.platform}`)
                         .send(obj);
+                    // Assert that each child object is successfully unbound from the parent object
                     res.should.have.status(200);
                     res.body.should.be.empty;
                 }));
@@ -892,6 +1301,7 @@ describe('Objects Service Tests', () => {
                     .send();
             })
             .then((res) => {
+                // Assert that there are no children associated with the parent object after unbinding
                 res.should.have.status(200);
                 res.body.should.be.empty;
                 res.body.should.be.a('array');
@@ -903,12 +1313,24 @@ describe('Objects Service Tests', () => {
             });
     });
 
-    it('should not unbind between two objects, the requesting user is a partcipant', (done) => {
+    /**
+  * Test case to verify that unbinding between two objects is not allowed when the requesting user is a participant.
+  * 
+  * @param {function} done - The callback function to signal the end of the test.
+  */
+    it('should not unbind between two objects, the requesting user is a participant', (done) => {
+        /*
+        Scenario: Participant tries to unbind objects
+            Given a parent object and a child object bound to it
+            When a participant attempts to unbind the child object from the parent object
+            Then the participant should receive a forbidden status (403)
+        */
+
+        // Create parent object
         const parentObj = { ...researcherObj };
         parentObj.objectDetails = { ...researcherObj.objectDetails };
 
         let parentObjID;
-
         const childObj = { ...researcherObj };
         childObj.objectDetails = { ...researcherObj.objectDetails };
 
@@ -916,6 +1338,7 @@ describe('Objects Service Tests', () => {
             .post(`/objects`)
             .send(parentObj)
             .then(async (postRes) => {
+                // Assert that the parent object is successfully created
                 postRes.should.have.status(201);
                 postRes.body.should.not.be.empty;
                 postRes.body.should.have.a.property('objectId');
@@ -926,24 +1349,43 @@ describe('Objects Service Tests', () => {
                 const res = await chai.request(app)
                     .post(`/objects`)
                     .send(childObj);
+                // Assert that the child object is successfully created
                 res.should.have.status(201);
                 res.body.should.not.be.empty;
                 res.body.should.have.a.property('objectId');
                 res.body.objectId.should.have.property('internalObjectId');
             })
             .then(async () => {
-                // Try to bind child object to parent
+                // Try to unbind child object from parent object as a participant
                 const res = await chai.request(app)
                     .put(`/objects/${parentObjID}/unbind?email=${participant.email}&platform=${participant.platform}`)
                     .send(childObj);
+                // Assert that the participant is forbidden from unbinding objects
                 res.should.have.status(403);
                 done();
+            })
+            .catch((error) => {
+                done(error);
             });
     });
 
+    /**
+ * Test case to verify that unbinding between two objects is not allowed when the parent object does not exist.
+ * 
+ * @param {function} done - The callback function to signal the end of the test.
+ */
     it('should not unbind between two objects, the parent object does not exist', (done) => {
+        /*
+        Scenario: Attempt to unbind between two objects when the parent object does not exist
+            Given a non-existent parent object and a child object
+            When attempting to unbind the child object from the non-existent parent object
+            Then the system should respond with a not found status (404)
+        */
+
+        // Define a non-existent parent object ID
         let parentObjID = '123';
 
+        // Create a child object
         const childObj = { ...researcherObj };
         childObj.objectDetails = { ...researcherObj.objectDetails };
 
@@ -951,15 +1393,17 @@ describe('Objects Service Tests', () => {
             .post(`/objects`)
             .send(childObj)
             .then(async (postRes) => {
+                // Assert that the child object is successfully created
                 postRes.should.have.status(201);
                 postRes.body.should.not.be.empty;
                 postRes.body.should.have.a.property('objectId');
                 postRes.body.objectId.should.have.property('internalObjectId');
 
-                // Attempt to bind child object to non-existent parent
+                // Attempt to unbind child object from non-existent parent object
                 const res = await chai.request(app)
                     .put(`/objects/${parentObjID}/unbind?email=${researcher.email}&platform=${researcher.platform}`)
                     .send(childObj);
+                // Assert that the system responds with a not found status
                 res.should.have.status(404);
             })
             .then(() => {
@@ -972,9 +1416,20 @@ describe('Objects Service Tests', () => {
             });
     });
 
+    /**
+  * Test case to verify that unbinding between two objects is not allowed when the child object does not exist.
+  * 
+  * @param {function} done - The callback function to signal the end of the test.
+  */
     it('should not unbind between two objects, the child object does not exist', (done) => {
-        let parentObjID;
+        /*
+        Scenario: Attempt to unbind between two objects when the child object does not exist
+            Given an existing parent object and a non-existent child object
+            When attempting to unbind the non-existent child object from the parent object
+            Then the system should respond with a not found status (404)
+        */
 
+        let parentObjID;
         const parentObj = { ...researcherObj };
         parentObj.objectDetails = { ...researcherObj.objectDetails };
 
@@ -984,20 +1439,23 @@ describe('Objects Service Tests', () => {
             .post(`/objects`)
             .send(parentObj)
             .then(async (postRes) => {
+                // Assert that the parent object is successfully created
                 postRes.should.have.status(201);
                 postRes.body.should.not.be.empty;
                 postRes.body.should.have.a.property('objectId');
                 postRes.body.objectId.should.have.property('internalObjectId');
                 parentObjID = postRes.body.objectId.internalObjectId;
 
+                // Create a non-existent child object
                 childObj = { ...postRes.body };
                 childObj.objectDetails = { ...postRes.body.objectDetails };
                 childObj.objectId.internalObjectId = '123'
 
-                // Attempt to bind child object to non-existent parent
+                // Attempt to unbind non-existent child object from the parent object
                 const res = await chai.request(app)
                     .put(`/objects/${parentObjID}/unbind?email=${researcher.email}&platform=${researcher.platform}`)
                     .send(childObj);
+                // Assert that the system responds with a not found status
                 res.should.have.status(404);
             })
             .then(() => {
@@ -1010,7 +1468,19 @@ describe('Objects Service Tests', () => {
             });
     });
 
+    /**
+  * Test case to verify that a participant can retrieve all the children of an object, considering only the active ones.
+  * 
+  * @param {function} done - The callback function to signal the end of the test.
+  */
     it('should get all the children of an object, the requesting user is participant', (done) => {
+        /*
+        Scenario: Retrieve all the children of an object when the requesting user is a participant
+            Given a parent object and multiple child objects, some of which are inactive
+            When a participant requests to get all the children of the parent object
+            Then the system should respond with only the active children visible to the participant
+        */
+
         const numObjects = 10;
 
         const parentObj = { ...researcherObj };
@@ -1020,6 +1490,7 @@ describe('Objects Service Tests', () => {
         const reqObjArr = new Array();
         const childArr = new Array();
 
+        // Generate child objects with some inactive
         for (let index = 0; index < numObjects; index++) {
             let tempObj = { ...researcherObj };
             tempObj.objectDetails = { ...researcherObj.objectDetails };
@@ -1033,6 +1504,7 @@ describe('Objects Service Tests', () => {
             .post(`/objects`)
             .send(parentObj)
             .then((postRes) => {
+                // Assert that the parent object is successfully created
                 postRes.should.have.status(201);
                 postRes.body.should.not.be.empty;
                 postRes.body.should.have.a.property('objectId');
@@ -1062,16 +1534,17 @@ describe('Objects Service Tests', () => {
                 }));
             })
             .then(() => {
-                // Get children of parent
+                // Get children of parent as a participant
                 return chai.request(app)
                     .get(`/objects/${parentObjID}/children?email=${participant.email}&platform=${participant.platform}`)
                     .send();
             })
             .then((res) => {
+                // Assert that the system responds with only the active children visible to the participant
                 res.should.have.status(200);
                 res.body.should.be.not.empty;
                 res.body.should.be.a('array');
-                res.body.length.should.be.equal(numObjects / 2); //Half of the objects are inactive so the participant will be able to see only the active ones
+                res.body.length.should.be.equal(numObjects / 2); // Half of the objects are inactive, so the participant should see only the active ones
                 done();
             })
             .catch((error) => {
@@ -1079,7 +1552,19 @@ describe('Objects Service Tests', () => {
             });
     });
 
+    /**
+  * Test case to verify that a researcher can retrieve all the children of an object, including inactive ones.
+  * 
+  * @param {function} done - The callback function to signal the end of the test.
+  */
     it('should get all the children of an object, the requesting user is researcher', (done) => {
+        /*
+        Scenario: Retrieve all the children of an object when the requesting user is a researcher
+            Given a parent object and multiple child objects, some of which are inactive
+            When a researcher requests to get all the children of the parent object
+            Then the system should respond with all the children, including the inactive ones
+        */
+
         const numObjects = 10;
 
         const parentObj = { ...researcherObj };
@@ -1089,6 +1574,7 @@ describe('Objects Service Tests', () => {
         const reqObjArr = new Array();
         const childArr = new Array();
 
+        // Generate child objects with some inactive
         for (let index = 0; index < numObjects; index++) {
             let tempObj = { ...researcherObj };
             tempObj.objectDetails = { ...researcherObj.objectDetails };
@@ -1102,6 +1588,7 @@ describe('Objects Service Tests', () => {
             .post(`/objects`)
             .send(parentObj)
             .then((postRes) => {
+                // Assert that the parent object is successfully created
                 postRes.should.have.status(201);
                 postRes.body.should.not.be.empty;
                 postRes.body.should.have.a.property('objectId');
@@ -1131,16 +1618,17 @@ describe('Objects Service Tests', () => {
                 }));
             })
             .then(() => {
-                // Get children of parent
+                // Get children of parent as a researcher
                 return chai.request(app)
                     .get(`/objects/${parentObjID}/children?email=${researcher.email}&platform=${researcher.platform}`)
                     .send();
             })
             .then((res) => {
+                // Assert that the system responds with all the children, including the inactive ones
                 res.should.have.status(200);
                 res.body.should.be.not.empty;
                 res.body.should.be.a('array');
-                res.body.length.should.be.equal(numObjects); //Half of the objects are inactive, but researchercan observe them all
+                res.body.length.should.be.equal(numObjects); // All objects, including the inactive ones, should be visible to the researcher
                 done();
             })
             .catch((error) => {
@@ -1148,9 +1636,19 @@ describe('Objects Service Tests', () => {
             });
     });
 
-    /////////
-
+    /**
+ * Test case to verify that a participant can retrieve all the parents of an object, excluding inactive ones.
+ * 
+ * @param {function} done - The callback function to signal the end of the test.
+ */
     it('should get all the parents of an object, the requesting user is participant', (done) => {
+        /*
+        Scenario: Retrieve all the parents of an object when the requesting user is a participant
+            Given a child object and multiple parent objects, some of which are inactive
+            When a participant requests to get all the parents of the child object
+            Then the system should respond with all the parents, excluding the inactive ones
+        */
+
         const numObjects = 10;
 
         const childObj = { ...researcherObj };
@@ -1160,6 +1658,7 @@ describe('Objects Service Tests', () => {
         const reqObjArr = new Array();
         const parentsArr = new Array();
 
+        // Generate parent objects with some inactive
         for (let index = 0; index < numObjects; index++) {
             let tempObj = { ...researcherObj };
             tempObj.objectDetails = { ...researcherObj.objectDetails };
@@ -1173,6 +1672,7 @@ describe('Objects Service Tests', () => {
             .post(`/objects`)
             .send(childObj)
             .then((postRes) => {
+                // Assert that the child object is successfully created
                 postRes.should.have.status(201);
                 postRes.body.should.not.be.empty;
                 postRes.body.should.have.a.property('objectId');
@@ -1180,7 +1680,7 @@ describe('Objects Service Tests', () => {
                 childObjID = postRes.body.objectId.internalObjectId;
                 Object.assign(childObj, postRes.body);
 
-                // Post child objects
+                // Post parent objects
                 return Promise.all(reqObjArr.map(async (obj) => {
                     const res = await chai.request(app)
                         .post(`/objects`)
@@ -1193,7 +1693,7 @@ describe('Objects Service Tests', () => {
                 }));
             })
             .then(() => {
-                // Bind child objects to parent
+                // Bind child object to parent objects
                 return Promise.all(parentsArr.map(async (obj) => {
                     const res = await chai.request(app)
                         .put(`/objects/${obj.objectId.internalObjectId}/bind?email=${researcher.email}&platform=${researcher.platform}`)
@@ -1203,16 +1703,17 @@ describe('Objects Service Tests', () => {
                 }));
             })
             .then(() => {
-                // Get children of parent
+                // Get parents of child object as a participant
                 return chai.request(app)
                     .get(`/objects/${childObjID}/parents?email=${participant.email}&platform=${participant.platform}`)
                     .send();
             })
             .then((res) => {
+                // Assert that the system responds with all the parents, excluding the inactive ones
                 res.should.have.status(200);
                 res.body.should.be.not.empty;
                 res.body.should.be.a('array');
-                res.body.length.should.be.equal(numObjects / 2); //Half of the objects are inactive so the participant will be able to see only the active ones
+                res.body.length.should.be.equal(numObjects / 2); // Only active parent objects should be visible to the participant
                 done();
             })
             .catch((error) => {
@@ -1220,7 +1721,19 @@ describe('Objects Service Tests', () => {
             });
     });
 
-    it('should get all the children of an object, the requesting user is researcher', (done) => {
+    /**
+ * Test case to verify that a researcher can retrieve all the parents of an object, including inactive ones.
+ * 
+ * @param {function} done - The callback function to signal the end of the test.
+ */
+    it('should get all the parents of an object, the requesting user is researcher', (done) => {
+        /*
+        Scenario: Retrieve all the parents of an object when the requesting user is a researcher
+            Given a child object and multiple parent objects, some of which are inactive
+            When a researcher requests to get all the parents of the child object
+            Then the system should respond with all the parents, including the inactive ones
+        */
+
         const numObjects = 10;
 
         const childObj = { ...researcherObj };
@@ -1230,6 +1743,7 @@ describe('Objects Service Tests', () => {
         const reqObjArr = new Array();
         const parentsArr = new Array();
 
+        // Generate parent objects with some inactive
         for (let index = 0; index < numObjects; index++) {
             let tempObj = { ...researcherObj };
             tempObj.objectDetails = { ...researcherObj.objectDetails };
@@ -1243,6 +1757,7 @@ describe('Objects Service Tests', () => {
             .post(`/objects`)
             .send(childObj)
             .then((postRes) => {
+                // Assert that the child object is successfully created
                 postRes.should.have.status(201);
                 postRes.body.should.not.be.empty;
                 postRes.body.should.have.a.property('objectId');
@@ -1250,8 +1765,7 @@ describe('Objects Service Tests', () => {
                 childObjID = postRes.body.objectId.internalObjectId;
                 Object.assign(childObj, postRes.body);
 
-
-                // Post child objects
+                // Post parent objects
                 return Promise.all(reqObjArr.map(async (obj) => {
                     const res = await chai.request(app)
                         .post(`/objects`)
@@ -1264,7 +1778,7 @@ describe('Objects Service Tests', () => {
                 }));
             })
             .then(() => {
-                // Bind child objects to parent
+                // Bind child object to parent objects
                 return Promise.all(parentsArr.map(async (obj) => {
                     const res = await chai.request(app)
                         .put(`/objects/${obj.objectId.internalObjectId}/bind?email=${researcher.email}&platform=${researcher.platform}`)
@@ -1274,16 +1788,17 @@ describe('Objects Service Tests', () => {
                 }));
             })
             .then(() => {
-                // Get children of parent
+                // Get parents of child object as a researcher
                 return chai.request(app)
                     .get(`/objects/${childObjID}/parents?email=${researcher.email}&platform=${researcher.platform}`)
                     .send();
             })
             .then((res) => {
+                // Assert that the system responds with all the parents, including the inactive ones
                 res.should.have.status(200);
                 res.body.should.be.not.empty;
                 res.body.should.be.a('array');
-                res.body.length.should.be.equal(numObjects); //Half of the objects are inactive, but researchercan observe them all
+                res.body.length.should.be.equal(numObjects); // All parent objects, including inactive ones, should be visible to the researcher
                 done();
             })
             .catch((error) => {
@@ -1291,11 +1806,24 @@ describe('Objects Service Tests', () => {
             });
     });
 
+    /**
+     * Test case to verify that a participant can retrieve all objects of a specific type.
+     * 
+     * @param {function} done - The callback function to signal the end of the test.
+     */
     it('should get all the objects by type, the requesting user is participant', (done) => {
+        /*
+        Scenario: Retrieve all objects of a specific type when the requesting user is a participant
+            Given multiple objects of a specific type, some of which are inactive
+            When a participant requests to get all the objects of that type
+            Then the system should respond with all the active objects of that type
+        */
+
         const numObjects = 10;
         const targetType = "dummyType";
         const reqObjArr = [];
 
+        // Generate objects with some inactive
         for (let index = 0; index < numObjects; index++) {
             let tempObj = { ...researcherObj };
             tempObj.objectDetails = { ...researcherObj.objectDetails };
@@ -1311,15 +1839,17 @@ describe('Objects Service Tests', () => {
                 .send(obj);
         }))
             .then(() => {
+                // Get all objects of the specified type as a participant
                 return chai.request(app)
                     .get(`/objects/type/${targetType}?email=${participant.email}&platform=${participant.platform}`)
                     .send();
             })
             .then((res) => {
+                // Assert that the system responds with all the active objects of the specified type
                 res.should.have.status(200);
                 res.body.should.not.be.empty;
                 res.body.should.be.a('array');
-                res.body.length.should.be.equal(numObjects / 2); // Half of the objects are inactive so the participant will be able to see only the active ones
+                res.body.length.should.be.equal(numObjects / 2); // Half of the objects are inactive, so the participant will only see the active ones
                 done();
             })
             .catch((error) => {
@@ -1327,11 +1857,24 @@ describe('Objects Service Tests', () => {
             });
     });
 
+    /**
+ * Test case to verify that a researcher can retrieve all objects of a specific type.
+ * 
+ * @param {function} done - The callback function to signal the end of the test.
+ */
     it('should get all the objects by type, the requesting user is a Reasearcher', (done) => {
+        /*
+        Scenario: Retrieve all objects of a specific type when the requesting user is a researcher
+            Given multiple objects of a specific type, some of which are inactive
+            When a researcher requests to get all the objects of that type
+            Then the system should respond with all the objects of that type, including inactive ones
+        */
+
         const numObjects = 10;
         const targetType = "dummyType";
         const reqObjArr = [];
 
+        // Generate objects with some inactive
         for (let index = 0; index < numObjects; index++) {
             let tempObj = { ...researcherObj };
             tempObj.objectDetails = { ...researcherObj.objectDetails };
@@ -1347,15 +1890,17 @@ describe('Objects Service Tests', () => {
                 .send(obj);
         }))
             .then(() => {
+                // Get all objects of the specified type as a researcher
                 return chai.request(app)
                     .get(`/objects/type/${targetType}?email=${researcher.email}&platform=${researcher.platform}`)
                     .send();
             })
             .then((res) => {
+                // Assert that the system responds with all the objects of the specified type, including inactive ones
                 res.should.have.status(200);
                 res.body.should.not.be.empty;
                 res.body.should.be.a('array');
-                res.body.length.should.be.equal(numObjects); //Half of the objects are inactive, but researchercan observe them all
+                res.body.length.should.be.equal(numObjects); // Half of the objects are inactive, but the researcher can observe them all
                 done();
             })
             .catch((error) => {
