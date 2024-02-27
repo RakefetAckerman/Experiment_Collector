@@ -13,7 +13,6 @@ import objectConverter from "../converters/ObjectBoundaryConverter.js";// Import
 import ObjectBoundary from "../../boundaries/object/ObjectBoundary.js";// Import ObjectBoundary for defining the structure of object objects
 import createCustomLogger from "../../config/logger.js";// Import the configured logger for logging user-related activities
 import path from 'path';// Import path for identifying file paths, used for logging purposes
-import { error } from "console";
 
 
 const { Error } = mongoose;// Import the Error class from mongoose for handling database errors
@@ -72,9 +71,9 @@ const objectsService = {
         }
 
         return objectModel.validate()
-            .then(() => {
-                objectModel.save();
-                logger.info(`The user ${reqObjectBoundary.createdBy.userId.email + "$" + reqObjectBoundary.createdBy.userId.platform} successfully created an object`)
+            .then(async () => {
+                await objectModel.save();
+                logger.info(`The user ${reqObjectBoundary.createdBy.userId.email + "$" + reqObjectBoundary.createdBy.userId.platform} successfully created an object`);
             })
             .catch((error) => {
                 if (error instanceof Error.ValidationError) {
@@ -246,7 +245,15 @@ const objectsService = {
         if (existingUser.role === Roles.ADMIN) {
             const allObjectsArr = await ObjectModel.find();
             logger.info(`User with userId ${existingUser.userId} successfully retrieved all objects`);
-            return Promise.all(allObjectsArr.map(object => objectConverter.toBoundary(object)));
+            return Promise.all(allObjectsArr.map(object => objectConverter.toBoundary(object)))
+            .then((resArr)=>{
+                logger.info(`The user ${userEmail + "$" + userPlatform} successfully retrieved all the objects`);
+                return resArr;
+            })
+            .catch((error) => {
+                logger.error(`User with userId ${userEmail + "$" + userPlatform} encountered some errors while retrieving all the objects`);
+                throw new createHttpError.BadRequest(error);
+            });
         }
         else {
             logger.error(`User with userId ${existingUser.userId} tried to retrieve all objects while he is not allowed to`);
@@ -483,7 +490,6 @@ const objectsService = {
         }
 
         if (existingUser.role === Roles.PARTICIPANT) {
-            logger.info(`User with userId ${existingUser.userId} successfully retrieved all parents objects of child object:${internalObjectId}`);
             return Promise.all(childObj.parents
                 .map(async objectId => {
                     const parentObj = await ObjectModel.findOne({ _id: objectId, active: true });
@@ -491,17 +497,32 @@ const objectsService = {
                 }))
                 .then(async (objects) => {
                     const filteredObjects = objects.filter(object => object !== null); // Filtering the objects that didn't matched the requirements in this case it is active flag
-                    return Promise.all(filteredObjects.map(async object => await objectConverter.toBoundary(object)));
+                    return Promise.all(filteredObjects.map(async object => await objectConverter.toBoundary(object)))
+                    .then((resArr)=>{
+                        logger.info(`User with userId ${existingUser.userId} successfully retrieved all parents objects of child object:${internalObjectId}`);
+                        return resArr;
+                    })
+                    .catch((error) => {
+                        logger.error(`User with userId ${existingUser.userId} encountered some errors while retrieving all the parents objects`);
+                        throw new createHttpError.BadRequest(error);
+                    });
                 });
         }
         else {
-            logger.info(`User with userId ${existingUser.userId} successfully retrieved all parents objects of child object:${internalObjectId} which are inactive`);
             return Promise.all(childObj.parents.
                 map(async objectId => {
                     const parentObj = await ObjectModel.findOne({ _id: objectId })
                     return parentObj;
                 }).
-                map(async object => objectConverter.toBoundary(await object)));// Awaiting the object to be retrieved by mongoose 
+                map(async object => objectConverter.toBoundary(await object)))
+                .then((resArr)=>{
+                    logger.info(`User with userId ${existingUser.userId} successfully retrieved all parents objects of child object:${internalObjectId} which are inactive`);
+                    return resArr;
+                })
+                .catch((error) => {
+                    logger.error(`User with userId ${existingUser.userId} encountered some errors while retrieving all the parents objects which are inactive`);
+                    throw new createHttpError.BadRequest(error);
+                });// Awaiting the object to be retrieved by mongoose 
         }
     },
     /**
@@ -528,12 +549,26 @@ const objectsService = {
 
         if (existingUser.role === Roles.PARTICIPANT) {
             const allObjType = await ObjectModel.find({ type: targetType, active: true });
-            logger.info(`User with userId ${existingUser.userId} successfully retrieved all objects of by type:${targetType} which are inactive`);
-            return Promise.all(allObjType.map(async object => objectConverter.toBoundary(await object)));
+            return Promise.all(allObjType.map(async object => objectConverter.toBoundary(await object)))
+            .then((resArr)=>{
+                logger.info(`User with userId ${existingUser.userId} successfully retrieved all objects of by type:${targetType} which are inactive`);
+                return resArr;
+            })
+            .catch((error) => {
+                logger.error(`User with userId ${existingUser.userId} encountered some errors while retrieving all the type objects which are inactive`);
+                throw new createHttpError.BadRequest(error);
+            });// Awaiting the object to be retrieved by mongoose 
         }
         const allObjType = await ObjectModel.find({ type: targetType });
-        logger.info(`User with userId ${existingUser.userId} successfully retrieved all objects of by type:${targetType}`);
-        return Promise.all(allObjType.map(async object => objectConverter.toBoundary(await object)));
+        return Promise.all(allObjType.map(async object => objectConverter.toBoundary(await object)))
+        .then((resArr)=>{
+            logger.info(`User with userId ${existingUser.userId} successfully retrieved all objects of by type:${targetType}`);
+            return resArr;
+        })
+        .catch((error) => {
+            logger.error(`User with userId ${existingUser.userId} encountered some errors while retrieving all the type objects`);
+            throw new createHttpError.BadRequest(error);
+        });// Awaiting the object to be retrieved by mongoose 
     }
 };
 
