@@ -163,6 +163,7 @@ describe('Objects Service Tests', () => {
                     .send()
                     .end((err, res) => {
                         // Assertion for verifying the created object
+                        console.log(res.body)
                         res.should.have.status(200);
                         res.body.should.be.a('array');
                         res.body.should.have.lengthOf(1);
