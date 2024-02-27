@@ -1,8 +1,8 @@
-import ObjectBoundary from "../../boundaries/object/ObjectBoundary.js"; // Import ObjectBoundary class
 import UserIdBoundary from "../../boundaries/user/UserIdBoundary.js";
 import ObjectModel from "../../models/ObjectModel.js"; // Import ObjectModel class
+import ObjectIdBoundary from "../../boundaries/object/ObjectIdBoundary.js";
+import CommandModel from "../../models/CommandModel.js"; // Import CommandModel class
 import createHttpError from "http-errors"; // Import createHttpError for HTTP error handling
-import Location from "../../utils/Location.js";
 import UserModel from "../../models/UserModel.js";
 import UserIdInvoker from "../../utils/Invokers/UserIdInvoker.js";
 import CommandIdBoundary from "../../boundaries/command/CommandIdBoundary.js";
@@ -19,7 +19,7 @@ const commandConverter = {
 
         const creationTimestamp = new Date(commandModel.createdAt);
 
-        const userModel = await UserModel.findOne({ _id: commandModel.createdBy });
+        const userModel = await UserModel.findOne({ _id: commandModel.invokedBy });
 
         if (!userModel)
             throw new createHttpError.NotFound("User does not exists");
@@ -38,7 +38,7 @@ const commandConverter = {
         if (!objectModel)
             throw new createHttpError.NotFound("Object does not exists");
 
-        const objectIdBoundary = new CommandIdBoundary(objectModel.platform, objectModel._id);
+        const objectIdBoundary = new ObjectIdBoundary(objectModel.platform, objectModel._id);
 
         const objectIdInvoker = new ObjectIdInvoker(objectIdBoundary)
 
@@ -46,10 +46,10 @@ const commandConverter = {
             commandIdBoundary,
             commandModel.command,
             objectIdInvoker,
-            commandModel.active,
             creationTimestamp,
             userIdInvoker,
-            commandModel.commandAttributes);
+            commandModel.commandAttributes
+        );
 
         // Return the commandBoundary instance
         return commandBoundary;
@@ -62,16 +62,16 @@ const commandConverter = {
 
         const userModel = await UserModel.findOne({ "userId": userEmail + "$" + userPlatform });
 
-        const objectModel = new ObjectModel({
+        const commandModel = new CommandModel({
             platform: userPlatform,
             command: commandBoundary.command,
             targetObject: commandBoundary.targetObject.objectId.internalObjectId, //The internal ObjectId is already stored in this parameter
             invokedBy: userModel._id,
-            commandAttributes: commandBoundary.objectDetails
+            commandAttributes: commandBoundary.commandAttributes
         });
 
         // Return the ObjectModel instance
-        return objectModel;
+        return commandModel;
     }
 };
 

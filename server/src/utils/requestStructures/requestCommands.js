@@ -4,9 +4,9 @@
 
 // Example object for a command
 const commandObj = {
-    command: "doSomething",
+    command: "Testing Service",
     targetObject: {
-        objectIdBoundary: {
+        objectId: {
             platform: "the platform of the object",
             internalObjectId: "some internal object id"
         }

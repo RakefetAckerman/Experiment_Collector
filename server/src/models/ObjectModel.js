@@ -111,7 +111,7 @@ const ObjectSchema = new mongoose.Schema({
  * Mongoose model based on the ObjectSchema schema.
  * @type {Model}
  */
-const ObjectModel = mongoose.model("ObjectEntity", ObjectSchema);
+const ObjectModel = mongoose.model("Object", ObjectSchema);
 
 /**
  * Exporting the ObjectModel for further use by other modules if needed.

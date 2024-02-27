@@ -573,7 +573,7 @@ const objectsService = {
 };
 
 /**
- * Exporting the userService object for further use by other modules if needed.
+ * Exporting the objectsService object for further use by other modules if needed.
  * @type {Object}
  */
 export default objectsService;
