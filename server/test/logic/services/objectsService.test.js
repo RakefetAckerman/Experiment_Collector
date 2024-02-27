@@ -762,10 +762,10 @@ describe('Objects Service Tests', () => {
 
     it('should not bind between two objects, the parent object does not exist', (done) => {
         let parentObjID = '123';
-    
+
         const childObj = { ...researcherObj };
         childObj.objectDetails = { ...researcherObj.objectDetails };
-    
+
         chai.request(app)
             .post(`/objects`)
             .send(childObj)
@@ -774,7 +774,7 @@ describe('Objects Service Tests', () => {
                 postRes.body.should.not.be.empty;
                 postRes.body.should.have.a.property('objectId');
                 postRes.body.objectId.should.have.property('internalObjectId');
-    
+
                 // Attempt to bind child object to non-existent parent
                 const res = await chai.request(app)
                     .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
@@ -793,12 +793,12 @@ describe('Objects Service Tests', () => {
 
     it('should not bind between two objects, the child object does not exist', (done) => {
         let parentObjID;
-    
+
         const parentObj = { ...researcherObj };
         parentObj.objectDetails = { ...researcherObj.objectDetails };
 
         let childObj;
-    
+
         chai.request(app)
             .post(`/objects`)
             .send(parentObj)
@@ -812,7 +812,7 @@ describe('Objects Service Tests', () => {
                 childObj = { ...postRes.body };
                 childObj.objectDetails = { ...postRes.body.objectDetails };
                 childObj.objectId.internalObjectId = '123'
-    
+
                 // Attempt to bind child object to non-existent parent
                 const res = await chai.request(app)
                     .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
@@ -828,8 +828,6 @@ describe('Objects Service Tests', () => {
                 done(error);
             });
     });
-
-    ///////////////unbinding/////////////////////////////
 
     it('should unbind two objects', (done) => {
         const numObjects = 10;
@@ -945,10 +943,10 @@ describe('Objects Service Tests', () => {
 
     it('should not unbind between two objects, the parent object does not exist', (done) => {
         let parentObjID = '123';
-    
+
         const childObj = { ...researcherObj };
         childObj.objectDetails = { ...researcherObj.objectDetails };
-    
+
         chai.request(app)
             .post(`/objects`)
             .send(childObj)
@@ -957,7 +955,7 @@ describe('Objects Service Tests', () => {
                 postRes.body.should.not.be.empty;
                 postRes.body.should.have.a.property('objectId');
                 postRes.body.objectId.should.have.property('internalObjectId');
-    
+
                 // Attempt to bind child object to non-existent parent
                 const res = await chai.request(app)
                     .put(`/objects/${parentObjID}/unbind?email=${researcher.email}&platform=${researcher.platform}`)
@@ -976,12 +974,12 @@ describe('Objects Service Tests', () => {
 
     it('should not unbind between two objects, the child object does not exist', (done) => {
         let parentObjID;
-    
+
         const parentObj = { ...researcherObj };
         parentObj.objectDetails = { ...researcherObj.objectDetails };
 
         let childObj;
-    
+
         chai.request(app)
             .post(`/objects`)
             .send(parentObj)
@@ -995,7 +993,7 @@ describe('Objects Service Tests', () => {
                 childObj = { ...postRes.body };
                 childObj.objectDetails = { ...postRes.body.objectDetails };
                 childObj.objectId.internalObjectId = '123'
-    
+
                 // Attempt to bind child object to non-existent parent
                 const res = await chai.request(app)
                     .put(`/objects/${parentObjID}/unbind?email=${researcher.email}&platform=${researcher.platform}`)
@@ -1011,5 +1009,358 @@ describe('Objects Service Tests', () => {
                 done(error);
             });
     });
-    
+
+    it('should get all the children of an object, the requesting user is participant', (done) => {
+        const numObjects = 10;
+
+        const parentObj = { ...researcherObj };
+        parentObj.objectDetails = { ...researcherObj.objectDetails };
+
+        let parentObjID;
+        const reqObjArr = new Array();
+        const childArr = new Array();
+
+        for (let index = 0; index < numObjects; index++) {
+            let tempObj = { ...researcherObj };
+            tempObj.objectDetails = { ...researcherObj.objectDetails };
+
+            if (index % 2 == 0)
+                tempObj.active = false;
+            reqObjArr.push(tempObj);
+        }
+
+        chai.request(app)
+            .post(`/objects`)
+            .send(parentObj)
+            .then((postRes) => {
+                postRes.should.have.status(201);
+                postRes.body.should.not.be.empty;
+                postRes.body.should.have.a.property('objectId');
+                postRes.body.objectId.should.have.property('internalObjectId');
+                parentObjID = postRes.body.objectId.internalObjectId;
+
+                // Post child objects
+                return Promise.all(reqObjArr.map(async (obj) => {
+                    const res = await chai.request(app)
+                        .post(`/objects`)
+                        .send(obj);
+                    res.should.have.status(201);
+                    res.body.should.not.be.empty;
+                    res.body.should.have.a.property('objectId');
+                    res.body.objectId.should.have.property('internalObjectId');
+                    childArr.push(Object.assign(new ObjectBoundary(), res.body));
+                }));
+            })
+            .then(() => {
+                // Bind child objects to parent
+                return Promise.all(childArr.map(async (obj) => {
+                    const res = await chai.request(app)
+                        .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .send(obj);
+                    res.should.have.status(200);
+                    res.body.should.be.empty;
+                }));
+            })
+            .then(() => {
+                // Get children of parent
+                return chai.request(app)
+                    .get(`/objects/${parentObjID}/children?email=${participant.email}&platform=${participant.platform}`)
+                    .send();
+            })
+            .then((res) => {
+                res.should.have.status(200);
+                res.body.should.be.not.empty;
+                res.body.should.be.a('array');
+                res.body.length.should.be.equal(numObjects / 2); //Half of the objects are inactive so the participant will be able to see only the active ones
+                done();
+            })
+            .catch((error) => {
+                done(error);
+            });
+    });
+
+    it('should get all the children of an object, the requesting user is researcher', (done) => {
+        const numObjects = 10;
+
+        const parentObj = { ...researcherObj };
+        parentObj.objectDetails = { ...researcherObj.objectDetails };
+
+        let parentObjID;
+        const reqObjArr = new Array();
+        const childArr = new Array();
+
+        for (let index = 0; index < numObjects; index++) {
+            let tempObj = { ...researcherObj };
+            tempObj.objectDetails = { ...researcherObj.objectDetails };
+
+            if (index % 2 == 0)
+                tempObj.active = false;
+            reqObjArr.push(tempObj);
+        }
+
+        chai.request(app)
+            .post(`/objects`)
+            .send(parentObj)
+            .then((postRes) => {
+                postRes.should.have.status(201);
+                postRes.body.should.not.be.empty;
+                postRes.body.should.have.a.property('objectId');
+                postRes.body.objectId.should.have.property('internalObjectId');
+                parentObjID = postRes.body.objectId.internalObjectId;
+
+                // Post child objects
+                return Promise.all(reqObjArr.map(async (obj) => {
+                    const res = await chai.request(app)
+                        .post(`/objects`)
+                        .send(obj);
+                    res.should.have.status(201);
+                    res.body.should.not.be.empty;
+                    res.body.should.have.a.property('objectId');
+                    res.body.objectId.should.have.property('internalObjectId');
+                    childArr.push(Object.assign(new ObjectBoundary(), res.body));
+                }));
+            })
+            .then(() => {
+                // Bind child objects to parent
+                return Promise.all(childArr.map(async (obj) => {
+                    const res = await chai.request(app)
+                        .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .send(obj);
+                    res.should.have.status(200);
+                    res.body.should.be.empty;
+                }));
+            })
+            .then(() => {
+                // Get children of parent
+                return chai.request(app)
+                    .get(`/objects/${parentObjID}/children?email=${researcher.email}&platform=${researcher.platform}`)
+                    .send();
+            })
+            .then((res) => {
+                res.should.have.status(200);
+                res.body.should.be.not.empty;
+                res.body.should.be.a('array');
+                res.body.length.should.be.equal(numObjects); //Half of the objects are inactive, but researchercan observe them all
+                done();
+            })
+            .catch((error) => {
+                done(error);
+            });
+    });
+
+    /////////
+
+    it('should get all the parents of an object, the requesting user is participant', (done) => {
+        const numObjects = 10;
+
+        const childObj = { ...researcherObj };
+        childObj.objectDetails = { ...researcherObj.objectDetails };
+
+        let childObjID;
+        const reqObjArr = new Array();
+        const parentsArr = new Array();
+
+        for (let index = 0; index < numObjects; index++) {
+            let tempObj = { ...researcherObj };
+            tempObj.objectDetails = { ...researcherObj.objectDetails };
+
+            if (index % 2 == 0)
+                tempObj.active = false;
+            reqObjArr.push(tempObj);
+        }
+
+        chai.request(app)
+            .post(`/objects`)
+            .send(childObj)
+            .then((postRes) => {
+                postRes.should.have.status(201);
+                postRes.body.should.not.be.empty;
+                postRes.body.should.have.a.property('objectId');
+                postRes.body.objectId.should.have.property('internalObjectId');
+                childObjID = postRes.body.objectId.internalObjectId;
+                Object.assign(childObj, postRes.body);
+
+                // Post child objects
+                return Promise.all(reqObjArr.map(async (obj) => {
+                    const res = await chai.request(app)
+                        .post(`/objects`)
+                        .send(obj);
+                    res.should.have.status(201);
+                    res.body.should.not.be.empty;
+                    res.body.should.have.a.property('objectId');
+                    res.body.objectId.should.have.property('internalObjectId');
+                    parentsArr.push(Object.assign(new ObjectBoundary(), res.body));
+                }));
+            })
+            .then(() => {
+                // Bind child objects to parent
+                return Promise.all(parentsArr.map(async (obj) => {
+                    const res = await chai.request(app)
+                        .put(`/objects/${obj.objectId.internalObjectId}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .send(childObj);
+                    res.should.have.status(200);
+                    res.body.should.be.empty;
+                }));
+            })
+            .then(() => {
+                // Get children of parent
+                return chai.request(app)
+                    .get(`/objects/${childObjID}/parents?email=${participant.email}&platform=${participant.platform}`)
+                    .send();
+            })
+            .then((res) => {
+                res.should.have.status(200);
+                res.body.should.be.not.empty;
+                res.body.should.be.a('array');
+                res.body.length.should.be.equal(numObjects / 2); //Half of the objects are inactive so the participant will be able to see only the active ones
+                done();
+            })
+            .catch((error) => {
+                done(error);
+            });
+    });
+
+    it('should get all the children of an object, the requesting user is researcher', (done) => {
+        const numObjects = 10;
+
+        const childObj = { ...researcherObj };
+        childObj.objectDetails = { ...researcherObj.objectDetails };
+
+        let childObjID;
+        const reqObjArr = new Array();
+        const parentsArr = new Array();
+
+        for (let index = 0; index < numObjects; index++) {
+            let tempObj = { ...researcherObj };
+            tempObj.objectDetails = { ...researcherObj.objectDetails };
+
+            if (index % 2 == 0)
+                tempObj.active = false;
+            reqObjArr.push(tempObj);
+        }
+
+        chai.request(app)
+            .post(`/objects`)
+            .send(childObj)
+            .then((postRes) => {
+                postRes.should.have.status(201);
+                postRes.body.should.not.be.empty;
+                postRes.body.should.have.a.property('objectId');
+                postRes.body.objectId.should.have.property('internalObjectId');
+                childObjID = postRes.body.objectId.internalObjectId;
+                Object.assign(childObj, postRes.body);
+
+
+                // Post child objects
+                return Promise.all(reqObjArr.map(async (obj) => {
+                    const res = await chai.request(app)
+                        .post(`/objects`)
+                        .send(obj);
+                    res.should.have.status(201);
+                    res.body.should.not.be.empty;
+                    res.body.should.have.a.property('objectId');
+                    res.body.objectId.should.have.property('internalObjectId');
+                    parentsArr.push(Object.assign(new ObjectBoundary(), res.body));
+                }));
+            })
+            .then(() => {
+                // Bind child objects to parent
+                return Promise.all(parentsArr.map(async (obj) => {
+                    const res = await chai.request(app)
+                        .put(`/objects/${obj.objectId.internalObjectId}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .send(childObj);
+                    res.should.have.status(200);
+                    res.body.should.be.empty;
+                }));
+            })
+            .then(() => {
+                // Get children of parent
+                return chai.request(app)
+                    .get(`/objects/${childObjID}/parents?email=${researcher.email}&platform=${researcher.platform}`)
+                    .send();
+            })
+            .then((res) => {
+                res.should.have.status(200);
+                res.body.should.be.not.empty;
+                res.body.should.be.a('array');
+                res.body.length.should.be.equal(numObjects); //Half of the objects are inactive, but researchercan observe them all
+                done();
+            })
+            .catch((error) => {
+                done(error);
+            });
+    });
+
+    it('should get all the objects by type, the requesting user is participant', (done) => {
+        const numObjects = 10;
+        const targetType = "dummyType";
+        const reqObjArr = [];
+
+        for (let index = 0; index < numObjects; index++) {
+            let tempObj = { ...researcherObj };
+            tempObj.objectDetails = { ...researcherObj.objectDetails };
+            if (index % 2 == 0)
+                tempObj.active = false;
+            reqObjArr.push(tempObj);
+        }
+
+        Promise.all(reqObjArr.map((obj) => {
+            // Return the promise here
+            return chai.request(app)
+                .post(`/objects`)
+                .send(obj);
+        }))
+            .then(() => {
+                return chai.request(app)
+                    .get(`/objects/type/${targetType}?email=${participant.email}&platform=${participant.platform}`)
+                    .send();
+            })
+            .then((res) => {
+                res.should.have.status(200);
+                res.body.should.not.be.empty;
+                res.body.should.be.a('array');
+                res.body.length.should.be.equal(numObjects / 2); // Half of the objects are inactive so the participant will be able to see only the active ones
+                done();
+            })
+            .catch((error) => {
+                done(error);
+            });
+    });
+
+    it('should get all the objects by type, the requesting user is a Reasearcher', (done) => {
+        const numObjects = 10;
+        const targetType = "dummyType";
+        const reqObjArr = [];
+
+        for (let index = 0; index < numObjects; index++) {
+            let tempObj = { ...researcherObj };
+            tempObj.objectDetails = { ...researcherObj.objectDetails };
+            if (index % 2 == 0)
+                tempObj.active = false;
+            reqObjArr.push(tempObj);
+        }
+
+        Promise.all(reqObjArr.map((obj) => {
+            // Return the promise here
+            return chai.request(app)
+                .post(`/objects`)
+                .send(obj);
+        }))
+            .then(() => {
+                return chai.request(app)
+                    .get(`/objects/type/${targetType}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .send();
+            })
+            .then((res) => {
+                res.should.have.status(200);
+                res.body.should.not.be.empty;
+                res.body.should.be.a('array');
+                res.body.length.should.be.equal(numObjects); //Half of the objects are inactive, but researchercan observe them all
+                done();
+            })
+            .catch((error) => {
+                done(error);
+            });
+    });
+
 });

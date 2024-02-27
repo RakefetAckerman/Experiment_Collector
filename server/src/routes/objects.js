@@ -236,8 +236,6 @@ router.get("/type/:targetType", async (req, res) => {
     const userPlatform = req.query.platform;
     const targetType = req.params.targetType;
 
-    console.log("query",req.query,"\nparams:",req.params);
-
     const DBResponse = await objectsService.getAllObjectsByType(targetType, userEmail, userPlatform);
     res.status(200).json(DBResponse);
   } catch (error) {

@@ -412,6 +412,12 @@ const objectsService = {
             throw new createHttpError.NotFound("User not found");
         }
 
+        if (!mongoose.Types.ObjectId.isValid(internalObjectId)) {
+            // Handle the case where internalObjectId is not a valid ObjectId
+            logger.error(`Parent internalObjectId is not a valid ObjectId:${internalObjectId}`);
+            throw new createHttpError.NotFound("InternalObjectId is not a valid ObjectId");
+        }
+
         const parentObj = await ObjectModel.findOne({ _id: internalObjectId });
 
         if (!parentObj) {
@@ -461,6 +467,12 @@ const objectsService = {
         if (!existingUser) {
             logger.error(`User with userId ${userEmail + "$" + userPlatform} does not exists`);
             throw new createHttpError.NotFound("User not found");
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(internalObjectId)) {
+            // Handle the case where internalObjectId is not a valid ObjectId
+            logger.error(`Child internalObjectId is not a valid ObjectId:${internalObjectId}`);
+            throw new createHttpError.NotFound("InternalObjectId is not a valid ObjectId");
         }
 
         const childObj = await ObjectModel.findOne({ _id: internalObjectId });
