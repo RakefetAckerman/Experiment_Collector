@@ -56,8 +56,6 @@ const commandsService = {
             throw new createHttpError.Forbidden(`The user ${existingUser.username} not allowed to create this request`);
         }
 
-        //console.log("The model in service ----------->",commandModel);
-
         return commandModel.validate()
             .then(commandHandler.runCommand(commandModel.command))
             .then(async () => {

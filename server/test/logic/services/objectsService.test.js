@@ -163,7 +163,6 @@ describe('Objects Service Tests', () => {
                     .send()
                     .end((err, res) => {
                         // Assertion for verifying the created object
-                        console.log(res.body)
                         res.should.have.status(200);
                         res.body.should.be.a('array');
                         res.body.should.have.lengthOf(1);
@@ -1357,7 +1356,7 @@ describe('Objects Service Tests', () => {
                 res.body.objectId.should.have.property('internalObjectId');
             })
             .then(async () => {
-                // Try to unbind child object from parent object as a participant
+                // Try to unbind child object from parent object as a participantall
                 const res = await chai.request(app)
                     .put(`/objects/${parentObjID}/unbind?email=${participant.email}&platform=${participant.platform}`)
                     .send(childObj);
