@@ -1,15 +1,19 @@
 # Dockerfile
-FROM node:16
+FROM node:16-alpine
 
+# Set the working directory
 WORKDIR /app
 
 # Copy package.json
 COPY package.json .
 
-RUN apt-get update \
-    && apt-get install -y build-essential \
-    && apt-get install -y python \
-    && npm install -g nodemon
+# Install build dependencies and tools
+RUN apk --no-cache add \
+        build-base \
+        python3 \
+    && npm install -g nodemon \
+    && npm install \
+    && apk del build-base python3  # Remove build dependencies after installation
 
 # Install dependencies
 RUN npm install
