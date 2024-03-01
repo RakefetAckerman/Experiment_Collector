@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  development:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo-db
+
+  testing:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: npm run test
+    depends_on:
+      - mongo-db
+
+  production:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: npm run prod
+    ports:
+      - "80:3000"
+    depends_on:
+      - mongo-db
+
+  mongo-db:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    restart: always
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
+    driver: local
