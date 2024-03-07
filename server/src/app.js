@@ -18,11 +18,12 @@ import authRoutes from "./routes/auth.js";
 import objectRoutes from "./routes/objects.js";
 import { connectToDatabase } from "./config/database.js"; // Import the function to connect to the database
 import path from 'path';// Import the path identification for logging purposes
+import { instanceId, attachInstanceId } from "./logic/middleware/attachInstanceId.js";// Import generated instaceId and the attachInstaceId middleware
 
 // Create an instance of Express application
 const app = express();
 
-//Logger configuration fo the app module
+//Logger configuration for the app module
 const logger = createCustomLogger({
   moduleFilename: path.parse(new URL(import.meta.url).pathname).name,
   logToFile: true,
@@ -39,6 +40,7 @@ app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cookieParser());
 app.use(cors());
+app.use(attachInstanceId); // Attach instance ID middleware
 
 // Define routes
 app.use("/auth", authRoutes);
@@ -50,8 +52,8 @@ connectToDatabase()
   .then(() => {
     // Start the server
     app.listen(PORT, () => {
-      // Log a message indicating server startup
-      logger.info(`Server is running on port ${PORT}`);
+      // Log a message indicating server startup along with the instance ID
+      logger.info(`Server is running on port ${PORT}. Instance ID: ${instanceId}`);
     });
   })
   .catch((error) => {
