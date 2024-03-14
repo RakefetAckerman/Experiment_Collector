@@ -1,6 +1,7 @@
 /**
  * Module: env.js
- * Description: Loads environment variables from .env files using dotenv-flow.
+ * Description: Loads environment variables from .env files using dotenv-flow, also can be injected from the CLI by cross-env module from
+ * package.json file scripts.
  * Provides access to environment variables such as PORT and MONGO_URL.
  * Author: Shoval Shabi
  */
@@ -36,12 +37,38 @@ export const PORT = process.env.PORT || 6001;
 logger.info(`Server Port: ${PORT}`);
 
 /**
+ * Constant: MONGO_HOST_TYPE
+ * Description: Represents the type of the host wether is dokcerized or localhost, if dockerized then it will inject the container name
+ * via cross-env otherwise it will be used as localhost
+ * Defaults to localhost if not specified in the environment variables.
+ * @type {string}
+ */
+const MONGO_HOST_TYPE = process.env.MONGO_HOST_TYPE || "localhost";
+
+/**
+ * Constant: MONGO_PORT
+ * Description: Represents the type port of MongoDB.
+ * Defaults to 27017 if not specified in the environment variables.
+ * @type {number}
+ */
+const MONGO_PORT = process.env.MONGO_PORT || 27017;
+
+/**
+ * Constant: DB_NAME
+ * Description: Represents the name of the the database in mongo wdepending on the NODE_ENV parameter, it will be injected via cross-env module
+ * from package.json - scripts.
+ * Defaults to localhost if not specified in the environment variables.
+ * @type {string}
+ */
+const DB_NAME = process.env.DB_NAME || "test";
+
+/**
  * Constant: MONGO_URL
  * Description: Represents the MongoDB connection URL.
  * Retrieved from the environment variables.
  * @type {string}
  */
-export const MONGO_URL = process.env.MONGO_URL;
+export const MONGO_URL = `mongodb://${MONGO_HOST_TYPE}:${MONGO_PORT}/${DB_NAME}`;
 
 // Log the MongoDB connection URL being used
 logger.info(`MongoDB URL: ${MONGO_URL}`);

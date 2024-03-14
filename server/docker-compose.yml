@@ -9,7 +9,7 @@ services:  # Defines the services that make up your application
       dockerfile: Dockerfile  # Specifies the Dockerfile to use for building the image
     ports:
       - "3000:3000"
-    command: npm run dev  # Command to run when the container starts
+    command: npm run dev_docker  # Command to run when the container starts
     depends_on:  # Specifies that this service depends on the mongo-db service
       - mongo-db
 
@@ -18,7 +18,7 @@ services:  # Defines the services that make up your application
     build:
       context: .
       dockerfile: Dockerfile
-    command: npm run test
+    command: npm run test_docker
     depends_on:
       - mongo-db
 
@@ -27,7 +27,7 @@ services:  # Defines the services that make up your application
     build:
       context: .
       dockerfile: Dockerfile
-    command: npm run prod
+    command: npm run prod_docker
     ports:
       - "3000" # Maps port 3000 on the host to an ephemeral port in the container for the production service.
     depends_on:
@@ -39,7 +39,7 @@ services:  # Defines the services that make up your application
     volumes:  # Mounts the nginx.conf file into the NGINX container
       - ./nginx.conf:/etc/nginx/nginx.conf:ro  # Mounts the file in read-only mode
     ports:  # Exposes port 80 on the host and forwards it to port 80 in the NGINX container
-      - "80:80"
+      - "8080:8080"
     depends_on:  # Specifies that NGINX depends on all other services
       - production
 

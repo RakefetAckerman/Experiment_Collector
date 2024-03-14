@@ -23,9 +23,12 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "cross-env NODE_ENV=test PORT=0 mocha --recursive --exit",
-    "dev": "cross-env NODE_ENV=dev nodemon src/app.js",
-    "prod": "cross-env NODE_ENV=prod node src/app.js"
+    "test": "cross-env NODE_ENV=test PORT=0 DB_NAME=CollectorTestDB mocha --recursive --exit",
+    "dev": "cross-env NODE_ENV=dev DB_NAME=CollectorDevDB nodemon src/app.js",
+    "prod": "cross-env NODE_ENV=prod DB_NAME=CollectorProdDB node src/app.js",
+    "test_docker": "cross-env NODE_ENV=test PORT=0 MONGO_HOST_TYPE=mongo-db DB_NAME=CollectorTestDB mocha --recursive --exit",
+    "dev_docker": "cross-env NODE_ENV=dev MONGO_HOST_TYPE=mongo-db DB_NAME=CollectorDevDB nodemon src/app.js",
+    "prod_docker": "cross-env NODE_ENV=prod MONGO_HOST_TYPE=mongo-db DB_NAME=CollectorProdDB node src/app.js"
   },
   "keywords": [],
   "author": "",
