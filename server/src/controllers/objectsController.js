@@ -192,7 +192,7 @@ const objectsController = {
       const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during type-based retrieval.';
       res.status(error.status || 500).json({ error: errorMessage });
     }
-  },
+  }
 };
 
 export default objectsController;

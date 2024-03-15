@@ -130,7 +130,7 @@ router.get("/:internalObjectId/parents", async (req, res) => {
 
 /**
  * Route for getting all objects by certain type, the retrieval is depened the presmissions of the user.
- * @name GET objects?email=example@org.com&platform=userPlatform&type=someType
+ * @name GET objects/type/someType/?email=example@org.com&platform=userPlatform
  * @function
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.

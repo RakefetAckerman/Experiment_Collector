@@ -89,7 +89,7 @@ const researchersController = {
    * @param {Object} res - Express response object.
    * @returns {Promise<void>} Promise representing the process of getting user information.
    */
-  getUser: async (req, res) => {
+  getAllUsers: async (req, res) => {
     const userEmail = req.params.email;
     const userPlatform = req.params.platform;
     try {

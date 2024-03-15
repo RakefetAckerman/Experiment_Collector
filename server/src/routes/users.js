@@ -1,5 +1,6 @@
 import express from "express";
 import researchersController from "../controllers/researchersController.js"
+import UserBoundary from "../boundaries/user/UserBoundary.js";
 
 //TODO: this router will turn to reasercher route and participants will be seprated to other route
 const router = express.Router();
@@ -50,11 +51,11 @@ router.put("/:email/:platform", async (req, res) => {
  * @function
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
- * @returns {[Object]} An Array of JSON object structured as UserBoundary form.
+ * @returns {[UserBoundary]} An Array of JSON object structured as UserBoundary form.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/:email/:platform", async (req, res) => {
-  researchersController.getUser(req,res);
+  researchersController.getAllUsers(req,res);
 });
 
 /**
