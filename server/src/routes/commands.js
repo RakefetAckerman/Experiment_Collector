@@ -1,6 +1,7 @@
 import express from "express";
 import CommandBoundary from "../boundaries/object/ObjectIdBoundary.js";
 import commandsService from "../logic/serivces/CommandsService.js"
+import commandsController from "../controllers/commandsController.js";
 
 
 const router = express.Router();
@@ -15,17 +16,7 @@ const router = express.Router();
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.post("/", async (req, res) => {
-  try {
-    const reqCommandBoundary = new CommandBoundary();
-
-    /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
-    Object.assign(reqCommandBoundary, req.body);
-
-    const resCommandBoundary = await commandsService.invokeCommand(reqCommandBoundary);
-    res.status(201).json(resCommandBoundary);
-  } catch (error) {
-    res.status(error.status || 500).json({ error: error.message });
-  }
+  commandsController.createCommand(req,res);
 });
 
 /**
@@ -38,15 +29,7 @@ router.post("/", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/", async (req, res) => {
-  try {
-    const userEmail = req.query.email;
-    const userPlatform = req.query.platform;
-
-    const DBResponse = await commandsService.getAllCommands(userEmail, userPlatform);
-    res.status(200).json(DBResponse);
-  } catch (error) {
-    res.status(error.status || 500).json({ error: error.message });
-  }
+  commandsController.getAllCommands(req,res);
 });
 
 /**
@@ -59,14 +42,7 @@ router.get("/", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.delete("/", async (req, res) => {
-  const userEmail = req.query.email;
-  const userPlatform = req.query.platform;
-  try {
-    const DBResponse = await commandsService.deleteAllCommands(userEmail, userPlatform);
-    res.status(200).json(DBResponse);
-  } catch (error) {
-    res.status(error.status || 500).json({ error: error.message });
-  }
+  commandsController.deleteAllCommands(req,res);
 });
 
 export default router;

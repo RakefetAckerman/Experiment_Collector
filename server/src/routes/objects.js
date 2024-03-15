@@ -1,7 +1,5 @@
 import express from "express";
-import ObjectBoundary from "../boundaries/object/ObjectBoundary.js";
-import objectsService from "../logic/serivces/ObjectsService.js";
-import ObjectIdBoundary from "../boundaries/object/ObjectIdBoundary.js";
+import objectsController from "../controllers/objectsController.js";
 
 
 const router = express.Router();
@@ -16,17 +14,7 @@ const router = express.Router();
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.post("/", async (req, res) => {
-  try {
-    const reqObjectBoundary = new ObjectBoundary();
-
-    /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
-    Object.assign(reqObjectBoundary, req.body);
-
-    const resUserBoundary = await objectsService.createObject(reqObjectBoundary);
-    res.status(201).json(resUserBoundary);
-  } catch (error) {
-    res.status(error.status || 500).json({ error: error.message });
-  }
+  objectsController.createObject(req,res);
 });
 
 /**
@@ -39,16 +27,7 @@ router.post("/", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/:internalObjectId", async (req, res) => {
-  try {
-    const internalObjectId = req.params.internalObjectId;
-    const userEmail = req.query.email;
-    const userPlatform = req.query.platform;
-
-    const DBResponse = await objectsService.getObject(internalObjectId, userEmail, userPlatform);
-    res.status(200).json(DBResponse);
-  } catch (error) {
-    res.status(error.status || 500).json({ error: error.message });
-  }
+  objectsController.getObject(req,res);
 });
 
 /**
@@ -61,15 +40,7 @@ router.get("/:internalObjectId", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/", async (req, res) => {
-  try {
-    const userEmail = req.query.email;
-    const userPlatform = req.query.platform;
-
-    const DBResponse = await objectsService.getAllObjects(userEmail, userPlatform);
-    res.status(200).json(DBResponse);
-  } catch (error) {
-    res.status(error.status || 500).json({ error: error.message });
-  }
+  objectsController.getAllObjects(req,res);
 });
 
 /**
@@ -82,14 +53,7 @@ router.get("/", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.delete("/", async (req, res) => {
-  const userEmail = req.query.email;
-  const userPlatform = req.query.platform;
-  try {
-    const DBResponse = await objectsService.deleteAllObjects(userEmail, userPlatform);
-    res.status(200).json(DBResponse);
-  } catch (error) {
-    res.status(error.status || 500).json({ error: error.message });
-  }
+  objectsController.deleteAllObjects(req,res);
 });
 
 
@@ -104,20 +68,7 @@ router.delete("/", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.put("/:internalObjectId/bind", async (req, res) => {
-  try {
-    const internalObjectid = req.params.internalObjectId;
-    const userEmail = req.query.email;
-    const userPlatform = req.query.platform;
-
-    /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
-    const reqObjectIdBoundary = new ObjectIdBoundary();
-    Object.assign(reqObjectIdBoundary, req.body.objectId);
-
-    await objectsService.bindNewChild(internalObjectid, userEmail, userPlatform, reqObjectIdBoundary);
-    res.status(200).send();
-  } catch (error) {
-    res.status(error.status || 500).json({ error: error.message });
-  }
+  objectsController.bindNewChild(req,res);
 });
 
 
@@ -132,20 +83,7 @@ router.put("/:internalObjectId/bind", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.put("/:internalObjectId/unbind", async (req, res) => {
-  try {
-    const internalObjectid = req.params.internalObjectId;
-    const userEmail = req.query.email;
-    const userPlatform = req.query.platform;
-
-    /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
-    const reqObjectIdBoundary = new ObjectIdBoundary();
-    Object.assign(reqObjectIdBoundary, req.body.objectId);
-
-    await objectsService.unbindChild(internalObjectid, userEmail, userPlatform, reqObjectIdBoundary);
-    res.status(200).send();
-  } catch (error) {
-    res.status(error.status || 500).json({ error: error.message });
-  }
+  objectsController.unbindChild(req,res);
 });
 
 
@@ -160,20 +98,7 @@ router.put("/:internalObjectId/unbind", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.put("/:internalObjectId", async (req, res) => {
-  try {
-    const internalObjectId = req.params.internalObjectId;
-    const userEmail = req.query.email;
-    const userPlatform = req.query.platform;
-
-    /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
-    const reqObjectBoundary = new ObjectBoundary();
-    Object.assign(reqObjectBoundary, req.body);
-
-    await objectsService.updateObject(userEmail, userPlatform, internalObjectId, reqObjectBoundary);
-    res.status(200).send();
-  } catch (error) {
-    res.status(error.status || 500).json({ error: error.message });
-  }
+  objectsController.updateObject(req,res);
 });
 
 /**
@@ -186,16 +111,7 @@ router.put("/:internalObjectId", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/:internalObjectId/children", async (req, res) => {
-  try {
-    const internalObjectId = req.params.internalObjectId;
-    const userEmail = req.query.email;
-    const userPlatform = req.query.platform;
-
-    const DBResponse = await objectsService.getAllChildren(internalObjectId, userEmail, userPlatform);
-    res.status(200).json(DBResponse);
-  } catch (error) {
-    res.status(error.status || 500).json({ error: error.message });
-  }
+  objectsController.getAllChildren(req,res);
 });
 
 
@@ -209,16 +125,7 @@ router.get("/:internalObjectId/children", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/:internalObjectId/parents", async (req, res) => {
-  try {
-    const internalObjectId = req.params.internalObjectId;
-    const userEmail = req.query.email;
-    const userPlatform = req.query.platform;
-
-    const DBResponse = await objectsService.getAllParents(internalObjectId, userEmail, userPlatform);
-    res.status(200).json(DBResponse);
-  } catch (error) {
-    res.status(error.status || 500).json({ error: error.message });
-  }
+  objectsController.getAllParents(req,res);
 });
 
 /**
@@ -231,16 +138,7 @@ router.get("/:internalObjectId/parents", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/type/:targetType", async (req, res) => {
-  try {
-    const userEmail = req.query.email;
-    const userPlatform = req.query.platform;
-    const targetType = req.params.targetType;
-
-    const DBResponse = await objectsService.getAllObjectsByType(targetType, userEmail, userPlatform);
-    res.status(200).json(DBResponse);
-  } catch (error) {
-    res.status(error.status || 500).json({ error: error.message });
-  }
+  objectsController.getAllObjectsByType(req,res);
 });
 
 export default router;

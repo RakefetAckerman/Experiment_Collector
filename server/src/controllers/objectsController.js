@@ -11,6 +11,8 @@ const objectsController = {
   createObject: async (req, res) => {
     try {
       const reqObjectBoundary = new ObjectBoundary();
+
+      /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
       Object.assign(reqObjectBoundary, req.body);
       const resUserBoundary = await objectsService.createObject(reqObjectBoundary);
       res.status(201).json(resUserBoundary);
@@ -82,6 +84,8 @@ const objectsController = {
       const internalObjectid = req.params.internalObjectId;
       const userEmail = req.query.email;
       const userPlatform = req.query.platform;
+
+      /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
       const reqObjectIdBoundary = new ObjectIdBoundary();
       Object.assign(reqObjectIdBoundary, req.body.objectId);
       await objectsService.bindNewChild(internalObjectid, userEmail, userPlatform, reqObjectIdBoundary);
@@ -103,6 +107,8 @@ const objectsController = {
       const userEmail = req.query.email;
       const userPlatform = req.query.platform;
       const reqObjectIdBoundary = new ObjectIdBoundary();
+
+      /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
       Object.assign(reqObjectIdBoundary, req.body.objectId);
       await objectsService.unbindChild(internalObjectid, userEmail, userPlatform, reqObjectIdBoundary);
       res.status(200).send();
@@ -123,6 +129,8 @@ const objectsController = {
       const userEmail = req.query.email;
       const userPlatform = req.query.platform;
       const reqObjectBoundary = new ObjectBoundary();
+      
+      /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
       Object.assign(reqObjectBoundary, req.body);
       await objectsService.updateObject(userEmail, userPlatform, internalObjectId, reqObjectBoundary);
       res.status(200).send();

@@ -10,6 +10,8 @@ const commandsController = {
   createCommand: async (req, res) => {
     try {
       const reqCommandBoundary = new CommandBoundary();
+      
+      //Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance
       Object.assign(reqCommandBoundary, req.body);
       const resCommandBoundary = await commandsService.invokeCommand(reqCommandBoundary);
       res.status(201).json(resCommandBoundary);

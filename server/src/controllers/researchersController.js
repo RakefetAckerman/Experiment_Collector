@@ -1,4 +1,4 @@
-import userService from "../logic/services/UsersService.js";
+import userService from "../logic/serivces/UsersService.js";
 import UserBoundary from "../boundaries/user/UserBoundary.js";
 import { setCookieIfNeeded } from "../logic/middleware/auth.js";
 
@@ -10,7 +10,7 @@ const researchersController = {
    * @returns {Promise<void>} Promise representing the registration process.
    */
   registerUser: async (req, res) => {
-    const userData = req.body;
+    const userData = req.body;// Getting the body of the request containing the NewUserBoundary data
     try {
       const reqUserBoundary = new UserBoundary(
         userData.platform,
@@ -37,7 +37,7 @@ const researchersController = {
    * @returns {Promise<void>} Promise representing the login process.
    */
   loginUser: async (req, res) => {
-    const userData = req.body;
+    const userData = req.body;// Getting the body of the request containing the NewUserBoundary data
     try {
       const reqUserBoundary = new UserBoundary(
         userData.platform,
@@ -66,7 +66,7 @@ const researchersController = {
   updateUser: async (req, res) => {
     const userEmail = req.params.email;
     const userPlatform = req.params.platform;
-    const userData = req.body;
+    const userData = req.body;// Getting the body of the request containing the NewUserBoundary data
     try {
       const reqUserBoundary = new UserBoundary(
         userData.platform,
