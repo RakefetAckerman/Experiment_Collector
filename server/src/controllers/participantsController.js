@@ -1,55 +1,10 @@
 import userService from "../logic/serivces/UsersService.js";
 import objectsService from "../logic/serivces/ObjectsService.js"
 import UserBoundary from "../boundaries/user/UserBoundary.js";
+import ObjectBoundary from "../boundaries/object/ObjectBoundary.js";
+import ObjectIdBoundary from "../boundaries/object/ObjectIdBoundary.js";
 
 const participantsController = {
-  /**
-   * Controller function for user registration.
-   * @param {Object} req - Express request object formed as UserBoundary.
-   * @param {Object} res - Express response object.
-   * @returns {Promise<void>} Promise representing the registration process.
-   */
-  registerUser: async (req, res) => {
-    const userData = req.body;// Getting the body of the request containing the NewUserBoundary data
-    try {
-      const reqUserBoundary = new UserBoundary(
-        userData.platform,
-        userData.email,
-        userData.role,
-        userData.username,
-        userData.userDetails
-      );
-      const DBResponse = await userService.createUser(reqUserBoundary);
-      res.status(201).json(DBResponse.body);
-    } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during user registration.';
-      res.status(error.status || 500).json({ error: errorMessage });
-    }
-  },
-
-  /**
-   * Controller function for user login.
-   * @param {Object} req - Express request object formed as UserBoundary.
-   * @param {Object} res - Express response object.
-   * @returns {Promise<void>} Promise representing the login process.
-   */
-  loginUser: async (req, res) => {
-    const userData = req.body;// Getting the body of the request containing the NewUserBoundary data
-    try {
-      const reqUserBoundary = new UserBoundary(
-        userData.platform,
-        userData.email,
-        userData.role,
-        userData.username,
-        userData.userDetails
-      );
-      const DBResponse = await userService.login(reqUserBoundary);
-      res.status(200).json(DBResponse.body);
-    } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during user login.';
-      res.status(error.status || 500).json({ error: errorMessage });
-    }
-  },
   /**
    * Controller function for creating a new object
    * @param {Object} req - Express request object formed as UserBoundary.
@@ -86,6 +41,63 @@ const participantsController = {
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
+    /**
+   * Controller function for binding two objects one to another.
+   * @param {Object} req - Express request object formed as UserBoundary.
+   * @param {Object} res - Express response object.
+   */
+    bindNewChild: async (req, res) => {
+      try {
+        const internalObjectid = req.params.internalObjectId;
+        const userEmail = req.query.email;
+        const userPlatform = req.query.platform;
+  
+        /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
+        const reqObjectIdBoundary = new ObjectIdBoundary();
+        Object.assign(reqObjectIdBoundary, req.body.objectId);
+        await objectsService.bindNewChild(internalObjectid, userEmail, userPlatform, reqObjectIdBoundary);
+        res.status(200).send();
+      } catch (error) {
+        const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during object binding.';
+        res.status(error.status || 500).json({ error: errorMessage });
+      }
+    },
+  
+    /**
+     * Controller function for getting all children objects of specific object, the retrieval depends on the permissions of the user.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     */
+    getAllChildren: async (req, res) => {
+      try {
+        const internalObjectId = req.params.internalObjectId;
+        const userEmail = req.query.email;
+        const userPlatform = req.query.platform;
+        const DBResponse = await objectsService.getAllChildren(internalObjectId, userEmail, userPlatform);
+        res.status(200).json(DBResponse);
+      } catch (error) {
+        const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during children retrieval.';
+        res.status(error.status || 500).json({ error: errorMessage });
+      }
+    },
+  
+    /**
+     * Controller function for getting all parents objects of specific object, the retrieval depends on the permissions of the user.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     */
+    getAllParents: async (req, res) => {
+      try {
+        const internalObjectId = req.params.internalObjectId;
+        const userEmail = req.query.email;
+        const userPlatform = req.query.platform;
+        const DBResponse = await objectsService.getAllParents(internalObjectId, userEmail, userPlatform);
+        res.status(200).json(DBResponse);
+      } catch (error) {
+        const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during parents retrieval.';
+        res.status(error.status || 500).json({ error: errorMessage });
+      }
+    },
 
   /**
    * Controller function for getting all objects by certain type, the retrieval depends on the permissions of the user.
