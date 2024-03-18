@@ -143,13 +143,14 @@ const userService = {
 
       const token = jwt.sign({ id: existingUserModel._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION });
       const userBoundary = userConverter.toBoundary(existingUserModel);
-      const date = new Date();
+      const date = Date.now();
+      const expirationTime = parseInt(process.env.JWT_EXPIRATION) * 24 * 60 * 60 * 1000; // Time in day * 24 hours * 60 minutes * 60 secones * 1000 millseconds 
 
       logger.info(`User with userId ${existingUserModel.userId} successfully signed in into the system`);
       return {
         jwtToken: token,
         body: userBoundary,
-        expirationCookie: new Date(date.getDate() + parseInt(process.env.JWT_EXPIRATION))// Adding the number of days to current date
+        expirationCookie: new Date(date + expirationTime)// Adding the number of days to current date
       };
     }
     return { "body": userConverter.toBoundary(existingUserModel) };
