@@ -6,20 +6,13 @@
 
 // Import required modules
 import express from "express";
-import bodyParser from "body-parser";
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import helmet from "helmet";
-import morgan from "morgan";
 import { PORT } from "./config/env.js";
 import createCustomLogger from "./config/logger.js"; // Import the configured logger
-import userRoutes from "./routes/users.js";
-import authRoutes from "./routes/auth.js";
-import objectRoutes from "./routes/objects.js";
 import { connectToDatabase } from "./config/database.js"; // Import the function to connect to the database
 import path from 'path';// Import the path identification for logging purposes
-import { instanceId, attachInstanceId } from "./logic/middleware/attachInstanceId.js";// Import generated instaceId and the attachInstaceId middleware
-
+import { instanceId } from "./logic/middleware/attachInstanceId.js";// Import generated instaceId and the attachInstaceId middleware
+import { setupMiddleware, attachCustomMiddleware } from "./logic/middleware/setupMiddleware.js";
+import { mountRoutes } from "./routes/setupRoutes.js";
 // Create an instance of Express application
 const app = express();
 
@@ -31,21 +24,12 @@ const logger = createCustomLogger({
   logRotation: true
 });
 
-// Configure middleware
-app.use(express.json());
-app.use(helmet());
-app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
-app.use(morgan("common"));
-app.use(bodyParser.json({ limit: "30mb", extended: true }));
-app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
-app.use(cookieParser());
-app.use(cors());
-app.use(attachInstanceId); // Attach instance ID middleware
+// Configure middleware - standard and custom-made
+setupMiddleware(app);
+attachCustomMiddleware(app);
 
-// Define routes
-app.use("/auth", authRoutes);
-app.use("/users", userRoutes);
-app.use("/objects", objectRoutes);
+// Mount routes
+mountRoutes(app);
 
 // Connect to the MongoDB database
 connectToDatabase()
