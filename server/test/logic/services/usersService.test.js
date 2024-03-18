@@ -460,12 +460,8 @@ describe('User Service Tests', () => {
                         const expectedToken = usersCookies[researcher.email][0];
                         const actualToken = responseCookieArr[0];
 
-                        // Extract the payload part of the tokens
-                        const expectedPayload = expectedToken.split('.')[1];
-                        const actualPayload = actualToken.split('.')[1];
-
-                        // Compare only the payloads
-                        expectedPayload.should.equal(actualPayload);
+                        // Compare the entire JWT tokens
+                        expectedToken.should.equal(actualToken);
 
                         // Call done() to indicate that the test has completed
                         done();
