@@ -2,39 +2,11 @@ import express from "express";
 import researchersController from "../controllers/researchersController.js"
 import UserBoundary from "../boundaries/user/UserBoundary.js";
 
-//TODO: this router will turn to reasercher route and participants will be seprated to other route
 const router = express.Router();
 
 /**
- * Route for user registration.
- * @name POST users/register
- * @function
- * @param {Object} req - Express request object formed as UserBoundary.
- * @param {Object} res - Express response object.
- * @returns {Object<UserBoundary>} JSON response as UserBoundary structure containing user details.
- * @throws {import("http-errors").HttpError} JSON response containing Http error message.
- */
-router.post("/register", async (req, res) => {
-  researchersController.registerUser(req,res);
-});
-
-/**
- * Route for user login.
- * @name POST users/login
- * @function
- * @param {Object} req - Express request object formed as UserBoundary.
- * @param {Object} res - Express response object.
- * @returns {Object<UserBoundary>} JSON response of token and UserBoundary structure for the
- * user details in case the user is not Particpant, otherwise there will be no JWT token.
- * @throws {import("http-errors").HttpError} JSON response containing Http error message.
- */
-router.post("/login", async (req, res) => {
-  researchersController.loginUser(req,res);
-});
-
-/**
- * Route for updating user information.
- * @name PUT users/:email/:platform
+ * Route for updating researcher information.
+ * @name PUT researchers/:email/:platform
  * @function
  * @param {Object} req - Express request object formed as UserBoundary.
  * @param {Object} res - Express response object.
@@ -46,8 +18,8 @@ router.put("/:email/:platform", async (req, res) => {
 });
 
 /**
- * Route for getting user information.
- * @name GET users/:email/:platform
+ * Route for getting users information.
+ * @name GET researchers/:email/:platform
  * @function
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
@@ -60,7 +32,7 @@ router.get("/:email/:platform", async (req, res) => {
 
 /**
  * Route for deleting all users (only accessible to Admins).
- * @name DELETE users/:email/:platform
+ * @name DELETE researchers/:email/:platform
  * @function
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
