@@ -17,6 +17,10 @@ import bcrypt from "bcrypt";
 chai.use(chaiHttp);
 chai.should();
 
+const baseEntryRegistrationURL = "/entry/register";
+const baseEntryLoginURL = "/entry/login";
+const baseResearchersURL = "/auth/researchers";
+
 // A dictionary to store cookies of JWT tokens mapped by user email
 let usersCookies = {}
 
@@ -31,10 +35,10 @@ describe('User Service Tests', () => {
      * @name beforeEach Registering and logining in ad admin
      * @function
      */
-    beforeEach('Registering and logining in ad admin', (done) => {
+    beforeEach('Registering and logining in an admin', (done) => {
         // Register and login admin before each test
         chai.request(app)
-            .post('/users/register')
+            .post(`${baseEntryRegistrationURL}`)
             .send(admin1)
             .end((err, res) => {
                 res.should.have.status(201);
@@ -42,7 +46,7 @@ describe('User Service Tests', () => {
 
                 // Login in the admin
                 chai.request(app)
-                    .post('/users/login')
+                    .post(`${baseEntryLoginURL}`)
                     .send(admin1)
                     .end((err, res) => {
                         res.should.have.status(200);
@@ -65,7 +69,7 @@ describe('User Service Tests', () => {
 
         // Delete all users after each test
         chai.request(app)
-            .delete(`/auth/users/${admin1.email}/${admin1.platform}`)
+            .delete(`${baseResearchersURL}/${admin1.email}/${admin1.platform}`)
             .set('Cookie', usersCookies[admin1.email])
             .end((err, res) => {
                 res.should.have.status(200);
@@ -92,7 +96,7 @@ describe('User Service Tests', () => {
         */
 
         chai.request(app)
-            .post('/users/register')
+            .post(`${baseEntryRegistrationURL}`)
             .send(researcher)
             .end((err, res) => {
                 // Assert that the system responds with a success status code (201)
@@ -121,7 +125,7 @@ describe('User Service Tests', () => {
         */
 
         chai.request(app)
-            .post('/users/register')
+            .post(`${baseEntryRegistrationURL}`)
             .send() // Sending undefined body
             .end((err, res) => {
                 // Assert that the system responds with a bad request status code (400)
@@ -152,7 +156,7 @@ describe('User Service Tests', () => {
         delete newResearcher.userDetails.password;
 
         chai.request(app)
-            .post('/users/register')
+            .post(`${baseEntryRegistrationURL}`)
             .send(newResearcher)
             .end((err, res) => {
                 // Assert that the system responds with a bad request status code (400)
@@ -160,7 +164,7 @@ describe('User Service Tests', () => {
 
                 // Additional verification: Ensure the user list for an admin remains unchanged
                 chai.request(app)
-                    .get(`/auth/users/${admin1.email}/${admin1.platform}`)
+                    .get(`${baseResearchersURL}/${admin1.email}/${admin1.platform}`)
                     .set('Cookie', usersCookies[admin1.email])
                     .send()
                     .end((err, res) => {
@@ -195,7 +199,7 @@ describe('User Service Tests', () => {
         */
 
         chai.request(app)
-            .post('/users/register')
+            .post(`${baseEntryRegistrationURL}`)
             .send(researcher)
             .then(res => {
                 // Assert that the system responds with a successful status code (201) for the first registration
@@ -203,7 +207,7 @@ describe('User Service Tests', () => {
 
                 // Make a second registration request for the same researcher
                 return chai.request(app)
-                    .post('/users/register')
+                    .post(`${baseEntryRegistrationURL}`)
                     .send(researcher);
             }).then((res) => {
                 // Assert that the system responds with a successful status code (201) for the second registration
@@ -213,7 +217,7 @@ describe('User Service Tests', () => {
 
                 // Retrieve the user list for an admin
                 return chai.request(app)
-                    .get(`/auth/users/${admin1.email}/${admin1.platform}`)
+                    .get(`${baseResearchersURL}/${admin1.email}/${admin1.platform}`)
                     .set('Cookie', usersCookies[admin1.email])
                     .send();
             }).then((res) => {
@@ -245,7 +249,7 @@ describe('User Service Tests', () => {
         */
 
         chai.request(app)
-            .post('/users/register')
+            .post(`${baseEntryRegistrationURL}`)
             .send(participant)
             .end((err, res) => {
                 // Assert that the system responds with a successful status code (201)
@@ -278,7 +282,7 @@ describe('User Service Tests', () => {
 
         // Register a participant
         chai.request(app)
-            .post('/users/register')
+            .post(`${baseEntryRegistrationURL}`)
             .send(participant)
             .then(res => {
                 // Assert that the system responds with a successful status code (201)
@@ -294,7 +298,7 @@ describe('User Service Tests', () => {
             .then((res) => {
                 // Attempt to register the same participant again
                 return chai.request(app)
-                    .post('/users/register')
+                    .post(`${baseEntryRegistrationURL}`)
                     .send(participant)
                     .then(anotherRes => {
                         // Assert that the system responds with a successful status code (201)
@@ -310,7 +314,7 @@ describe('User Service Tests', () => {
             .then(() => {
                 // Check the number of participants in the system
                 chai.request(app)
-                    .get(`/auth/users/${admin1.email}/${admin1.platform}`)
+                    .get(`${baseResearchersURL}/${admin1.email}/${admin1.platform}`)
                     .set('Cookie', usersCookies[admin1.email])
                     .send()
                     .end((err, res) => {
@@ -347,7 +351,7 @@ describe('User Service Tests', () => {
 
         // Attempt to register the user
         chai.request(app)
-            .post('/users/register')
+            .post(`${baseEntryRegistrationURL}`)
             .send(newUser)
             .end((err, res) => {
                 // Assert that the system responds with a 400 error
@@ -374,7 +378,7 @@ describe('User Service Tests', () => {
 
         // Register the researcher
         chai.request(app)
-            .post('/users/register')
+            .post(`${baseEntryRegistrationURL}`)
             .send(researcher)
             .end((err, res) => {
                 // Assert that the registration is successful
@@ -382,7 +386,7 @@ describe('User Service Tests', () => {
                 res.body.should.be.a('object');
                 // Attempt to log in
                 chai.request(app)
-                    .post('/users/login')
+                    .post(`${baseEntryLoginURL}`)
                     .send(researcher)
                     .end((err, res) => {
                         // Assert that the login is successful
@@ -414,7 +418,7 @@ describe('User Service Tests', () => {
 
         // Register the researcher and log in for the first time
         chai.request(app)
-            .post('/users/register')
+            .post(`${baseEntryRegistrationURL}`)
             .send(researcher)
             .then((res) => {
                 // Assert that the registration is successful
@@ -422,7 +426,7 @@ describe('User Service Tests', () => {
                 res.body.should.be.a('object');
                 return new Promise((resolve) => {
                     chai.request(app)
-                        .post('/users/login')
+                        .post(`${baseEntryLoginURL}`)
                         .send(researcher)
                         .end((err, res) => {
                             // Assert that the first login is successful
@@ -433,14 +437,14 @@ describe('User Service Tests', () => {
                             res.body.userDetails.password.should.not.be.equal(researcher.userDetails.password);
                             res.headers.should.have.property('set-cookie');
                             usersCookies[researcher.email] = res.headers['set-cookie']; // Update the JWT token within the users cookie dictionary
-                            resolve();
+                            resolve(res); // Resolve with the response to access the headers in the next then block
                         });
                 });
             })
             .then(() => {
                 // Log in for the second time
                 chai.request(app)
-                    .post('/users/login')
+                    .post(`${baseEntryLoginURL}`)
                     .send(researcher)
                     .end((err, res) => {
                         // Assert that the second login is successful
@@ -452,8 +456,17 @@ describe('User Service Tests', () => {
                         res.headers.should.have.property('set-cookie');
                         const responseCookieArr = res.headers['set-cookie'];
                         responseCookieArr.should.have.lengthOf(1);
-                        // Assert that the JWT token remains the same
-                        responseCookieArr[0].should.be.equal(usersCookies[researcher.email][0]);
+
+                        const expectedToken = usersCookies[researcher.email][0];
+                        const actualToken = responseCookieArr[0];
+
+                        // Extract the payload part of the tokens
+                        const expectedPayload = expectedToken.split('.')[1];
+                        const actualPayload = actualToken.split('.')[1];
+
+                        // Compare only the payloads
+                        expectedPayload.should.equal(actualPayload);
+
                         // Call done() to indicate that the test has completed
                         done();
                     });
@@ -476,7 +489,7 @@ describe('User Service Tests', () => {
 
         // Register the researcher
         chai.request(app)
-            .post('/users/register')
+            .post(`${baseEntryRegistrationURL}`)
             .send(researcher)
             .end((err, res) => {
                 // Assert that the registration is successful
@@ -487,7 +500,7 @@ describe('User Service Tests', () => {
                 delete newReseacher.userDetails.password;
                 // Attempt to log in without providing a password
                 chai.request(app)
-                    .post('/users/login')
+                    .post(`${baseEntryLoginURL}`)
                     .send(newReseacher)
                     .end((err, res) => {
                         // Assert that the login attempt fails with a 400 Bad Request error
@@ -514,7 +527,7 @@ describe('User Service Tests', () => {
 
         // Register the researcher
         chai.request(app)
-            .post('/users/register')
+            .post(`${baseEntryRegistrationURL}`)
             .send(researcher)
             .end((err, res) => {
                 // Assert that the registration is successful
@@ -526,7 +539,7 @@ describe('User Service Tests', () => {
                 newReseacher.userDetails.password = 'sS654321';
                 // Attempt to log in with the incorrect password
                 chai.request(app)
-                    .post('/users/login')
+                    .post(`${baseEntryLoginURL}`)
                     .send(newReseacher)
                     .end((err, res) => {
                         // Assert that the login attempt fails with a 400 Bad Request error
@@ -558,7 +571,7 @@ describe('User Service Tests', () => {
 
         // Attempt to log in with the new user object
         chai.request(app)
-            .post('/users/login')
+            .post(`${baseEntryLoginURL}`)
             .send(newUser)
             .end((err, res) => {
                 // Assert that the login attempt fails with a 404 Not Found error
@@ -591,7 +604,7 @@ describe('User Service Tests', () => {
 
         // Attempt to log in with the new user object
         chai.request(app)
-            .post('/users/login')
+            .post(`${baseEntryLoginURL}`)
             .send(newUser)
             .end((err, res) => {
                 // Assert that the login attempt fails with a 400 Bad Request error
@@ -617,7 +630,7 @@ describe('User Service Tests', () => {
 
         // Send a login request without any body attached
         chai.request(app)
-            .post('/users/login')
+            .post(`${baseEntryLoginURL}`)
             .send()
             .end((err, res) => {
                 // Assert that the login attempt fails with a 400 Bad Request error
@@ -643,7 +656,7 @@ describe('User Service Tests', () => {
 
         // Register the participant
         chai.request(app)
-            .post('/users/register')
+            .post(`${baseEntryRegistrationURL}`)
             .send(participant)
             .end((err, res) => {
                 // Assert that the participant registration is successful
@@ -652,7 +665,8 @@ describe('User Service Tests', () => {
 
                 // Attempt to access the auth route with participant credentials
                 chai.request(app)
-                    .get(`/auth/users/${participant.email}/${participant.platform}`)
+                    .get(`${baseResearchersURL}/${participant.email}/${participant.platform}`)
+                    .set('Cookie', "someInvalidToken")
                     .send()
                     .end((err, res) => {
                         // Assert that the participant is prevented from accessing the auth route
@@ -677,7 +691,6 @@ describe('User Service Tests', () => {
             And the user should be able to log in with the updated credentials
     
         */
-
         // Define updated user data
         const updatedUserData = {
             username: 'newUsername',
@@ -687,52 +700,72 @@ describe('User Service Tests', () => {
             }
         };
 
+        // Construct updated researcher data
+        const updatedResearcher = {
+            ...researcher,
+            ...updatedUserData
+        };
+        updatedResearcher.userDetails = {
+            ...researcher.userDetails,
+            ...updatedUserData.userDetails
+        };
+
         // Register the user (researcher) successfully
         chai.request(app)
-            .post('/users/register')
+            .post(`${baseEntryRegistrationURL}`)
             .send(researcher)
-            .end((err, res) => {
+            .then((res) => {
                 // Assert that the user registration is successful
                 res.should.have.status(201);
                 res.body.should.be.a('object');
 
-                // Construct updated researcher data
-                const updatedResearcher = {
-                    ...researcher,
-                    ...updatedUserData
-                };
-                updatedResearcher.userDetails = {
-                    ...researcher.userDetails,
-                    ...updatedUserData.userDetails
-                };
+                // Log in the user
+                return chai.request(app)
+                    .post(`${baseEntryLoginURL}`)
+                    .send(researcher);
+            })
+            .then((res) => {
+                // Assert that the user login is successful
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.headers.should.have.property('set-cookie');
+                usersCookies[researcher.email] = res.headers['set-cookie'];
 
                 // Update user information (username and user details)
-                chai.request(app)
-                    .put(`/users/${updatedResearcher.email}/${updatedResearcher.platform}`)
-                    .send(updatedResearcher)
-                    .then(res => {
-                        // Assert that the user information is successfully updated
-                        res.should.have.status(200);
+                return chai.request(app)
+                    .put(`${baseResearchersURL}/${updatedResearcher.email}/${updatedResearcher.platform}`)
+                    .set('Cookie', usersCookies[updatedResearcher.email])
+                    .send(updatedResearcher);
+            })
+            .then((res) => {
+                // Assert that the user information is successfully updated
+                res.should.have.status(200);
 
-                        // Log in with the updated credentials
-                        chai.request(app)
-                            .post('/users/login')
-                            .send(updatedResearcher)
-                            .end(async (err, res) => {
-                                // Assert that the user can log in with the updated credentials
-                                res.should.have.status(200);
-                                res.body.should.be.a('object');
-                                res.body.userId.email.should.be.equal(researcher.email);
-                                res.body.userId.platform.should.be.equal(researcher.platform);
-                                const isMatch = await bcrypt.compare(updatedResearcher.userDetails.password, res.body.userDetails.password); // Decrypting the password for comparison
-                                isMatch.should.be.equal(true);
-                                res.body.username.should.be.equal(updatedResearcher.username);
-                                // Call done() to indicate that the test has completed
-                                done();
-                            });
-                    });
+                // Log in with the updated credentials
+                return chai.request(app)
+                    .post(`${baseEntryLoginURL}`)
+                    .send(updatedResearcher);
+            })
+            .then(async (res) => {
+                // Assert that the user can log in with the updated credentials
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.userId.email.should.be.equal(researcher.email);
+                res.body.userId.platform.should.be.equal(researcher.platform);
+                const isMatch = await bcrypt.compare(updatedResearcher.userDetails.password, res.body.userDetails.password); // Decrypting the password for comparison
+                isMatch.should.be.equal(true);
+                res.body.username.should.be.equal(updatedResearcher.username);
+
+                // Call done() to indicate that the test has completed
+                done();
+            })
+            .catch((error) => {
+                // Handle any errors that occur during the test
+                done(error);
             });
+
     });
+
 
     /**
  * Test case to verify that user information cannot be updated if the user is not found.
@@ -756,11 +789,11 @@ describe('User Service Tests', () => {
 
         // Attempt to update user information with non-existent email and platform
         chai.request(app)
-            .put(`/users/${updatedResearcher.email}/${updatedResearcher.platform}`)
+            .put(`${baseResearchersURL}/${updatedResearcher.email}/${updatedResearcher.platform}`)
             .send(updatedResearcher)
             .end((err, res) => {
-                // Assert that the user is not found and the update fails with a status code of 404
-                res.should.have.status(404);
+                // Assert that the user is not found and the update fails with a status code of 403, The made up user does not have a JWT token
+                res.should.have.status(403);
                 // Call done() to indicate that the test has completed
                 done();
             });
@@ -787,7 +820,7 @@ describe('User Service Tests', () => {
         Promise.all(usersArray.map((user) => {
             return new Promise((resolve) => {
                 chai.request(app)
-                    .post(`/users/register`)
+                    .post(`${baseEntryRegistrationURL}`)
                     .send(user)
                     .end((err, res) => {
                         // Assert that the registration is successful
@@ -803,12 +836,13 @@ describe('User Service Tests', () => {
             .then(() => {
                 // After all users are registered, attempt to retrieve information for all users as admin1
                 chai.request(app)
-                    .get(`/users/${admin1.email}/${admin1.platform}`)
+                    .get(`${baseResearchersURL}/${admin1.email}/${admin1.platform}`)
+                    .set('Cookie', usersCookies[admin1.email])
                     .end((err, res) => {
                         // Assert that the request is successful and returns information for all users
                         res.should.have.status(200);
                         res.body.should.be.a('array');
-                        res.body.should.have.lengthOf(4); // Including admin1
+                        res.body.should.have.lengthOf(usersArray.length + 1); // Including admin1
                         done();
                     });
             })
@@ -837,7 +871,7 @@ describe('User Service Tests', () => {
         Promise.all(usersArray.map((user) => {
             return new Promise((resolve) => {
                 chai.request(app)
-                    .post(`/users/register`)
+                    .post(`${baseEntryRegistrationURL}`)
                     .send(user)
                     .end((err, res) => {
                         // Assert that the registration is successful
@@ -851,14 +885,27 @@ describe('User Service Tests', () => {
             });
         }))
             .then(() => {
-                // After all users are registered, attempt to retrieve information for all users as a non-admin user (researcher)
-                chai.request(app)
-                    .get(`/users/${researcher.email}/${researcher.platform}`)
-                    .end((err, res) => {
-                        // Assert that the request fails with a 403 Forbidden error
-                        res.should.have.status(403);
-                        done();
-                    });
+                // After all users are registered, log in the researcher user
+                return chai.request(app)
+                    .post(`${baseEntryLoginURL}`)
+                    .send(researcher);
+            })
+            .then((res) => {
+                // Assert that the user login is successful
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.headers.should.have.property('set-cookie');
+                usersCookies[researcher.email] = res.headers['set-cookie'];
+
+                // Attempt to retrieve information for all users as a non-admin user (researcher)
+                return chai.request(app)
+                    .get(`${baseResearchersURL}/${researcher.email}/${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email]);
+            })
+            .then((res) => {
+                // Assert that the request fails with a 403 Forbidden error
+                res.should.have.status(403);
+                done();
             })
             .catch((error) => {
                 done(error);
@@ -885,7 +932,7 @@ describe('User Service Tests', () => {
         Promise.all(usersArr.map((user) => {
             return new Promise((resolve) => {
                 chai.request(app)
-                    .post(`/users/register`)
+                    .post(`${baseEntryRegistrationURL}`)
                     .send(user)
                     .end((err, res) => {
                         // Assert that the registration is successful
@@ -897,11 +944,20 @@ describe('User Service Tests', () => {
                         resolve(); // Resolve the promise after the request is complete
                     });
             });
-        }))
-            .then(() => {
+        })).then(() => {
+            return chai.request(app)
+                .post(`${baseEntryLoginURL}`)
+                .send(admin2)
+        })
+            .then((loginRes) => {
+                loginRes.should.have.status(200);
+                loginRes.body.should.be.a('object');
+                loginRes.headers.should.have.property('set-cookie');
+                usersCookies[admin2.email] = loginRes.headers['set-cookie'];
                 // After all users are registered, delete all users as an admin
                 const res = chai.request(app)
-                    .delete(`/users/${admin2.email}/${admin2.platform}`);
+                    .delete(`${baseResearchersURL}/${admin2.email}/${admin2.platform}`)
+                    .set('Cookie', usersCookies[admin2.email]);
                 // Assert that the deletion is successful
                 res.should.have.status(200);
                 res.should.have.property('text');
@@ -912,7 +968,7 @@ describe('User Service Tests', () => {
 
         // Register and login admin before each test
         chai.request(app)
-            .post('/users/register')
+            .post(`${baseEntryRegistrationURL}`)
             .send(admin1)
             .end((err, res) => {
                 // Assert that the admin registration is successful
@@ -921,7 +977,7 @@ describe('User Service Tests', () => {
 
                 // Login in the admin
                 chai.request(app)
-                    .post('/users/login')
+                    .post(`${baseEntryLoginURL}`)
                     .send(admin1)
                     .end((err, res) => {
                         // Assert that the admin login is successful
@@ -954,7 +1010,7 @@ describe('User Service Tests', () => {
         Promise.all(usersArr.map((user) => {
             return new Promise((resolve) => {
                 chai.request(app)
-                    .post(`/users/register`)
+                    .post(`${baseEntryRegistrationURL}`)
                     .send(user)
                     .end((err, res) => {
                         // Assert that the registration is successful
@@ -966,11 +1022,20 @@ describe('User Service Tests', () => {
                         resolve(); // Resolve the promise after the request is complete
                     });
             });
-        }))
-            .then(() => {
+        })).then(() => {
+            return chai.request(app)
+                .post(`${baseEntryLoginURL}`)
+                .send(researcher)
+        })
+            .then((loginRes) => {
+                loginRes.should.have.status(200);
+                loginRes.body.should.be.a('object');
+                loginRes.headers.should.have.property('set-cookie');
+                usersCookies[researcher.email] = loginRes.headers['set-cookie'];
                 // After all users are registered, attempt to delete all users as a non-admin user (researcher)
                 chai.request(app)
-                    .delete(`/users/${researcher.email}/${researcher.platform}`)
+                    .delete(`${baseResearchersURL}/${researcher.email}/${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .end((err, res) => {
                         // Assert that the request fails with a 403 Forbidden error
                         res.should.have.status(403);

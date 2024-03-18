@@ -21,8 +21,17 @@ import Roles from '../../../src/utils/UserRole.js';
 chai.use(chaiHttp);
 chai.should();
 
+const baseCommandsURL = "/auth/commands";
+const baseEntryRegistrationURL = "/entry/register";
+const baseEntryLoginURL = "/entry/login";
+const baseResearchersURL = "/auth/researchers";
+const baseObjectsURL = "/auth/objects"
+
 // A dictionary to store cookies of JWT tokens mapped by user email
 let usersCookies = {}
+
+// An agentfor cookie management
+let agent = chai.request.agent(app);
 
 describe('Commands Service Tests', () => {
     /**
@@ -38,12 +47,14 @@ describe('Commands Service Tests', () => {
     beforeEach('Registering and logging in as admin', (done) => {
         const usersArr = [researcher, participant, admin1];
 
+        agent = chai.request.agent(app);
+
         // Using Promise.all to wait for all requests to complete
         Promise.all(
             usersArr.map((user) => {
                 return new Promise((resolve) => {
                     chai.request(app)
-                        .post(`/users/register`)
+                        .post(baseEntryRegistrationURL)
                         .send(user)
                         .end((err, res) => {
                             res.should.have.status(201);
@@ -59,8 +70,7 @@ describe('Commands Service Tests', () => {
             return Promise.all(
                 usersArr.map((user) => {
                     return new Promise((resolve) => {
-                        chai.request(app)
-                            .post(`/users/login`)
+                        agent.post(baseEntryLoginURL)
                             .send(user)
                             .end((err, res) => {
                                 res.should.have.status(200);
@@ -87,20 +97,18 @@ describe('Commands Service Tests', () => {
      * @param {function} done - Callback function to signal completion.
      */
     afterEach('Clearing the database', (done) => {
-        const agent = chai.request.agent(app); // Create an agent to manage cookies
-
         // Delete all users after each test
         chai.request(app)
-            .delete(`/auth/commands?email=${admin1.email}&platform=${admin1.platform}`)
+            .delete(`${baseCommandsURL}?email=${admin1.email}&platform=${admin1.platform}`)
             .set('Cookie', usersCookies[admin1.email])
             .end((res) => {
                 chai.request(app)
-                    .delete(`/auth/objects?email=${admin1.email}&platform=${admin1.platform}`)
+                    .delete(`${baseObjectsURL}?email=${admin1.email}&platform=${admin1.platform}`)
                     .set('Cookie', usersCookies[admin1.email])
                     .end((err, res) => {
                         res.should.have.status(200);
                         chai.request(app)
-                            .delete(`/auth/users/${admin1.email}/${admin1.platform}`)
+                            .delete(`${baseResearchersURL}/${admin1.email}/${admin1.platform}`)
                             .set('Cookie', usersCookies[admin1.email])
                             .end((err, res) => {
                                 res.should.have.status(200);
@@ -135,13 +143,9 @@ describe('Commands Service Tests', () => {
         otherCommandobj.targetObject.objectId = { ...commandObj.targetObject.objectId };
         otherCommandobj.commandAttributes = { ...commandObj.commandAttributes };
 
-        // Create a request agent to manage cookies
-        const agent = chai.request.agent(app);
-
-        // Create an object first to use in the command
-        chai.request(app)
-            .post('/objects')
+        agent.post(`${baseObjectsURL}`)
             .send(researcherObj)
+            .set("Cookie", `jwt=${usersCookies[researcher.email]}`)
             .then(async (res) => {
                 // Assert that the object creation was successful
                 res.should.have.status(201);
@@ -155,8 +159,8 @@ describe('Commands Service Tests', () => {
                 otherCommandobj.targetObject.objectId.internalObjectId = res.body.objectId.internalObjectId;
 
                 // Create and execute the command
-                await agent.post(`/auth/commands`)
-                    .set('Cookie', usersCookies[researcher.email])
+                await agent.post(`${baseCommandsURL}`)
+                    .set('Cookie', `jwt=${usersCookies[researcher.email]}`)
                     .send(otherCommandobj)
                     .then((res) => {
                         // Assert that the command creation and execution were successful
@@ -184,7 +188,7 @@ describe('Commands Service Tests', () => {
                     }).then(async () => {
                         // Retrieve all commands to verify the created command
                         await chai.request(app)
-                            .get(`/auth/commands?email=${admin1.email}&platform=${admin1.platform}`)
+                            .get(`${baseCommandsURL}?email=${admin1.email}&platform=${admin1.platform}`)
                             .set('Cookie', usersCookies[admin1.email])
                             .send()
                             .then((res) => {
@@ -226,12 +230,10 @@ describe('Commands Service Tests', () => {
         otherCommandobj.invokedBy = { ...commandObj.invokedBy };
         otherCommandobj.invokedBy.userId = { ...commandObj.invokedBy.userId };
 
-        // Create a request agent to manage cookies
-        const agent = chai.request.agent(app);
-
         // Create an object first to use in the command
         chai.request(app)
-            .post('/objects')
+            .post(`${baseObjectsURL}`)
+            .set("Cookie", usersCookies[researcher.email])
             .send(researcherObj)
             .then(async (res) => {
                 try {
@@ -250,7 +252,7 @@ describe('Commands Service Tests', () => {
                     otherCommandobj.invokedBy.userId.email = participant.email;
 
                     // Attempt to create and execute the command as a Participant
-                    await agent.post(`/auth/commands`)
+                    await agent.post(`${baseCommandsURL}`)
                         .send(otherCommandobj)
                         .then((res) => {
                             // Assert that access is forbidden
@@ -290,13 +292,11 @@ describe('Commands Service Tests', () => {
         // Create an array to store the commands
         const commandsArr = Array.from({ length: numCommands }, () => ({ ...commandObj }));
 
-        // Create a request agent to manage cookies
-        const agent = chai.request.agent(app);
-
         try {
             // Create an object first to associate with the commands
             const objectRes = await chai.request(app)
-                .post('/objects')
+                .post(`${baseObjectsURL}`)
+                .set('Cookie', usersCookies[admin1.email])
                 .send(researcherObj);
 
             // Assert that the object creation was successful
@@ -306,8 +306,8 @@ describe('Commands Service Tests', () => {
             // Create commands asynchronously
             await Promise.all(commandsArr.map(async (command) => {
                 // Send a POST request to create each command
-                const res = await agent.post(`/auth/commands`)
-                    .set('Cookie', usersCookies[researcher.email])
+                const res = await agent.post(`${baseCommandsURL}`)
+                    .set('Cookie', `jwt=${usersCookies[researcher.email]}`)
                     .send({ ...command, targetObject: { objectId } });
 
                 // Assert that the command creation was successful
@@ -317,8 +317,8 @@ describe('Commands Service Tests', () => {
             }));
 
             // Fetch all commands as an admin
-            const fetchRes = await agent.get(`/auth/commands?email=${admin1.email}&platform=${admin1.platform}`)
-                .set('Cookie', usersCookies[admin1.email]);
+            const fetchRes = await agent.get(`${baseCommandsURL}?email=${admin1.email}&platform=${admin1.platform}`)
+                .set('Cookie', `jwt=${usersCookies[admin1.email]}`);
 
             // Assert that the request was successful and all commands are returned
             fetchRes.should.have.status(200);
@@ -352,13 +352,11 @@ describe('Commands Service Tests', () => {
         // Create an array to store the commands
         const commandsArr = Array.from({ length: numCommands }, () => ({ ...commandObj }));
 
-        // Create a request agent to manage cookies
-        const agent = chai.request.agent(app);
-
         try {
             // Create an object first to associate with the commands
             const objectRes = await chai.request(app)
-                .post('/objects')
+                .post(`${baseObjectsURL}`)
+                .set('Cookie', usersCookies[researcher.email])
                 .send(researcherObj);
 
             // Assert that the object creation was successful
@@ -368,8 +366,8 @@ describe('Commands Service Tests', () => {
             // Create commands asynchronously
             await Promise.all(commandsArr.map(async (command) => {
                 // Send a POST request to create each command
-                const res = await agent.post(`/auth/commands`)
-                    .set('Cookie', usersCookies[researcher.email])
+                const res = await agent.post(`${baseCommandsURL}`)
+                    .set('Cookie', `jwt=${usersCookies[researcher.email]}`)
                     .send({ ...command, targetObject: { objectId } });
 
                 // Assert that the command creation was successful
@@ -379,8 +377,8 @@ describe('Commands Service Tests', () => {
             }));
 
             // Attempt to fetch all commands as a researcher
-            const fetchRes = await agent.get(`/auth/commands?email=${researcher.email}&platform=${researcher.platform}`)
-                .set('Cookie', usersCookies[researcher.email]);
+            const fetchRes = await agent.get(`${baseCommandsURL}?email=${researcher.email}&platform=${researcher.platform}`)
+                .set('Cookie', `jwt=${usersCookies[researcher.email]}`);
 
             // Assert that the request was denied with a 403 status code
             fetchRes.should.have.status(403);
@@ -414,13 +412,11 @@ describe('Commands Service Tests', () => {
         // Create an array to store the commands
         const commandsArr = Array.from({ length: numCommands }, () => ({ ...commandObj }));
 
-        // Create a request agent to manage cookies
-        const agent = chai.request.agent(app);
-
         try {
             // Create an object first to associate with the commands
             const objectRes = await chai.request(app)
-                .post('/objects')
+                .post(`${baseObjectsURL}`)
+                .set('Cookie', usersCookies[researcher.email])
                 .send(researcherObj);
 
             // Assert that the object creation was successful
@@ -430,8 +426,8 @@ describe('Commands Service Tests', () => {
             // Create commands asynchronously
             await Promise.all(commandsArr.map(async (command) => {
                 // Send a POST request to create each command
-                const res = await agent.post(`/auth/commands`)
-                    .set('Cookie', usersCookies[researcher.email])
+                const res = await agent.post(`${baseCommandsURL}`)
+                    .set('Cookie', `jwt=${usersCookies[researcher.email]}`)
                     .send({ ...command, targetObject: { objectId } });
 
                 // Assert that the command creation was successful
@@ -441,8 +437,8 @@ describe('Commands Service Tests', () => {
             }));
 
             // Delete all commands as an admin
-            const fetchRes = await agent.delete(`/auth/commands?email=${admin1.email}&platform=${admin1.platform}`)
-                .set('Cookie', usersCookies[admin1.email]);
+            const fetchRes = await agent.delete(`${baseCommandsURL}?email=${admin1.email}&platform=${admin1.platform}`)
+                .set('Cookie', `jwt=${usersCookies[admin1.email]}`);
 
             // Assert that the request was successful with a 200 status code
             fetchRes.should.have.status(200);
@@ -478,13 +474,11 @@ describe('Commands Service Tests', () => {
         // Create an array to store the commands
         const commandsArr = Array.from({ length: numCommands }, () => ({ ...commandObj }));
 
-        // Create a request agent to manage cookies
-        const agent = chai.request.agent(app);
-
         try {
             // Create an object first to associate with the commands
             const objectRes = await chai.request(app)
-                .post('/objects')
+                .post(`${baseObjectsURL}`)
+                .set('Cookie', usersCookies[researcher.email])
                 .send(researcherObj);
 
             // Assert that the object creation was successful
@@ -494,8 +488,8 @@ describe('Commands Service Tests', () => {
             // Create commands asynchronously
             await Promise.all(commandsArr.map(async (command) => {
                 // Send a POST request to create each command
-                const res = await agent.post(`/auth/commands`)
-                    .set('Cookie', usersCookies[researcher.email])
+                const res = await agent.post(`${baseCommandsURL}`)
+                    .set('Cookie', `jwt=${usersCookies[researcher.email]}`)
                     .send({ ...command, targetObject: { objectId } });
 
                 // Assert that the command creation was successful
@@ -505,8 +499,8 @@ describe('Commands Service Tests', () => {
             }));
 
             // Attempt to delete all commands as a Researcher
-            const fetchRes = await agent.delete(`/auth/commands?email=${researcher.email}&platform=${researcher.platform}`)
-                .set('Cookie', usersCookies[researcher.email]);
+            const fetchRes = await agent.delete(`${baseCommandsURL}?email=${researcher.email}&platform=${researcher.platform}`)
+                .set('Cookie', `jwt=${usersCookies[researcher.email]}`);
 
             // Assert that the request was denied with a 403 status code
             fetchRes.should.have.status(403);

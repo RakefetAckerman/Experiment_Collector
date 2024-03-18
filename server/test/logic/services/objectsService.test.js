@@ -21,6 +21,12 @@ import ObjectBoundary from '../../../src/boundaries/object/ObjectBoundary.js';
 chai.use(chaiHttp);
 chai.should();
 
+const baseEntryRegistrationURL = "/entry/register";
+const baseEntryLoginURL = "/entry/login";
+const baseResearchersURL = "/auth/researchers";
+const baseObjectsURL = "/auth/objects";
+const baseParticipantsURL = "/participants";
+
 // A dictionary to store cookies of JWT tokens mapped by user email
 let usersCookies = {}
 
@@ -38,12 +44,14 @@ describe('Objects Service Tests', () => {
     beforeEach('Registering and logging in as admin', (done) => {
         const usersArr = [researcher, participant, admin1];
 
+        const agent = chai.request.agent(app);
+
         // Using Promise.all to wait for all requests to complete
         Promise.all(
             usersArr.map((user) => {
                 return new Promise((resolve) => {
                     chai.request(app)
-                        .post(`/users/register`)
+                        .post(baseEntryRegistrationURL)
                         .send(user)
                         .end((err, res) => {
                             res.should.have.status(201);
@@ -60,7 +68,7 @@ describe('Objects Service Tests', () => {
                 usersArr.map((user) => {
                     return new Promise((resolve) => {
                         chai.request(app)
-                            .post(`/users/login`)
+                            .post(baseEntryLoginURL)
                             .send(user)
                             .end((err, res) => {
                                 res.should.have.status(200);
@@ -76,6 +84,7 @@ describe('Objects Service Tests', () => {
             );
         }).then(() => {
             done(); // Call done after all promises have resolved
+            agent.close();
         });
     });
 
@@ -91,13 +100,12 @@ describe('Objects Service Tests', () => {
 
         // Delete all users after each test
         chai.request(app)
-            .delete(`/auth/objects?email=${admin1.email}&platform=${admin1.platform}`)
+            .delete(`${baseObjectsURL}?email=${admin1.email}&platform=${admin1.platform}`)
             .set('Cookie', usersCookies[admin1.email])
             .end((err, res) => {
                 res.should.have.status(200);
                 chai.request(app)
-                    .
-                    delete(`/auth/users/${admin1.email}/${admin1.platform}`)
+                    .delete(`${baseResearchersURL}/${admin1.email}/${admin1.platform}`)
                     .set('Cookie', usersCookies[admin1.email])
                     .end((err, res) => {
                         res.should.have.status(200);
@@ -134,12 +142,13 @@ describe('Objects Service Tests', () => {
             And the array length should be 1
             And the retrieved object should match the created object
         */
-
-        chai.request(app)
-            .post('/objects')
+        chai.request.agent(app).post(`${baseObjectsURL}`)
+            .set("Cookie", usersCookies[researcher.email])
             .send(researcherObj)
             .end((err, res) => {
                 // Assertion for object creation
+                // console.error(err);
+                // console.log(res);
                 res.should.have.status(201);
                 res.body.should.be.a('object');
                 res.body.should.have.property('objectId');
@@ -159,7 +168,8 @@ describe('Objects Service Tests', () => {
 
                 // Retrieving all objects to verify the created object
                 chai.request(app)
-                    .get(`/objects?email=${admin1.email}&platform=${admin1.platform}`)
+                    .get(`${baseObjectsURL}?email=${admin1.email}&platform=${admin1.platform}`)
+                    .set("Cookie", usersCookies[admin1.email])
                     .send()
                     .end((err, res) => {
                         // Assertion for verifying the created object
@@ -193,13 +203,15 @@ describe('Objects Service Tests', () => {
         */
 
         chai.request(app)
-            .post('/objects')
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send()
             .end((err, res) => {
                 // Assertion for invalid object creation
                 res.should.have.status(400);
                 chai.request(app)
-                    .get(`/objects?email=${admin1.email}&platform=${admin1.platform}`)
+                    .get(`${baseObjectsURL}?email=${admin1.email}&platform=${admin1.platform}`)
+                    .set('Cookie', usersCookies[admin1.email])
                     .send()
                     .end((err, res) => {
                         // Assertion for verifying no new objects are created
@@ -234,13 +246,14 @@ describe('Objects Service Tests', () => {
         otherObj.active = false;
 
         chai.request(app)
-            .post('/objects')
+            .post(`${baseParticipantsURL}/objects`)
             .send(otherObj)
             .end((err, res) => {
                 // Assertion for inactive object creation by participant
                 res.should.have.status(403);
                 chai.request(app)
-                    .get(`/objects?email=${admin1.email}&platform=${admin1.platform}`)
+                    .get(`${baseObjectsURL}?email=${admin1.email}&platform=${admin1.platform}`)
+                    .set('Cookie', usersCookies[admin1.email])
                     .send()
                     .end((err, res) => {
                         // Assertion for verifying no new objects are created
@@ -276,13 +289,15 @@ describe('Objects Service Tests', () => {
         otherObj.createdBy.userId.platform = 'Builder';
 
         chai.request(app)
-            .post('/objects')
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', 'nonexistentjwt')
             .send(otherObj)
             .end((err, res) => {
                 // Assertion for creation with non-existent user
-                res.should.have.status(404);
+                res.should.have.status(403);
                 chai.request(app)
-                    .get(`/objects?email=${admin1.email}&platform=${admin1.platform}`)
+                    .get(`${baseObjectsURL}?email=${admin1.email}&platform=${admin1.platform}`)
+                    .set('Cookie', usersCookies[admin1.email])
                     .send()
                     .end((err, res) => {
                         // Assertion for verifying no new objects are created
@@ -315,13 +330,14 @@ describe('Objects Service Tests', () => {
         otherObj.active = false;
 
         chai.request(app)
-            .post('/objects')
+            .post(`${baseParticipantsURL}/objects`)
             .send(otherObj)
             .end((err, res) => {
                 // Assertion for creation of inactive object by participant
                 res.should.have.status(403);
                 chai.request(app)
-                    .get(`/objects?email=${admin1.email}&platform=${admin1.platform}`)
+                    .get(`${baseObjectsURL}?email=${admin1.email}&platform=${admin1.platform}`)
+                    .set('Cookie', usersCookies[admin1.email])
                     .send()
                     .end((err, res) => {
                         // Assertion for verifying no new objects are created
@@ -355,7 +371,8 @@ describe('Objects Service Tests', () => {
         let objID;
 
         chai.request(app)
-            .post('/objects')
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(researcherObj)
             .then((res) => {
                 // Assertion for successful creation of the object
@@ -373,7 +390,8 @@ describe('Objects Service Tests', () => {
 
                 // Send PUT request to update the object
                 return chai.request(app)
-                    .put(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .put(`${baseObjectsURL}/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send(otherObj);
             })
             .then((putRes) => {
@@ -383,7 +401,8 @@ describe('Objects Service Tests', () => {
 
                 // Retrieve the updated object
                 return chai.request(app)
-                    .get(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`);
+                    .get(`${baseObjectsURL}/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[admin1.email]);
             })
             .then((getRes) => {
                 // Assertion for retrieving the updated object
@@ -432,7 +451,8 @@ describe('Objects Service Tests', () => {
         let objID;
 
         chai.request(app)
-            .post('/objects')
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(researcherObj)
             .then((res) => {
                 // Assertion for successful creation of the object
@@ -450,16 +470,17 @@ describe('Objects Service Tests', () => {
 
                 // Send PUT request to update the object by participant
                 return chai.request(app)
-                    .put(`/objects/${objID}?email=${participant.email}&platform=${participant.platform}`)
+                    .put(`${baseParticipantsURL}/objects/${objID}?email=${participant.email}&platform=${participant.platform}`)
                     .send(otherObj);
             })
             .then((putRes) => {
-                // Assertion for Forbidden status code when participant attempts to update
-                putRes.should.have.status(403);
+                // Assertion for Not Found status code when participant attempts to update, the route is not reachable
+                putRes.should.have.status(404);
 
                 // Retrieve the object to verify it remains unchanged
                 return chai.request(app)
-                    .get(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`);
+                    .get(`${baseObjectsURL}/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email]);
             })
             .then((getRes) => {
                 // Assertion for retrieving the unchanged object
@@ -505,7 +526,8 @@ describe('Objects Service Tests', () => {
         let objID;
 
         chai.request(app)
-            .post('/objects')
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(researcherObj)
             .then((res) => {
                 // Assertion for successful creation of the object
@@ -523,7 +545,8 @@ describe('Objects Service Tests', () => {
 
                 // Send PUT request to update the non-existent object
                 return chai.request(app)
-                    .put(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .put(`${baseObjectsURL}/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send(otherObj);
             })
             .then((putRes) => {
@@ -555,7 +578,8 @@ describe('Objects Service Tests', () => {
         let objID;
 
         chai.request(app)
-            .post('/objects')
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(researcherObj)
             .then((res) => {
                 // Assertion for successful creation of the object
@@ -573,7 +597,8 @@ describe('Objects Service Tests', () => {
 
                 // Send PUT request to update the object with empty type string
                 return chai.request(app)
-                    .put(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .put(`${baseObjectsURL}/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send(otherObj);
             })
             .then((putRes) => {
@@ -588,10 +613,10 @@ describe('Objects Service Tests', () => {
     });
 
     /**
- * Test case to verify that an object cannot be updated if the alias string is empty.
- * 
- * @param {function} done - The callback function to signal the end of the test.
- */
+     * Test case to verify that an object cannot be updated if the alias string is empty.
+     * 
+     * @param {function} done - The callback function to signal the end of the test.
+     */
     it('should not update an object, given an empty alias string', (done) => {
         /*
         Scenario: Attempting to update an object with an empty alias string
@@ -605,7 +630,8 @@ describe('Objects Service Tests', () => {
         let objID;
 
         chai.request(app)
-            .post('/objects')
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(researcherObj)
             .then((res) => {
                 // Assertion for successful creation of the object
@@ -623,7 +649,8 @@ describe('Objects Service Tests', () => {
 
                 // Send PUT request to update the object with empty alias string
                 return chai.request(app)
-                    .put(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .put(`${baseObjectsURL}/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send(otherObj);
             })
             .then((putRes) => {
@@ -655,7 +682,8 @@ describe('Objects Service Tests', () => {
         let objID;
 
         chai.request(app)
-            .post('/objects')
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(researcherObj)
             .then((res) => {
                 // Assertion for successful creation of the object
@@ -674,7 +702,8 @@ describe('Objects Service Tests', () => {
 
                 // Send PUT request to update the object with a new creation timestamp
                 return chai.request(app)
-                    .put(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .put(`${baseObjectsURL}/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send(otherObj);
             })
             .then((putRes) => {
@@ -705,7 +734,8 @@ describe('Objects Service Tests', () => {
         let objID;
 
         chai.request(app)
-            .post('/objects')
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(researcherObj)
             .then((res) => {
                 // Assertion for successful creation of the object
@@ -717,7 +747,8 @@ describe('Objects Service Tests', () => {
 
                 // Send GET request to fetch the object details
                 return chai.request(app)
-                    .get(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`);
+                    .get(`${baseObjectsURL}/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email]);
             })
             .then((getRes) => {
                 // Assertion for successful retrieval of the object details
@@ -757,7 +788,8 @@ describe('Objects Service Tests', () => {
         let objID = '123'; // Non-existent object id
 
         chai.request(app)
-            .get(`/objects/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+            .get(`${baseObjectsURL}/${objID}?email=${researcher.email}&platform=${researcher.platform}`)
+            .set('Cookie', usersCookies[researcher.email])
             .then((res) => {
                 // Assertion for 404 status code
                 res.should.have.status(404);
@@ -790,7 +822,8 @@ describe('Objects Service Tests', () => {
         let objID;
 
         chai.request(app)
-            .post('/objects')
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(otherObj)
             .then((res) => {
                 // Assertion for successful creation of the object
@@ -802,7 +835,7 @@ describe('Objects Service Tests', () => {
 
                 // Send a GET request to fetch the object
                 return chai.request(app)
-                    .get(`/objects/${objID}?email=${participant.email}&platform=${participant.platform}`)
+                    .get(`${baseParticipantsURL}/objects/${objID}?email=${participant.email}&platform=${participant.platform}`)
                     .send(otherObj);
             })
             .then((getRes) => {
@@ -844,7 +877,8 @@ describe('Objects Service Tests', () => {
         Promise.all(objArr.map((obj) => {
             return new Promise((resolve) => {
                 chai.request(app)
-                    .post(`/objects`)
+                    .post(`${baseObjectsURL}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send(obj)
                     .end((err, res) => {
                         // Assert that the object creation was successful
@@ -858,7 +892,8 @@ describe('Objects Service Tests', () => {
             .then(() => {
                 // Fetch all objects as an admin
                 chai.request(app)
-                    .get(`/objects?email=${admin1.email}&platform=${admin1.platform}`)
+                    .get(`${baseObjectsURL}?email=${admin1.email}&platform=${admin1.platform}`)
+                    .set('Cookie', usersCookies[admin1.email])
                     .end((err, res) => {
                         // Assert that the request was successful and all objects are returned
                         res.should.have.status(200);
@@ -885,7 +920,8 @@ describe('Objects Service Tests', () => {
 
         // Attempt to fetch all objects as a researcher
         chai.request(app)
-            .get(`/objects?email=${researcher.email}&platform=${researcher.platform}`)
+            .get(`${baseObjectsURL}?email=${researcher.email}&platform=${researcher.platform}`)
+            .set('Cookie', usersCookies[researcher.email])
             .end((err, res) => {
                 // Assert that the request was forbidden
                 res.should.have.status(403);
@@ -917,7 +953,8 @@ describe('Objects Service Tests', () => {
         for (let index = 0; index < numObjects; index++) {
             objArr.push(new Promise((resolve) => {
                 chai.request(app)
-                    .post(`/objects`)
+                    .post(`${baseObjectsURL}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send(researcherObj)
                     .end((err, res) => {
                         // Assert that the object creation was successful
@@ -935,7 +972,8 @@ describe('Objects Service Tests', () => {
             .then(() => {
                 // Send a DELETE request to delete all objects
                 chai.request(app)
-                    .delete(`/objects?email=${admin1.email}&platform=${admin1.platform}`)
+                    .delete(`${baseObjectsURL}?email=${admin1.email}&platform=${admin1.platform}`)
+                    .set('Cookie', usersCookies[admin1.email])
                     .end((err, res) => {
                         // Assert that the deletion was successful
                         res.should.have.status(200);
@@ -962,7 +1000,8 @@ describe('Objects Service Tests', () => {
 
         // Send a DELETE request to delete all objects as a researcher
         chai.request(app)
-            .delete(`/objects?email=${researcher.email}&platform=${researcher.platform}`)
+            .delete(`${baseObjectsURL}?email=${researcher.email}&platform=${researcher.platform}`)
+            .set('Cookie', usersCookies[researcher.email])
             .end((err, res) => {
                 // Assert that the access is forbidden
                 res.should.have.status(403);
@@ -999,7 +1038,8 @@ describe('Objects Service Tests', () => {
 
         // Post the parent object
         chai.request(app)
-            .post(`/objects`)
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(parentObj)
             .then((postRes) => {
                 // Assert that the parent object is successfully created
@@ -1012,7 +1052,8 @@ describe('Objects Service Tests', () => {
                 // Post child objects
                 return Promise.all(reqObjArr.map(async (obj) => {
                     const res = await chai.request(app)
-                        .post(`/objects`)
+                        .post(`${baseObjectsURL}`)
+                        .set('Cookie', usersCookies[researcher.email])
                         .send(obj);
                     // Assert that each child object is successfully created
                     res.should.have.status(201);
@@ -1026,7 +1067,8 @@ describe('Objects Service Tests', () => {
                 // Bind child objects to parent
                 return Promise.all(childArr.map(async (obj) => {
                     const res = await chai.request(app)
-                        .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .put(`${baseObjectsURL}/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .set('Cookie', usersCookies[researcher.email])
                         .send(obj);
                     // Assert that each child object is successfully bound to the parent
                     res.should.have.status(200);
@@ -1036,7 +1078,8 @@ describe('Objects Service Tests', () => {
             .then(() => {
                 // Get children of parent
                 return chai.request(app)
-                    .get(`/objects/${parentObjID}/children?email=${participant.email}&platform=${participant.platform}`)
+                    .get(`${baseObjectsURL}/${parentObjID}/children?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send();
             })
             .then((res) => {
@@ -1063,7 +1106,7 @@ describe('Objects Service Tests', () => {
     });
 
     /**
-     * Test case to verify that binding between two objects is not allowed for a participant user.
+     * Test case to verify that binding between two objects is allowed for a participant user.
      * 
      * @param {function} done - The callback function to signal the end of the test.
      */
@@ -1073,7 +1116,7 @@ describe('Objects Service Tests', () => {
             Given a participant user
             And a parent object and a child object
             When the participant user attempts to bind the child object to the parent object
-            Then the system should reject the binding request
+            Then the system should approve the binding request
         */
 
         // Initialize variables
@@ -1085,7 +1128,8 @@ describe('Objects Service Tests', () => {
 
         // Post the parent object
         chai.request(app)
-            .post(`/objects`)
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(parentObj)
             .then(async (postRes) => {
                 // Assert that the parent object is successfully created
@@ -1097,21 +1141,23 @@ describe('Objects Service Tests', () => {
 
                 // Post the child object
                 const res = await chai.request(app)
-                    .post(`/objects`)
+                    .post(`${baseObjectsURL}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send(childObj);
                 // Assert that the child object is successfully created
                 res.should.have.status(201);
                 res.body.should.not.be.empty;
                 res.body.should.have.a.property('objectId');
                 res.body.objectId.should.have.property('internalObjectId');
+                Object.assign(childObj, res.body);
             })
             .then(async () => {
                 // Attempt to bind the child object to the parent object
                 const res = await chai.request(app)
-                    .put(`/objects/${parentObjID}/bind?email=${participant.email}&platform=${participant.platform}`)
+                    .put(`${baseParticipantsURL}/objects/${parentObjID}/bind?email=${participant.email}&platform=${participant.platform}`)
                     .send(childObj);
-                // Assert that the binding request is rejected
-                res.should.have.status(403);
+                // Assert that the binding request is accepted
+                res.should.have.status(200);
                 done();
             })
             .catch((error) => {
@@ -1142,7 +1188,8 @@ describe('Objects Service Tests', () => {
 
         // Post the child object
         chai.request(app)
-            .post(`/objects`)
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(childObj)
             .then(async (postRes) => {
                 // Assert that the child object is successfully created
@@ -1153,7 +1200,8 @@ describe('Objects Service Tests', () => {
 
                 // Attempt to bind the child object to the non-existent parent object
                 const res = await chai.request(app)
-                    .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                    .put(`${baseObjectsURL}/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send(childObj);
                 // Assert that the binding request is rejected
                 res.should.have.status(404);
@@ -1190,7 +1238,8 @@ describe('Objects Service Tests', () => {
         parentObj.objectDetails = { ...researcherObj.objectDetails };
 
         chai.request(app)
-            .post(`/objects`)
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(parentObj)
             .then(async (postRes) => {
                 // Assert that the parent object is successfully created
@@ -1207,7 +1256,8 @@ describe('Objects Service Tests', () => {
 
                 // Attempt to bind the non-existent child object to the parent object
                 const res = await chai.request(app)
-                    .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                    .put(`${baseObjectsURL}/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send(childObj);
                 // Assert that the binding request is rejected
                 res.should.have.status(404);
@@ -1249,7 +1299,8 @@ describe('Objects Service Tests', () => {
         }
 
         chai.request(app)
-            .post(`/objects`)
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(parentObj)
             .then((postRes) => {
                 // Assert that the parent object is successfully created
@@ -1262,7 +1313,8 @@ describe('Objects Service Tests', () => {
                 // Post child objects
                 return Promise.all(reqObjArr.map(async (obj) => {
                     const res = await chai.request(app)
-                        .post(`/objects`)
+                        .post(`${baseObjectsURL}`)
+                        .set('Cookie', usersCookies[researcher.email])
                         .send(obj);
                     // Assert that each child object is successfully created
                     res.should.have.status(201);
@@ -1276,7 +1328,8 @@ describe('Objects Service Tests', () => {
                 // Bind child objects to parent
                 return Promise.all(childArr.map(async (obj) => {
                     const res = await chai.request(app)
-                        .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .put(`${baseObjectsURL}/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .set('Cookie', usersCookies[researcher.email])
                         .send(obj);
                     // Assert that each child object is successfully bound to the parent object
                     res.should.have.status(200);
@@ -1287,7 +1340,8 @@ describe('Objects Service Tests', () => {
                 // Unbind child objects from parent
                 return Promise.all(childArr.map(async (obj) => {
                     const res = await chai.request(app)
-                        .put(`/objects/${parentObjID}/unbind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .put(`${baseObjectsURL}/${parentObjID}/unbind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .set('Cookie', usersCookies[researcher.email])
                         .send(obj);
                     // Assert that each child object is successfully unbound from the parent object
                     res.should.have.status(200);
@@ -1297,7 +1351,8 @@ describe('Objects Service Tests', () => {
             .then(() => {
                 // Get children of parent
                 return chai.request(app)
-                    .get(`/objects/${parentObjID}/children?email=${participant.email}&platform=${participant.platform}`)
+                    .get(`${baseObjectsURL}/${parentObjID}/children?email=${participant.email}&platform=${participant.platform}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send();
             })
             .then((res) => {
@@ -1335,7 +1390,8 @@ describe('Objects Service Tests', () => {
         childObj.objectDetails = { ...researcherObj.objectDetails };
 
         chai.request(app)
-            .post(`/objects`)
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(parentObj)
             .then(async (postRes) => {
                 // Assert that the parent object is successfully created
@@ -1347,7 +1403,8 @@ describe('Objects Service Tests', () => {
 
                 // Post child object
                 const res = await chai.request(app)
-                    .post(`/objects`)
+                    .post(`${baseObjectsURL}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send(childObj);
                 // Assert that the child object is successfully created
                 res.should.have.status(201);
@@ -1358,10 +1415,10 @@ describe('Objects Service Tests', () => {
             .then(async () => {
                 // Try to unbind child object from parent object as a participant
                 const res = await chai.request(app)
-                    .put(`/objects/${parentObjID}/unbind?email=${participant.email}&platform=${participant.platform}`)
+                    .put(`${baseParticipantsURL}/objects/${parentObjID}/unbind?email=${participant.email}&platform=${participant.platform}`)
                     .send(childObj);
-                // Assert that the participant is forbidden from unbinding objects
-                res.should.have.status(403);
+                // Assert that the participant is Not Found from unbinding objects, there is no such accsible route for participant
+                res.should.have.status(404);
                 done();
             })
             .catch((error) => {
@@ -1390,7 +1447,8 @@ describe('Objects Service Tests', () => {
         childObj.objectDetails = { ...researcherObj.objectDetails };
 
         chai.request(app)
-            .post(`/objects`)
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(childObj)
             .then(async (postRes) => {
                 // Assert that the child object is successfully created
@@ -1401,7 +1459,8 @@ describe('Objects Service Tests', () => {
 
                 // Attempt to unbind child object from non-existent parent object
                 const res = await chai.request(app)
-                    .put(`/objects/${parentObjID}/unbind?email=${researcher.email}&platform=${researcher.platform}`)
+                    .put(`${baseObjectsURL}/${parentObjID}/unbind?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send(childObj);
                 // Assert that the system responds with a not found status
                 res.should.have.status(404);
@@ -1436,7 +1495,8 @@ describe('Objects Service Tests', () => {
         let childObj;
 
         chai.request(app)
-            .post(`/objects`)
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(parentObj)
             .then(async (postRes) => {
                 // Assert that the parent object is successfully created
@@ -1453,7 +1513,8 @@ describe('Objects Service Tests', () => {
 
                 // Attempt to unbind non-existent child object from the parent object
                 const res = await chai.request(app)
-                    .put(`/objects/${parentObjID}/unbind?email=${researcher.email}&platform=${researcher.platform}`)
+                    .put(`${baseObjectsURL}/${parentObjID}/unbind?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send(childObj);
                 // Assert that the system responds with a not found status
                 res.should.have.status(404);
@@ -1501,7 +1562,8 @@ describe('Objects Service Tests', () => {
         }
 
         chai.request(app)
-            .post(`/objects`)
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(parentObj)
             .then((postRes) => {
                 // Assert that the parent object is successfully created
@@ -1514,7 +1576,8 @@ describe('Objects Service Tests', () => {
                 // Post child objects
                 return Promise.all(reqObjArr.map(async (obj) => {
                     const res = await chai.request(app)
-                        .post(`/objects`)
+                        .post(`${baseObjectsURL}`)
+                        .set('Cookie', usersCookies[researcher.email])
                         .send(obj);
                     res.should.have.status(201);
                     res.body.should.not.be.empty;
@@ -1527,7 +1590,8 @@ describe('Objects Service Tests', () => {
                 // Bind child objects to parent
                 return Promise.all(childArr.map(async (obj) => {
                     const res = await chai.request(app)
-                        .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .put(`${baseObjectsURL}/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .set('Cookie', usersCookies[researcher.email])
                         .send(obj);
                     res.should.have.status(200);
                     res.body.should.be.empty;
@@ -1536,7 +1600,7 @@ describe('Objects Service Tests', () => {
             .then(() => {
                 // Get children of parent as a participant
                 return chai.request(app)
-                    .get(`/objects/${parentObjID}/children?email=${participant.email}&platform=${participant.platform}`)
+                    .get(`${baseParticipantsURL}/objects/${parentObjID}/children?email=${participant.email}&platform=${participant.platform}`)
                     .send();
             })
             .then((res) => {
@@ -1585,7 +1649,8 @@ describe('Objects Service Tests', () => {
         }
 
         chai.request(app)
-            .post(`/objects`)
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(parentObj)
             .then((postRes) => {
                 // Assert that the parent object is successfully created
@@ -1598,7 +1663,8 @@ describe('Objects Service Tests', () => {
                 // Post child objects
                 return Promise.all(reqObjArr.map(async (obj) => {
                     const res = await chai.request(app)
-                        .post(`/objects`)
+                        .post(`${baseObjectsURL}`)
+                        .set('Cookie', usersCookies[researcher.email])
                         .send(obj);
                     res.should.have.status(201);
                     res.body.should.not.be.empty;
@@ -1611,7 +1677,8 @@ describe('Objects Service Tests', () => {
                 // Bind child objects to parent
                 return Promise.all(childArr.map(async (obj) => {
                     const res = await chai.request(app)
-                        .put(`/objects/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .put(`${baseObjectsURL}/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .set('Cookie', usersCookies[researcher.email])
                         .send(obj);
                     res.should.have.status(200);
                     res.body.should.be.empty;
@@ -1620,7 +1687,8 @@ describe('Objects Service Tests', () => {
             .then(() => {
                 // Get children of parent as a researcher
                 return chai.request(app)
-                    .get(`/objects/${parentObjID}/children?email=${researcher.email}&platform=${researcher.platform}`)
+                    .get(`${baseObjectsURL}/${parentObjID}/children?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send();
             })
             .then((res) => {
@@ -1637,16 +1705,16 @@ describe('Objects Service Tests', () => {
     });
 
     /**
- * Test case to verify that a participant can retrieve all the parents of an object, excluding inactive ones.
+ * Test case to verify that a participant can retrieve only the active parents of an object.
  * 
  * @param {function} done - The callback function to signal the end of the test.
  */
-    it('should get all the parents of an object, the requesting user is participant', (done) => {
+    it('should get some of the parents of an object, the requesting user is participant', (done) => {
         /*
         Scenario: Retrieve all the parents of an object when the requesting user is a participant
             Given a child object and multiple parent objects, some of which are inactive
             When a participant requests to get all the parents of the child object
-            Then the system should respond with all the parents, excluding the inactive ones
+            Then the system should respond with only the active parents, excluding the inactive ones
         */
 
         const numObjects = 10;
@@ -1669,7 +1737,8 @@ describe('Objects Service Tests', () => {
         }
 
         chai.request(app)
-            .post(`/objects`)
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(childObj)
             .then((postRes) => {
                 // Assert that the child object is successfully created
@@ -1683,7 +1752,8 @@ describe('Objects Service Tests', () => {
                 // Post parent objects
                 return Promise.all(reqObjArr.map(async (obj) => {
                     const res = await chai.request(app)
-                        .post(`/objects`)
+                        .post(`${baseObjectsURL}`)
+                        .set('Cookie', usersCookies[researcher.email])
                         .send(obj);
                     res.should.have.status(201);
                     res.body.should.not.be.empty;
@@ -1696,7 +1766,8 @@ describe('Objects Service Tests', () => {
                 // Bind child object to parent objects
                 return Promise.all(parentsArr.map(async (obj) => {
                     const res = await chai.request(app)
-                        .put(`/objects/${obj.objectId.internalObjectId}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .put(`${baseObjectsURL}/${obj.objectId.internalObjectId}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .set('Cookie', usersCookies[researcher.email])
                         .send(childObj);
                     res.should.have.status(200);
                     res.body.should.be.empty;
@@ -1705,7 +1776,7 @@ describe('Objects Service Tests', () => {
             .then(() => {
                 // Get parents of child object as a participant
                 return chai.request(app)
-                    .get(`/objects/${childObjID}/parents?email=${participant.email}&platform=${participant.platform}`)
+                    .get(`${baseParticipantsURL}/objects/${childObjID}/parents?email=${participant.email}&platform=${participant.platform}`)
                     .send();
             })
             .then((res) => {
@@ -1754,7 +1825,8 @@ describe('Objects Service Tests', () => {
         }
 
         chai.request(app)
-            .post(`/objects`)
+            .post(`${baseObjectsURL}`)
+            .set('Cookie', usersCookies[researcher.email])
             .send(childObj)
             .then((postRes) => {
                 // Assert that the child object is successfully created
@@ -1768,7 +1840,8 @@ describe('Objects Service Tests', () => {
                 // Post parent objects
                 return Promise.all(reqObjArr.map(async (obj) => {
                     const res = await chai.request(app)
-                        .post(`/objects`)
+                        .post(`${baseObjectsURL}`)
+                        .set('Cookie', usersCookies[researcher.email])
                         .send(obj);
                     res.should.have.status(201);
                     res.body.should.not.be.empty;
@@ -1781,7 +1854,8 @@ describe('Objects Service Tests', () => {
                 // Bind child object to parent objects
                 return Promise.all(parentsArr.map(async (obj) => {
                     const res = await chai.request(app)
-                        .put(`/objects/${obj.objectId.internalObjectId}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .put(`${baseObjectsURL}/${obj.objectId.internalObjectId}/bind?email=${researcher.email}&platform=${researcher.platform}`)
+                        .set('Cookie', usersCookies[researcher.email])
                         .send(childObj);
                     res.should.have.status(200);
                     res.body.should.be.empty;
@@ -1790,7 +1864,8 @@ describe('Objects Service Tests', () => {
             .then(() => {
                 // Get parents of child object as a researcher
                 return chai.request(app)
-                    .get(`/objects/${childObjID}/parents?email=${researcher.email}&platform=${researcher.platform}`)
+                    .get(`${baseObjectsURL}/${childObjID}/parents?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send();
             })
             .then((res) => {
@@ -1835,13 +1910,14 @@ describe('Objects Service Tests', () => {
         Promise.all(reqObjArr.map((obj) => {
             // Return the promise here
             return chai.request(app)
-                .post(`/objects`)
+                .post(`${baseObjectsURL}`)
+                .set('Cookie', usersCookies[researcher.email])
                 .send(obj);
         }))
             .then(() => {
                 // Get all objects of the specified type as a participant
                 return chai.request(app)
-                    .get(`/objects/type/${targetType}?email=${participant.email}&platform=${participant.platform}`)
+                    .get(`${baseParticipantsURL}/objects/type/${targetType}?email=${participant.email}&platform=${participant.platform}`)
                     .send();
             })
             .then((res) => {
@@ -1886,13 +1962,15 @@ describe('Objects Service Tests', () => {
         Promise.all(reqObjArr.map((obj) => {
             // Return the promise here
             return chai.request(app)
-                .post(`/objects`)
+                .post(`${baseObjectsURL}`)
+                .set('Cookie', usersCookies[researcher.email])
                 .send(obj);
         }))
             .then(() => {
                 // Get all objects of the specified type as a researcher
                 return chai.request(app)
-                    .get(`/objects/type/${targetType}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .get(`${baseObjectsURL}/type/${targetType}?email=${researcher.email}&platform=${researcher.platform}`)
+                    .set('Cookie', usersCookies[researcher.email])
                     .send();
             })
             .then((res) => {
