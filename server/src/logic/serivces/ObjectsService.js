@@ -311,10 +311,6 @@ const objectsService = {
             throw new createHttpError.NotFound("User not found");
         }
 
-        if (existingUser.role === Roles.PARTICIPANT) {
-            logger.error(`User with userId ${existingUser.userId} tried to bind one object to another while he is not allowed to`);
-            throw new createHttpError.Forbidden("You are not allowed to make this request");
-        }
 
         if (!mongoose.Types.ObjectId.isValid(objectIdBoundary.internalObjectId)) {
             // Handle the case where internalObjectId is not a valid ObjectId
@@ -340,6 +336,11 @@ const objectsService = {
         if (!parentObj) {
             logger.error(`Parent object does not exists with internalObjectId:${internalObjectId}`);
             throw new createHttpError.NotFound("Parent object does not exists");
+        }
+
+        if (existingUser.role === Roles.PARTICIPANT && (!parentObj.active || !childObj.active)) {
+            logger.error(`User with userId ${existingUser.userId} tried to bind one object to another while one of them is inactive`);
+            throw new createHttpError.Forbidden("You are not allowed to make this request");
         }
 
         parentObj.children.push(childObj);
