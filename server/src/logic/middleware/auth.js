@@ -50,7 +50,7 @@ export const setCookieIfNeeded = (req, res, token, expiration) => {
     res.cookie('jwt', token, {
       expires: expiration, // Sent as Date object after the service operation
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Set to true in production
+      secure: process.env.NODE_ENV === 'prod', // Set to true in production
       sameSite: 'None' // Allowing Cross-Origin requests
     });
   }
