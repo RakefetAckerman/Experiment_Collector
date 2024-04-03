@@ -102,7 +102,6 @@ const userService = {
     if (!reqUserBoundary.userId.email ||
       !reqUserBoundary.userId.platform ||
       !reqUserBoundary.role ||
-      !reqUserBoundary.username ||
       !reqUserBoundary.userDetails){
         logger.error(`A user tried to sign in with illeagal credentials`);
         throw new createHttpError.BadRequest("Some of the user credentials are undefined");
