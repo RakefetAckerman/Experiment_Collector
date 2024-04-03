@@ -31,4 +31,20 @@ router.post("/login", async (req, res) => {
     entryController.loginUser(req,res);
 });
 
+
+/**
+ * Route for verifying user.
+ * @name POST entry/verify?email=someEmailExample
+ * @function
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Object} Express response object that contains the verification code.
+ * user details in case the user is not Particpant, otherwise there will be no JWT token.
+ * @throws {import("http-errors").HttpError} JSON response containing Http error message.
+ */
+router.post("/verify", async (req, res) => {
+    entryController.veirfyUser(req,res);
+});
+
+
 export default router;
