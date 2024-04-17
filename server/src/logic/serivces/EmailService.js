@@ -64,7 +64,7 @@ const emailService = {
                 text: `Your verification code is: ${verificationCode}`, // Plain text body
             });
             logger.info(`Email sent with id ${info.messageId} sent to ${emailDest}`);
-            return { "verificationCode": verificationCode }; // Email sent successfully
+            return { "verificationCode": verificationCode.toString() }; // Email sent successfully
         }
         catch (error) {
             switch(error.code){
