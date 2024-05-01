@@ -6,7 +6,8 @@ import { useSelector } from "react-redux";
 import { createTheme } from "@mui/material/styles";
 import { themeSettings } from "./theme";
 import { AuthState } from "./states";
-import ParticipantsLoginSelector from "./components/ParticipantsLoginSelector";
+import ParticipantsLoginClassifier from "./components/ParticipantsLoginClassifier";
+import SignupPrep from "./components/SignupPrep";
 
 function App() {
   const mode = useSelector((state: AuthState) => state.mode);
@@ -21,8 +22,9 @@ function App() {
             <Route path="/home" element={<HomePage />} />
             <Route
               path="/login/:userType"
-              element={<ParticipantsLoginSelector />}
+              element={<ParticipantsLoginClassifier />}
             />
+            <Route path="/signup" element={<SignupPrep />} />
           </Routes>
         </ThemeProvider>
       </BrowserRouter>
