@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { createTheme } from "@mui/material/styles";
 import { themeSettings } from "./theme";
 import { AuthState } from "./states";
-import ParticipantsLoginClassifier from "./components/ParticipantsLoginClassifier";
+import ParticipantsLoginClassifier from "./components/LoginClassifier";
 import SignupPrep from "./components/SignupPrep";
 
 function App() {
