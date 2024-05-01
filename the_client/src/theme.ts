@@ -54,9 +54,9 @@ export  interface ThemeSettings {
         medium: string;
         light: string;
       };
-      background?: {
+      background: {
         default: string;
-        alt?: string;
+        alt: string;
       };
     };
     typography: {
