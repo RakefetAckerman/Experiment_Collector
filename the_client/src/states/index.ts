@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { configureStore, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface User {
   // Define your user interface here
@@ -31,6 +31,13 @@ export const authSlice = createSlice({
       state.user = null;
       state.token = null;
     },
+  },
+});
+
+// Create the store with your auth slice reducer
+export const store = configureStore({
+  reducer: {
+    auth: authSlice.reducer,
   },
 });
 
