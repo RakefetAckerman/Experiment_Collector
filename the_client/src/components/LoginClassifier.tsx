@@ -6,7 +6,7 @@ import * as yup from "yup";
 import { FormikValues } from "formik";
 import createValidationSchema from "../utils/FormValidation";
 
-const ParticipantsLoginClassifier: React.FC = () => {
+const LoginClassifier: React.FC = () => {
   const { userType } = useParams();
 
   let fields: string[] = [];
@@ -60,4 +60,4 @@ const ParticipantsLoginClassifier: React.FC = () => {
   );
 };
 
-export default ParticipantsLoginClassifier;
+export default LoginClassifier;
