@@ -31,10 +31,7 @@ const logger = createCustomLogger({
 export const connectToDatabase = async () => {
     try {
         // Attempt to connect to MongoDB
-        await mongoose.connect(MONGO_URL, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        await mongoose.connect(MONGO_URL);
 
         // Log successful connection
         logger.info("Connected to MongoDB");
