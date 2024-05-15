@@ -1,7 +1,7 @@
-enum UserTypes {
+enum UserRoles {
     Participant = "Participant",
     Researcher = "Researcher",
     Admin = "Admin",
   }
   
-  export default UserTypes;
+  export default UserRoles;
