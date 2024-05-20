@@ -18,21 +18,19 @@ export const verifyToken = async (req, res, next) => {
     }
 
     jwt.verify(jwtCookie, process.env.JWT_SECRET, (err, verified) => {
-      if (err && err.name === 'TokenExpiredError') {
+      if (err && err.name === "TokenExpiredError") {
         // The token has expired
-        res.clearCookie('jwt');
-        throw new createHttpError.Unauthorized('Token has expired');
-
+        res.clearCookie("jwt");
+        throw new createHttpError.Unauthorized("Token has expired");
       } else if (err) {
         // Another error occurred during verification, verification has been failed
-        throw new createHttpError.Unauthorized('Token verification failed');
+        throw new createHttpError.Unauthorized("Token verification failed");
       } else {
         // The token is valid
         req.user = verified;
         next();
       }
     });
-
   } catch (error) {
     res.status(error.status || 500).json({ error: error.message });
   }
@@ -46,12 +44,13 @@ export const verifyToken = async (req, res, next) => {
  * @param {Date} expiration - Expiration date of the cookie.
  */
 export const setCookieIfNeeded = (req, res, token, expiration) => {
+  const isProduction = process.env.NODE_ENV === "production";
   if (!req.cookies.jwt) {
-    res.cookie('jwt', token, {
+    res.cookie("jwt", token, {
       expires: expiration, // Sent as Date object after the service operation
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod', // Set to true in production
-      sameSite: 'None' // Allowing Cross-Origin requests
+      httpOnly: isProduction,
+      secure: process.env.NODE_ENV === "prod", // Set to true in production
+      sameSite: isProduction ? "None" : "Lax", // Allowing Cross-Origin requests
     });
   }
 };

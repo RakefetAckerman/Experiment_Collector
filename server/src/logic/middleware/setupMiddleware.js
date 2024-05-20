@@ -6,9 +6,10 @@ import helmet from "helmet";
 import morgan from "morgan";
 import { attachInstanceId } from "./attachInstanceId.js";
 
-const corsOptions ={
-  origin: 'http://localhost:3001',
-  credentials: true // Allow cookies to be sent from client to server
+const corsOptions = {
+  origin: "http://localhost:3001",
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true, // Allow cookies to be sent from client to server
 };
 
 /**
