@@ -8,7 +8,7 @@ import axios from "axios";
 import UserRoles from "../utils/UserRoles";
 
 const SignupPrep: React.FC = () => {
-  const role = UserRoles.Participant;
+  const role = UserRoles.Researcher;
   const platform = "Builder";
   let fields: string[] = [];
   let validation: yup.ObjectShape = {};
@@ -18,44 +18,40 @@ const SignupPrep: React.FC = () => {
 
   const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_DEV_URL;
 
-  fields = ["Email", "Username", "Password", "Confirm Password"]; // Example fields for Student user
+  fields = ["Email", "Username", "Password", "Confirm Password"]; // Example fields for Researcher
 
-  onSubmit = async (values) => {
-    // this allows us to send form info with image
-    const formData = new FormData();
+  onSubmit = async (values: FormikValues) => {
+    const myObj: { [key: string]: unknown } = {}; //Defining the the of the object
+
     console.log(values);
     for (const value in values) {
-      if (value.toLowerCase().includes("password")) continue;
-      console.log(values[value]);
-      formData.append(value, values[value]);
+      if (value.toLowerCase().includes("password")) {
+        continue; // The backend API needs the pass word within userDetails property
+      }
+      myObj[value.toLowerCase()] = values[value];
     }
-    formData.append("role", role);
-    formData.append("platform", platform);
-    formData.append(
-      "userDetails",
-      JSON.stringify({ password: values.Password })
-    );
-
-    console.log(formData.entries.length);
+    //Additional properties of the Researcher
+    myObj["role"] = role;
+    myObj["platform"] = platform;
+    myObj["userDetails"] = { password: values.Password };
 
     try {
       const savedUserResponse = await axios.post(
         `${backendUrl}/entry/register`,
-        formData
+        myObj
       );
 
       const savedUser = await savedUserResponse.data;
 
       if (savedUser) {
         console.log(
-          `The user ${savedUser.Email} has been registered successfully!`
+          `The user ${savedUser.email} has been registered successfully!`
         );
       }
-      // Additional logic
     } catch (error) {
-      console.error("Error:", error); // Handle errors
+      console.error("Encountered error for Registering Researcher:", error);
     }
-  }; // Define onSubmit function for Student use
+  };
 
   // Defining a validation schema based on the list of fields
   validation = createValidationSchema(fields);
