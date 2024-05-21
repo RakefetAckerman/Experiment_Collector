@@ -8,12 +8,12 @@ import {
   useTheme,
 } from "@mui/material";
 import { FormikValues } from "formik";
-import WrapperForm from "../../components/WrapperForm";
+import WrapperForm from "../components/WrapperForm";
 import { AnyObject, ObjectSchema } from "yup";
-import UserTypes from "../../utils/UserTypes";
-import { useNavigate } from "react-router-dom"; // Import useHistory hook
+import UserTypes from "../utils/UserTypes";
+import { useNavigate } from "react-router-dom";
 
-interface LoginProps {
+interface SignupProps {
   typeOfUser: UserTypes;
   fields: string[];
   validation: ObjectSchema<AnyObject>;
@@ -21,20 +21,19 @@ interface LoginProps {
 }
 const initialValues: { [key: string]: string } = {}; // Provide type for initialValues
 
-const LoginPage: React.FC<LoginProps> = ({
-  typeOfUser,
+const SignupPage: React.FC<SignupProps> = ({
   fields,
   validation,
   onSubmit,
-}: LoginProps) => {
+}: SignupProps) => {
   const { palette } = useTheme();
-
-  const navigate = useNavigate(); // Access the navigation object
 
   fields.map((field) => {
     initialValues[field] = "";
   });
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
+
+  const navigate = useNavigate(); // Access the navigation object
 
   return (
     <Box
@@ -95,7 +94,7 @@ const LoginPage: React.FC<LoginProps> = ({
                         label={field}
                         onBlur={handleBlur}
                         onChange={handleChange}
-                        value={values.field}
+                        value={values[field]} //Binding the actual referance of the value
                         name={field}
                         error={
                           touched[field as keyof typeof errors] &&
@@ -124,15 +123,15 @@ const LoginPage: React.FC<LoginProps> = ({
                         "&:hover": { color: palette.primary.main },
                       }}
                     >
-                      {"LOGIN"}
+                      {"SIGNUP"}
                     </Button>
                     {/* Conditionally render the signup link based on typeOfUser */}
-                    {typeOfUser === UserTypes.Researcher && (
+                    {
                       <Typography
                         textAlign="left"
                         onClick={() => {
                           resetForm(); // Reset the form
-                          navigate("/signup"); // Navigate to "/signup"
+                          navigate("/login/Researcher"); // Navigate to "/login"
                         }}
                         sx={{
                           textDecoration: "underline",
@@ -143,9 +142,9 @@ const LoginPage: React.FC<LoginProps> = ({
                           },
                         }}
                       >
-                        {"Don't have an account? Sign Up here."}
+                        {"Have an account? Sign in here."}
                       </Typography>
-                    )}
+                    }
                   </Box>
                 </>
               );
@@ -157,4 +156,4 @@ const LoginPage: React.FC<LoginProps> = ({
   );
 };
 
-export default LoginPage;
+export default SignupPage;
