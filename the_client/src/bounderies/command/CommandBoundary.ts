@@ -8,7 +8,7 @@ interface CommandBoundaryImpl {
   targetObject: ObjectIdInvokerImpl;
   invocationTimestamp?: Date;
   invokedBy: UserIdInvokerImpl;
-  commandAttributes: Record<string, unknown>;
+  commandAttributes: Record<string, object | string | boolean | number>;
   equals(other: CommandBoundaryImpl): boolean;
 }
 
@@ -18,7 +18,10 @@ class CommandBoundary implements CommandBoundaryImpl {
     public command: string,
     public targetObject: ObjectIdInvokerImpl,
     public invokedBy: UserIdInvokerImpl,
-    public commandAttributes: Record<string, unknown>,
+    public commandAttributes: Record<
+      string,
+      object | string | boolean | number
+    >,
     public invocationTimestamp?: Date
   ) {}
 
