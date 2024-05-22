@@ -1,221 +1,319 @@
 import * as React from "react";
-import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import MuiDrawer from "@mui/material/Drawer";
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
+import Drawer from "@mui/material/Drawer";
+import Button from "@mui/material/Button";
 import List from "@mui/material/List";
-import CssBaseline from "@mui/material/CssBaseline";
 import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
-
-const drawerWidth = 240;
-
-const openedMixin = (theme: Theme): CSSObject => ({
-  width: drawerWidth,
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  overflowX: "hidden",
-});
-
-const closedMixin = (theme: Theme): CSSObject => ({
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  overflowX: "hidden",
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up("sm")]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
-});
-
-const DrawerHeader = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-end",
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-}));
-
-interface AppBarProps extends MuiAppBarProps {
-  open?: boolean;
-}
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
-})<AppBarProps>(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(["width", "margin"], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
-const Drawer = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  width: drawerWidth,
-  flexShrink: 0,
-  whiteSpace: "nowrap",
-  boxSizing: "border-box",
-  ...(open && {
-    ...openedMixin(theme),
-    "& .MuiDrawer-paper": openedMixin(theme),
-  }),
-  ...(!open && {
-    ...closedMixin(theme),
-    "& .MuiDrawer-paper": closedMixin(theme),
-  }),
-}));
+import TextField from "@mui/material/TextField";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import { ListItemIcon, useTheme } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ManageHistoryIcon from "@mui/icons-material/ManageHistory";
+import BorderColorIcon from "@mui/icons-material/BorderColor";
+import ImageIcon from "@mui/icons-material/Image";
+import PercentIcon from "@mui/icons-material/Percent";
+import HeadphonesIcon from "@mui/icons-material/Headphones";
+import SettingsIcon from "@mui/icons-material/Settings";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 
 export default function SettingsDrawer() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  const [settingsValues, setSettingsValues] = React.useState({
+    time: {
+      displayAlert: false,
+      seconds: "",
+      idleMessage: "",
+    },
+    response: "",
+    image: "",
+    judgement: {
+      text: "",
+      min: "",
+      max: "",
+    },
+    sound: "",
+    additionalSettings: {
+      shuffledQuestion: false,
+    },
+    likert: {
+      min: "",
+      max: "",
+    },
+  });
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
+  const toggleDrawer = (newOpen: boolean) => () => {
+    setOpen(newOpen);
   };
 
-  const handleDrawerClose = () => {
-    setOpen(false);
+  const handleChange =
+    (setting: keyof typeof settingsValues, subSetting?: string) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (subSetting) {
+        setSettingsValues({
+          ...settingsValues,
+          [setting]: {
+            ...(settingsValues[setting] as Record<string, string>),
+            [subSetting]: event.target.value,
+          },
+        });
+      } else {
+        setSettingsValues({
+          ...settingsValues,
+          [setting]: event.target.value,
+        });
+      }
+    };
+
+  const handleCheckboxChange =
+    (setting: keyof typeof settingsValues) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSettingsValues({
+        ...settingsValues,
+        [setting]: {
+          ...(settingsValues[setting] as Record<string, boolean>),
+          [event.target.name]: event.target.checked,
+        },
+      });
+    };
+
+  const handleClearSettings = () => {
+    setSettingsValues({
+      time: {
+        displayAlert: false,
+        seconds: "",
+        idleMessage: "",
+      },
+      response: "",
+      image: "",
+      judgement: {
+        text: "",
+        min: "",
+        max: "",
+      },
+      sound: "",
+      additionalSettings: {
+        shuffledQuestion: false,
+      },
+      likert: {
+        min: "",
+        max: "",
+      },
+    });
   };
+
+  const settings = [
+    { name: "Time", icon: <ManageHistoryIcon /> },
+    { name: "Response", icon: <BorderColorIcon /> },
+    { name: "Image", icon: <ImageIcon /> },
+    { name: "Judgement", icon: <PercentIcon /> },
+    { name: "Sound", icon: <HeadphonesIcon /> },
+    { name: "Additional Settings", icon: <SettingsIcon /> },
+    { name: "Likert", icon: <FavoriteIcon /> },
+  ];
+
+  const DrawerList = (
+    <Box
+      sx={{ width: 350, display: "flex", flexDirection: "column" }}
+      role="presentation"
+      onClick={(e) => {
+        // Prevent closing when clicking inside the drawer
+        e.stopPropagation();
+      }}
+    >
+      <List sx={{ flexGrow: 1 }}>
+        {settings.map(({ name, icon }, index) => (
+          <React.Fragment key={name}>
+            <ListItem disablePadding onClick={(e) => e.stopPropagation()}>
+              <ListItemButton>
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText primary={name} />
+              </ListItemButton>
+            </ListItem>
+            <Box
+              sx={{ padding: "0 16px" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {(() => {
+                switch (name) {
+                  case "Time":
+                    return (
+                      <>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={settingsValues.time.displayAlert}
+                              onChange={handleCheckboxChange("time")}
+                              name="displayAlert"
+                            />
+                          }
+                          label="Display Alert"
+                        />
+                        <TextField
+                          label="Seconds"
+                          type="number"
+                          value={settingsValues.time.seconds}
+                          onChange={handleChange("time", "seconds")}
+                          fullWidth
+                          margin="normal"
+                        />
+                        <TextField
+                          label="Idle Message"
+                          value={settingsValues.time.idleMessage}
+                          onChange={handleChange("time", "idleMessage")}
+                          fullWidth
+                          margin="normal"
+                        />
+                      </>
+                    );
+                  case "Response":
+                    return (
+                      <TextField
+                        label="Correct Answer"
+                        value={settingsValues.response}
+                        onChange={handleChange("response")}
+                        fullWidth
+                        margin="normal"
+                      />
+                    );
+                  case "Image":
+                    return (
+                      <TextField
+                        label="Degrees for Rotation"
+                        type="number"
+                        value={settingsValues.image}
+                        onChange={handleChange("image")}
+                        fullWidth
+                        margin="normal"
+                      />
+                    );
+                  case "Judgement":
+                    return (
+                      <>
+                        <TextField
+                          label="Judgement Text"
+                          value={settingsValues.judgement.text}
+                          onChange={handleChange("judgement", "text")}
+                          fullWidth
+                          margin="normal"
+                        />
+                        <TextField
+                          label="Minimum Value"
+                          type="number"
+                          value={settingsValues.judgement.min}
+                          onChange={handleChange("judgement", "min")}
+                          fullWidth
+                          margin="normal"
+                        />
+                        <TextField
+                          label="Maximum Value"
+                          type="number"
+                          value={settingsValues.judgement.max}
+                          onChange={handleChange("judgement", "max")}
+                          fullWidth
+                          margin="normal"
+                        />
+                      </>
+                    );
+                  case "Sound":
+                    return (
+                      <TextField
+                        label="Sound Percentage"
+                        type="number"
+                        value={settingsValues.sound}
+                        onChange={handleChange("sound")}
+                        fullWidth
+                        margin="normal"
+                      />
+                    );
+                  case "Additional Settings":
+                    return (
+                      <>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={
+                                settingsValues.additionalSettings
+                                  .shuffledQuestion
+                              }
+                              onChange={handleCheckboxChange(
+                                "additionalSettings"
+                              )}
+                              name="shuffledQuestion"
+                            />
+                          }
+                          label="Shuffled Question"
+                        />
+                      </>
+                    );
+                  case "Likert":
+                    return (
+                      <>
+                        <TextField
+                          label="Minimum Value"
+                          type="number"
+                          value={settingsValues.likert.min}
+                          onChange={handleChange("likert", "min")}
+                          fullWidth
+                          margin="normal"
+                        />
+                        <TextField
+                          label="Maximum Value"
+                          type="number"
+                          value={settingsValues.likert.max}
+                          onChange={handleChange("likert", "max")}
+                          fullWidth
+                          margin="normal"
+                        />
+                      </>
+                    );
+                  default:
+                    return null;
+                }
+              })()}
+            </Box>
+            {index < settings.length - 1 && <Divider />}
+          </React.Fragment>
+        ))}
+      </List>
+      <Button
+        fullWidth
+        variant="contained"
+        onClick={handleClearSettings}
+        sx={{
+          margin: "2rem 0",
+          padding: "1rem",
+          bgcolor: theme.palette.primary.main,
+          color: theme.palette.background.paper,
+          "&:hover": { color: theme.palette.primary.main },
+        }}
+        startIcon={<DeleteIcon />}
+      >
+        Clear Settings
+      </Button>
+    </Box>
+  );
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 5,
-              ...(open && { display: "none" }),
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          {/* <Typography variant="h6" noWrap component="div">
-            Mini variant drawer
-          </Typography> */}
-        </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon />
-            )}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: "block" }}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
-                  }}
-                >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-        <List>
-          {["All mail", "Trash", "Spam"].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: "block" }}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
-                  }}
-                >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+    <>
+      <Button
+        fullWidth
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          width: "100%",
+        }}
+        onClick={toggleDrawer(true)}
+      >
+        Open settings
+      </Button>
+      <Drawer open={open} onClose={toggleDrawer(false)}>
+        {DrawerList}
       </Drawer>
-      {/* <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <DrawerHeader />
-        <Typography paragraph>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Rhoncus
-          dolor purus non enim praesent elementum facilisis leo vel. Risus at
-          ultrices mi tempus imperdiet. Semper risus in hendrerit gravida rutrum
-          quisque non tellus. Convallis convallis tellus id interdum velit
-          laoreet id donec ultrices. Odio morbi quis commodo odio aenean sed
-          adipiscing. Amet nisl suscipit adipiscing bibendum est ultricies
-          integer quis. Cursus euismod quis viverra nibh cras. Metus vulputate
-          eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo
-          quis imperdiet massa tincidunt. Cras tincidunt lobortis feugiat
-          vivamus at augue. At augue eget arcu dictum varius duis at consectetur
-          lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa sapien
-          faucibus et molestie ac.
-        </Typography>
-        <Typography paragraph>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est
-          ullamcorper eget nulla facilisi etiam dignissim diam. Pulvinar
-          elementum integer enim neque volutpat ac tincidunt. Ornare suspendisse
-          sed nisi lacus sed viverra tellus. Purus sit amet volutpat consequat
-          mauris. Elementum eu facilisis sed odio morbi. Euismod lacinia at quis
-          risus sed vulputate odio. Morbi tincidunt ornare massa eget egestas
-          purus viverra accumsan in. In hendrerit gravida rutrum quisque non
-          tellus orci ac. Pellentesque nec nam aliquam sem et tortor. Habitant
-          morbi tristique senectus et. Adipiscing elit duis tristique
-          sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-          eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-          posuere sollicitudin aliquam ultrices sagittis orci a.
-        </Typography>
-      </Box> */}
-    </Box>
+    </>
   );
 }
