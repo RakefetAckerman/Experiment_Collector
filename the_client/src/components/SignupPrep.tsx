@@ -3,13 +3,15 @@ import UserTypes from "../utils/UserTypes";
 import * as yup from "yup";
 import { FormikValues } from "formik";
 import createValidationSchema from "../utils/FormValidation";
-import SignupPage from "../scenes/signupPage/SignupPage";
+import SignupPage from "../scenes/SignupPage";
 import axios from "axios";
 import UserRoles from "../utils/UserRoles";
+import { useNavigate } from "react-router-dom";
 
 const SignupPrep: React.FC = () => {
   const role = UserRoles.Researcher;
   const platform = "Builder";
+  const navigate = useNavigate();
   let fields: string[] = [];
   let validation: yup.ObjectShape = {};
   let onSubmit: (values: FormikValues) => void | Promise<void> = () => {
@@ -23,13 +25,13 @@ const SignupPrep: React.FC = () => {
   onSubmit = async (values: FormikValues) => {
     const myObj: { [key: string]: unknown } = {}; //Defining the the of the object
 
-    console.log(values);
     for (const value in values) {
       if (value.toLowerCase().includes("password")) {
         continue; // The backend API needs the pass word within userDetails property
       }
       myObj[value.toLowerCase()] = values[value];
     }
+
     //Additional properties of the Researcher
     myObj["role"] = role;
     myObj["platform"] = platform;
@@ -48,6 +50,7 @@ const SignupPrep: React.FC = () => {
           `The user ${savedUser.email} has been registered successfully!`
         );
       }
+      navigate("/login/Researcher");
     } catch (error) {
       console.error("Encountered error for Registering Researcher:", error);
     }

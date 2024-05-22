@@ -1,6 +1,6 @@
 // import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
-import LoginPage from "../scenes/loginPage/LoginPage";
+import { useNavigate, useParams } from "react-router-dom";
+import LoginPage from "../scenes/LoginPage";
 import UserTypes from "../utils/UserTypes";
 import * as yup from "yup";
 import { FormikValues } from "formik";
@@ -22,6 +22,7 @@ import Cookies from "universal-cookie";
 const LoginClassifier: React.FC = () => {
   const { userType } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const myCookies = new Cookies();
   axios.defaults.withCredentials = true;
 
@@ -77,18 +78,20 @@ const LoginClassifier: React.FC = () => {
 
           const token = myCookies.get("jwt");
 
-          console.log("The token is", token);
-
           // Assuming your response data contains user and token fields
           const user: UserBoundary = response.data;
 
-          //Expiry str formatted as ISOString
-          const expiry = user.userDetails.expiryStr; // expiryStr is defined within usersService within the login method
+          // Ensure expiryStr is a string before assigning it - expiry str formatted as ISOString
+          const expiry = user.userDetails.expiryStr;
+
+          if (typeof expiry !== "string") {
+            throw new Error("Expiry is not a string");
+          } // expiryStr is defined within usersService within the login method from the backend
 
           // Dispatch the logedIn action with user and token data
           dispatch(logedIn({ user, token, expiry }));
 
-          console.log("I've loged in a Researcher");
+          navigate("/"); // Navigating to the dashboad page
         } catch (error) {
           console.log(error);
         }
