@@ -4,14 +4,14 @@ import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { createTheme } from "@mui/material/styles";
 import { themeSettings } from "./theme";
-import LoginClassifier from "./components/LoginClassifier";
-import SignupPrep from "./components/SignupPrep";
+import LoginClassifier from "./components/common/LoginClassifier";
+import SignupPrep from "./components/common/SignupPrep";
 import { State } from "./states/reducer";
-import DashboardPage from "./scenes/DashboardPage";
-import EditorPage from "./scenes/EditorPage";
-import ExperimentPage from "./scenes/ExperimentPage";
-import ExportDataPage from "./scenes/ExportDataPage";
-import ProfilePage from "./scenes/ProfilePage";
+import DashboardPage from "./pages/DashboardPage";
+import EditorPage from "./pages/EditorPage";
+import ExperimentPage from "./pages/ExperimentPage";
+import ExportDataPage from "./pages/ExportDataPage";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   const mode = useSelector((state: State) => state.mode);
