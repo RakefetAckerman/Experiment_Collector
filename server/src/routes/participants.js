@@ -30,19 +30,18 @@ router.get("/objects/:internalObjectId", async (req, res) => {
 });
 
 /**
-* Route for binding two objects one to another.
-* @note Except Participnats, any user can us this API.
-* @name PUT objects/internalObjectId/bind?email=example@demo.org&platform=userPlatform
-* @function
-* @param {Object} req - Express request object formed as UserBoundary.
-* @param {Object} res - Express response object.
-* @returns {Object} An empty JSON reposne.
-* @throws {import("http-errors").HttpError} JSON response containing Http error message.
-*/
+ * Route for binding two objects one to another.
+ * @note Except Participnats, any user can us this API.
+ * @name PUT objects/internalObjectId/bind?email=example@demo.org&platform=userPlatform
+ * @function
+ * @param {Object} req - Express request object formed as UserBoundary.
+ * @param {Object} res - Express response object.
+ * @returns {Object} An empty JSON reposne.
+ * @throws {import("http-errors").HttpError} JSON response containing Http error message.
+ */
 router.put("/objects/:internalObjectId/bind", async (req, res) => {
   participantsController.bindNewChild(req, res);
 });
-
 
 /**
  * Route for getting all children objects of specific object, the retrieval is depened the presmissions of the user.
@@ -56,7 +55,6 @@ router.put("/objects/:internalObjectId/bind", async (req, res) => {
 router.get("/objects/:internalObjectId/children", async (req, res) => {
   participantsController.getAllChildren(req, res);
 });
-
 
 /**
  * Route for getting all parents objects of specific object, the retrieval is depened the presmissions of the user.
@@ -84,4 +82,16 @@ router.get("/objects/type/:targetType", async (req, res) => {
   participantsController.getAllObjectsByType(req, res);
 });
 
+/**
+ * Route for getting a distinct object by specific type, the retrieval is depened the presmissions of the user.
+ * @name GET participants/objects/type/distinct?email=example@org.com&platform=userPlatform&type=someType
+ * @function
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {[Object]} An Array of JSON object structured as UserBoundary form.
+ * @throws {import("http-errors").HttpError} JSON response containing Http error message.
+ */
+router.get("/objects/type/distinct/:targetType", async (req, res) => {
+  participantsController.getSpecificObjectByType(req, res);
+});
 export default router;

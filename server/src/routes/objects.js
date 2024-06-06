@@ -1,7 +1,6 @@
 import express from "express";
 import objectsController from "../controllers/objectsController.js";
 
-
 const router = express.Router();
 
 /**
@@ -14,7 +13,7 @@ const router = express.Router();
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.post("/", async (req, res) => {
-  objectsController.createObject(req,res);
+  objectsController.createObject(req, res);
 });
 
 /**
@@ -27,7 +26,7 @@ router.post("/", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/:internalObjectId", async (req, res) => {
-  objectsController.getObject(req,res);
+  objectsController.getObject(req, res);
 });
 
 /**
@@ -40,7 +39,7 @@ router.get("/:internalObjectId", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/", async (req, res) => {
-  objectsController.getAllObjects(req,res);
+  objectsController.getAllObjects(req, res);
 });
 
 /**
@@ -53,9 +52,8 @@ router.get("/", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.delete("/", async (req, res) => {
-  objectsController.deleteAllObjects(req,res);
+  objectsController.deleteAllObjects(req, res);
 });
-
 
 /**
  * Route for binding two objects one to another.
@@ -68,9 +66,8 @@ router.delete("/", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.put("/:internalObjectId/bind", async (req, res) => {
-  objectsController.bindNewChild(req,res);
+  objectsController.bindNewChild(req, res);
 });
-
 
 /**
  * Route for unbinding two objects one to another.
@@ -83,9 +80,8 @@ router.put("/:internalObjectId/bind", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.put("/:internalObjectId/unbind", async (req, res) => {
-  objectsController.unbindChild(req,res);
+  objectsController.unbindChild(req, res);
 });
-
 
 /**
  * Route for updating an object.
@@ -98,7 +94,7 @@ router.put("/:internalObjectId/unbind", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.put("/:internalObjectId", async (req, res) => {
-  objectsController.updateObject(req,res);
+  objectsController.updateObject(req, res);
 });
 
 /**
@@ -111,9 +107,8 @@ router.put("/:internalObjectId", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/:internalObjectId/children", async (req, res) => {
-  objectsController.getAllChildren(req,res);
+  objectsController.getAllChildren(req, res);
 });
-
 
 /**
  * Route for getting all parents objects of specific object, the retrieval is depened the presmissions of the user.
@@ -125,7 +120,7 @@ router.get("/:internalObjectId/children", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/:internalObjectId/parents", async (req, res) => {
-  objectsController.getAllParents(req,res);
+  objectsController.getAllParents(req, res);
 });
 
 /**
@@ -134,11 +129,24 @@ router.get("/:internalObjectId/parents", async (req, res) => {
  * @function
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
- * @returns {[Object]} An Array of JSON object structured as UserBoundary form.
+ * @returns {[Object]} An Array of JSON object structured as ObjectBoundary form.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/type/:targetType", async (req, res) => {
-  objectsController.getAllObjectsByType(req,res);
+  objectsController.getAllObjectsByType(req, res);
+});
+
+/**
+ * Route for getting all objects by certain type, the retrieval is depened the presmissions of the user.
+ * @name GET objects/type/distinct/someType/?email=example@org.com&platform=userPlatform
+ * @function
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Object} A JSON object structured as ObjectBoundary form.
+ * @throws {import("http-errors").HttpError} JSON response containing Http error message.
+ */
+router.get("/type/distinct/:targetType", async (req, res) => {
+  objectsController.getSpecificObjectByType(req, res);
 });
 
 export default router;

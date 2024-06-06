@@ -1,5 +1,5 @@
 import userService from "../logic/serivces/UsersService.js";
-import objectsService from "../logic/serivces/ObjectsService.js"
+import objectsService from "../logic/serivces/ObjectsService.js";
 import UserBoundary from "../boundaries/user/UserBoundary.js";
 import ObjectBoundary from "../boundaries/object/ObjectBoundary.js";
 import ObjectIdBoundary from "../boundaries/object/ObjectIdBoundary.js";
@@ -16,10 +16,15 @@ const participantsController = {
 
       /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
       Object.assign(reqObjectBoundary, req.body);
-      const resUserBoundary = await objectsService.createObject(reqObjectBoundary);
+      const resUserBoundary = await objectsService.createObject(
+        reqObjectBoundary
+      );
       res.status(201).json(resUserBoundary);
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during object creation.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during object creation.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
@@ -34,70 +39,99 @@ const participantsController = {
       const internalObjectId = req.params.internalObjectId;
       const userEmail = req.query.email;
       const userPlatform = req.query.platform;
-      const DBResponse = await objectsService.getObject(internalObjectId, userEmail, userPlatform);
+      const DBResponse = await objectsService.getObject(
+        internalObjectId,
+        userEmail,
+        userPlatform
+      );
       res.status(200).json(DBResponse);
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during object retrieval.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during object retrieval.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
-    /**
+  /**
    * Controller function for binding two objects one to another.
    * @param {Object} req - Express request object formed as UserBoundary.
    * @param {Object} res - Express response object.
    */
-    bindNewChild: async (req, res) => {
-      try {
-        const internalObjectid = req.params.internalObjectId;
-        const userEmail = req.query.email;
-        const userPlatform = req.query.platform;
-  
-        /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
-        const reqObjectIdBoundary = new ObjectIdBoundary();
-        Object.assign(reqObjectIdBoundary, req.body.objectId);
-        await objectsService.bindNewChild(internalObjectid, userEmail, userPlatform, reqObjectIdBoundary);
-        res.status(200).send();
-      } catch (error) {
-        const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during object binding.';
-        res.status(error.status || 500).json({ error: errorMessage });
-      }
-    },
-  
-    /**
-     * Controller function for getting all children objects of specific object, the retrieval depends on the permissions of the user.
-     * @param {Object} req - Express request object.
-     * @param {Object} res - Express response object.
-     */
-    getAllChildren: async (req, res) => {
-      try {
-        const internalObjectId = req.params.internalObjectId;
-        const userEmail = req.query.email;
-        const userPlatform = req.query.platform;
-        const DBResponse = await objectsService.getAllChildren(internalObjectId, userEmail, userPlatform);
-        res.status(200).json(DBResponse);
-      } catch (error) {
-        const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during children retrieval.';
-        res.status(error.status || 500).json({ error: errorMessage });
-      }
-    },
-  
-    /**
-     * Controller function for getting all parents objects of specific object, the retrieval depends on the permissions of the user.
-     * @param {Object} req - Express request object.
-     * @param {Object} res - Express response object.
-     */
-    getAllParents: async (req, res) => {
-      try {
-        const internalObjectId = req.params.internalObjectId;
-        const userEmail = req.query.email;
-        const userPlatform = req.query.platform;
-        const DBResponse = await objectsService.getAllParents(internalObjectId, userEmail, userPlatform);
-        res.status(200).json(DBResponse);
-      } catch (error) {
-        const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during parents retrieval.';
-        res.status(error.status || 500).json({ error: errorMessage });
-      }
-    },
+  bindNewChild: async (req, res) => {
+    try {
+      const internalObjectid = req.params.internalObjectId;
+      const userEmail = req.query.email;
+      const userPlatform = req.query.platform;
+
+      /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
+      const reqObjectIdBoundary = new ObjectIdBoundary();
+      Object.assign(reqObjectIdBoundary, req.body.objectId);
+      await objectsService.bindNewChild(
+        internalObjectid,
+        userEmail,
+        userPlatform,
+        reqObjectIdBoundary
+      );
+      res.status(200).send();
+    } catch (error) {
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during object binding.";
+      res.status(error.status || 500).json({ error: errorMessage });
+    }
+  },
+
+  /**
+   * Controller function for getting all children objects of specific object, the retrieval depends on the permissions of the user.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   */
+  getAllChildren: async (req, res) => {
+    try {
+      const internalObjectId = req.params.internalObjectId;
+      const userEmail = req.query.email;
+      const userPlatform = req.query.platform;
+      const DBResponse = await objectsService.getAllChildren(
+        internalObjectId,
+        userEmail,
+        userPlatform
+      );
+      res.status(200).json(DBResponse);
+    } catch (error) {
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during children retrieval.";
+      res.status(error.status || 500).json({ error: errorMessage });
+    }
+  },
+
+  /**
+   * Controller function for getting all parents objects of specific object, the retrieval depends on the permissions of the user.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   */
+  getAllParents: async (req, res) => {
+    try {
+      const internalObjectId = req.params.internalObjectId;
+      const userEmail = req.query.email;
+      const userPlatform = req.query.platform;
+      const DBResponse = await objectsService.getAllParents(
+        internalObjectId,
+        userEmail,
+        userPlatform
+      );
+      res.status(200).json(DBResponse);
+    } catch (error) {
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during parents retrieval.";
+      res.status(error.status || 500).json({ error: errorMessage });
+    }
+  },
 
   /**
    * Controller function for getting all objects by certain type, the retrieval depends on the permissions of the user.
@@ -109,13 +143,44 @@ const participantsController = {
       const userEmail = req.query.email;
       const userPlatform = req.query.platform;
       const targetType = req.params.targetType;
-      const DBResponse = await objectsService.getAllObjectsByType(targetType, userEmail, userPlatform);
+      const DBResponse = await objectsService.getAllObjectsByType(
+        targetType,
+        userEmail,
+        userPlatform
+      );
       res.status(200).json(DBResponse);
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during type-based retrieval.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during type-based retrieval.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
-  }
+  },
+  /**
+   * Controller function for getting all objects by certain type, the retrieval depends on the permissions of the user.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   */
+  getSpecificObjectByType: async (req, res) => {
+    try {
+      const userEmail = req.query.email;
+      const userPlatform = req.query.platform;
+      const targetType = req.params.targetType;
+      const DBResponse = await objectsService.getSpecificObjectByType(
+        targetType,
+        userEmail,
+        userPlatform
+      );
+      res.status(200).json(DBResponse);
+    } catch (error) {
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during type-based retrieval.";
+      res.status(error.status || 500).json({ error: errorMessage });
+    }
+  },
 };
 
 export default participantsController;

@@ -14,10 +14,15 @@ const objectsController = {
 
       /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
       Object.assign(reqObjectBoundary, req.body);
-      const resUserBoundary = await objectsService.createObject(reqObjectBoundary);
+      const resUserBoundary = await objectsService.createObject(
+        reqObjectBoundary
+      );
       res.status(201).json(resUserBoundary);
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during object creation.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during object creation.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
@@ -32,10 +37,17 @@ const objectsController = {
       const internalObjectId = req.params.internalObjectId;
       const userEmail = req.query.email;
       const userPlatform = req.query.platform;
-      const DBResponse = await objectsService.getObject(internalObjectId, userEmail, userPlatform);
+      const DBResponse = await objectsService.getObject(
+        internalObjectId,
+        userEmail,
+        userPlatform
+      );
       res.status(200).json(DBResponse);
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during object retrieval.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during object retrieval.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
@@ -49,10 +61,16 @@ const objectsController = {
     try {
       const userEmail = req.query.email;
       const userPlatform = req.query.platform;
-      const DBResponse = await objectsService.getAllObjects(userEmail, userPlatform);
+      const DBResponse = await objectsService.getAllObjects(
+        userEmail,
+        userPlatform
+      );
       res.status(200).json(DBResponse);
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during object retrieval.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during object retrieval.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
@@ -66,10 +84,16 @@ const objectsController = {
     const userEmail = req.query.email;
     const userPlatform = req.query.platform;
     try {
-      const DBResponse = await objectsService.deleteAllObjects(userEmail, userPlatform);
+      const DBResponse = await objectsService.deleteAllObjects(
+        userEmail,
+        userPlatform
+      );
       res.status(200).json(DBResponse);
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during object deletion.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during object deletion.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
@@ -88,10 +112,18 @@ const objectsController = {
       /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
       const reqObjectIdBoundary = new ObjectIdBoundary();
       Object.assign(reqObjectIdBoundary, req.body.objectId);
-      await objectsService.bindNewChild(internalObjectid, userEmail, userPlatform, reqObjectIdBoundary);
+      await objectsService.bindNewChild(
+        internalObjectid,
+        userEmail,
+        userPlatform,
+        reqObjectIdBoundary
+      );
       res.status(200).send();
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during object binding.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during object binding.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
@@ -110,10 +142,18 @@ const objectsController = {
 
       /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
       Object.assign(reqObjectIdBoundary, req.body.objectId);
-      await objectsService.unbindChild(internalObjectid, userEmail, userPlatform, reqObjectIdBoundary);
+      await objectsService.unbindChild(
+        internalObjectid,
+        userEmail,
+        userPlatform,
+        reqObjectIdBoundary
+      );
       res.status(200).send();
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during object unbinding.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during object unbinding.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
@@ -129,13 +169,21 @@ const objectsController = {
       const userEmail = req.query.email;
       const userPlatform = req.query.platform;
       const reqObjectBoundary = new ObjectBoundary();
-      
+
       /*Getting the body of the request containing the ObjectBoundary data and assigning it to the ObjectBoundary instance*/
       Object.assign(reqObjectBoundary, req.body);
-      await objectsService.updateObject(userEmail, userPlatform, internalObjectId, reqObjectBoundary);
+      await objectsService.updateObject(
+        userEmail,
+        userPlatform,
+        internalObjectId,
+        reqObjectBoundary
+      );
       res.status(200).send();
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during object update.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during object update.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
@@ -150,10 +198,17 @@ const objectsController = {
       const internalObjectId = req.params.internalObjectId;
       const userEmail = req.query.email;
       const userPlatform = req.query.platform;
-      const DBResponse = await objectsService.getAllChildren(internalObjectId, userEmail, userPlatform);
+      const DBResponse = await objectsService.getAllChildren(
+        internalObjectId,
+        userEmail,
+        userPlatform
+      );
       res.status(200).json(DBResponse);
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during children retrieval.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during children retrieval.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
@@ -168,10 +223,17 @@ const objectsController = {
       const internalObjectId = req.params.internalObjectId;
       const userEmail = req.query.email;
       const userPlatform = req.query.platform;
-      const DBResponse = await objectsService.getAllParents(internalObjectId, userEmail, userPlatform);
+      const DBResponse = await objectsService.getAllParents(
+        internalObjectId,
+        userEmail,
+        userPlatform
+      );
       res.status(200).json(DBResponse);
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during parents retrieval.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during parents retrieval.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
@@ -186,13 +248,44 @@ const objectsController = {
       const userEmail = req.query.email;
       const userPlatform = req.query.platform;
       const targetType = req.params.targetType;
-      const DBResponse = await objectsService.getAllObjectsByType(targetType, userEmail, userPlatform);
+      const DBResponse = await objectsService.getAllObjectsByType(
+        targetType,
+        userEmail,
+        userPlatform
+      );
       res.status(200).json(DBResponse);
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during type-based retrieval.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during type-based retrieval.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
-  }
+  },
+  /**
+   * Controller function for getting all objects by certain type, the retrieval depends on the permissions of the user.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   */
+  getSpecificObjectByType: async (req, res) => {
+    try {
+      const userEmail = req.query.email;
+      const userPlatform = req.query.platform;
+      const targetType = req.params.targetType;
+      const DBResponse = await objectsService.getSpecificObjectByType(
+        targetType,
+        userEmail,
+        userPlatform
+      );
+      res.status(200).json(DBResponse);
+    } catch (error) {
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during type-based retrieval.";
+      res.status(error.status || 500).json({ error: errorMessage });
+    }
+  },
 };
 
 export default objectsController;
