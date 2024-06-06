@@ -11,7 +11,7 @@ const entryController = {
    * @returns {Promise<void>} Promise representing the registration process.
    */
   registerUser: async (req, res) => {
-    const userData = req.body;// Getting the body of the request containing the NewUserBoundary data
+    const userData = req.body; // Getting the body of the request containing the NewUserBoundary data
     try {
       const reqUserBoundary = new UserBoundary(
         userData.platform,
@@ -21,12 +21,20 @@ const entryController = {
         userData.userDetails
       );
       const DBResponse = await userService.createUser(reqUserBoundary);
-      if (DBResponse.hasOwnProperty('jwtToken')) {
-        setCookieIfNeeded(req, res, DBResponse.jwtToken, DBResponse.expirationCookie);
+      if (DBResponse.hasOwnProperty("jwtToken")) {
+        setCookieIfNeeded(
+          req,
+          res,
+          DBResponse.jwtToken,
+          DBResponse.expirationCookie
+        );
       }
       res.status(201).json(DBResponse.body);
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during user registration.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during user registration.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
@@ -38,7 +46,7 @@ const entryController = {
    * @returns {Promise<void>} Promise representing the login process.
    */
   loginUser: async (req, res) => {
-    const userData = req.body;// Getting the body of the request containing the NewUserBoundary data
+    const userData = req.body; // Getting the body of the request containing the NewUserBoundary data
     try {
       const reqUserBoundary = new UserBoundary(
         userData.platform,
@@ -48,12 +56,20 @@ const entryController = {
         userData.userDetails
       );
       const DBResponse = await userService.login(reqUserBoundary);
-      if (DBResponse.hasOwnProperty('jwtToken')) {
-        setCookieIfNeeded(req, res, DBResponse.jwtToken, DBResponse.expirationCookie);
+      if (DBResponse.hasOwnProperty("jwtToken")) {
+        setCookieIfNeeded(
+          req,
+          res,
+          DBResponse.jwtToken,
+          DBResponse.expirationCookie
+        );
       }
       res.status(200).json(DBResponse.body);
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during user login.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during user login.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
@@ -65,14 +81,17 @@ const entryController = {
    */
   veirfyUser: async (req, res) => {
     try {
-      const email = req.query.email;// Getting the body of the request containing the NewUserBoundary data
+      const email = req.query.email; // Getting the body of the request containing the NewUserBoundary data
       const smtpRes = await emailService.sendVerificationCode(email);
       res.status(200).json(smtpRes);
     } catch (error) {
-      const errorMessage = process.env.NODE_ENV !== 'prod' ? error.message : 'An error occurred during sending verification code.';
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during sending verification code.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
-  }
+  },
 };
 
 export default entryController;

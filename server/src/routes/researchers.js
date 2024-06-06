@@ -1,5 +1,5 @@
 import express from "express";
-import researchersController from "../controllers/researchersController.js"
+import researchersController from "../controllers/researchersController.js";
 import UserBoundary from "../boundaries/user/UserBoundary.js";
 
 const router = express.Router();
@@ -14,7 +14,7 @@ const router = express.Router();
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.put("/:email/:platform", async (req, res) => {
-  researchersController.updateUser(req,res);
+  researchersController.updateUser(req, res);
 });
 
 /**
@@ -27,7 +27,7 @@ router.put("/:email/:platform", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/:email/:platform", async (req, res) => {
-  researchersController.getAllUsers(req,res);
+  researchersController.getAllUsers(req, res);
 });
 
 /**
@@ -40,8 +40,7 @@ router.get("/:email/:platform", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.delete("/:email/:platform", async (req, res) => {
-  researchersController.deleteAllUsers(req,res);
+  researchersController.deleteAllUsers(req, res);
 });
-
 
 export default router;

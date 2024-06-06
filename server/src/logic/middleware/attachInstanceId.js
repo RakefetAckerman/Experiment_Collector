@@ -4,7 +4,7 @@
  * Author: Shoval Shabi
  */
 
-import { v4 as uuidv4 } from 'uuid'; // Import uuidv4 for generating instance ID
+import { v4 as uuidv4 } from "uuid"; // Import uuidv4 for generating instance ID
 
 // Generate unique instance ID
 const instanceId = uuidv4();
@@ -16,8 +16,8 @@ const instanceId = uuidv4();
  * @param {Function} next - The next middleware function.
  */
 const attachInstanceId = (req, res, next) => {
-    res.setHeader('X-Instance-ID', instanceId);
-    next();
+  res.setHeader("X-Instance-ID", instanceId);
+  next();
 };
 
 // Export the instance ID and middleware function

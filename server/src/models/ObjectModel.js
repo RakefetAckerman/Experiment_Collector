@@ -1,110 +1,111 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 /**
  * Mongoose schema for representing an ObjectBoundary object.
  * @class
  */
-const ObjectSchema = new mongoose.Schema({
+const ObjectSchema = new mongoose.Schema(
+  {
     /**
      * The platform of the object.
      * @type {String}
      */
     platform: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     /**
      * The type of the object boundary.
      * @type {String}
      */
     type: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     /**
      * The alias of the object boundary.
      * @type {String}
      */
     alias: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     /**
      * Whether the object boundary is active.
      * @type {Boolean}
      */
     active: {
-        type: Boolean,
-        required: true,
+      type: Boolean,
+      required: true,
     },
     /**
      * The location of the object boundary.
      * @type {Location}
      */
     location: {
-        /**
-         * The latitude of the object.
-         * @type {Number}
-         */
-        lat: {
-            type: Number,
-            required: true,
-        },
-        /**
-         * The longtitude of the object.
-         * @type {Number}
-         */
-        lng: {
-            type: Number,
-            required: true,
-        },
+      /**
+       * The latitude of the object.
+       * @type {Number}
+       */
+      lat: {
+        type: Number,
+        required: true,
+      },
+      /**
+       * The longtitude of the object.
+       * @type {Number}
+       */
+      lng: {
+        type: Number,
+        required: true,
+      },
     },
     /**
      * A reference to the user who created the object boundary.
      * @type {mongoose.Schema}
      */
     createdBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     /**
      * Details of the object boundary as a JSON object.
      * @type {Object}
      */
     objectDetails: {
-        type: Object,
-        required: true,
+      type: Object,
+      required: true,
     },
     /**
      * An array of references to children object boundaries.
      * @type {Array}
      */
     children: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "ObjectEntity",
-            default: [],
-            required: true,
-        }
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ObjectEntity",
+        default: [],
+        required: true,
+      },
     ],
     /**
      * An array of references to parent object boundaries.
      * @type {Array}
      */
     parents: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "ObjectEntity",
-            default: [],
-            required: true,
-        }
-    ]
-},
-    /**
-     * Additional options for the schema.
-     */
-    { timestamps: true }
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ObjectEntity",
+        default: [],
+        required: true,
+      },
+    ],
+  },
+  /**
+   * Additional options for the schema.
+   */
+  { timestamps: true }
 );
 
 /**

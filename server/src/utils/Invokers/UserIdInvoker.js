@@ -5,29 +5,29 @@ import UserIdBoundary from "../../boundaries/user/UserIdBoundary.js";
  * @class
  */
 class UserIdInvoker {
+  /**
+   * Create a UserIdInvoker.
+   * @constructor
+   * @param {UserIdBoundary} userId - The UserIdBoundary object to be encapsulated.
+   */
+  constructor(userId) {
     /**
-     * Create a UserIdInvoker.
-     * @constructor
-     * @param {UserIdBoundary} userId - The UserIdBoundary object to be encapsulated.
+     * The UserIdBoundary object that this class encapsulates.
+     * @type {UserIdBoundary}
      */
-    constructor(userId) {
-        /**
-         * The UserIdBoundary object that this class encapsulates.
-         * @type {UserIdBoundary}
-         */
-        this.userId = userId;
-    }
+    this.userId = userId;
+  }
 
-    /**
-     * Checks if this UserIdInvoker is equal to another object.
-     * @param {UserIdInvoker} other - The object to compare with.
-     * @returns {Boolean} True if the objects are equal, false otherwise.
-     */
-    equals(other) {
-        if (this === other) return true;
-        if (other === null || this.constructor !== other.constructor) return false;
-        return this.userId.equals(other.userId);
-    }
+  /**
+   * Checks if this UserIdInvoker is equal to another object.
+   * @param {UserIdInvoker} other - The object to compare with.
+   * @returns {Boolean} True if the objects are equal, false otherwise.
+   */
+  equals(other) {
+    if (this === other) return true;
+    if (other === null || this.constructor !== other.constructor) return false;
+    return this.userId.equals(other.userId);
+  }
 }
 
 /**
@@ -35,4 +35,3 @@ class UserIdInvoker {
  * @type {UserIdInvoker}
  */
 export default UserIdInvoker;
-

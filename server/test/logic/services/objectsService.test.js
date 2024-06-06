@@ -2238,7 +2238,6 @@ describe("Objects Service Tests", () => {
       })
       .then((getRes) => {
         // Assertion for successful retrieval of the object details
-        console.error(getRes);
         getRes.should.have.status(200);
         getRes.body.should.not.be.empty;
         getRes.body.should.have.a.property("objectId");

@@ -11,13 +11,13 @@ const UserBoundarySchema = new mongoose.Schema(
      * The email of the Researcher it will be "examle@email.com",
      * and for Participant from prolific it will be "58dbb652520ca20001e87f23@email.prolific.co" which is fictive.
      * Regular Particpant will have will have an email similar to the Researcher email.
-     * The platform is where the request came from, whether from Experiment module or Experiment Builder platform 
+     * The platform is where the request came from, whether from Experiment module or Experiment Builder platform
      * @type {String}
      */
     userId: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     /**
      * The role of the user.
@@ -25,7 +25,7 @@ const UserBoundarySchema = new mongoose.Schema(
      */
     role: {
       type: String,
-      required: true
+      required: true,
     },
     /**
      * The username of the user.
@@ -35,7 +35,7 @@ const UserBoundarySchema = new mongoose.Schema(
       type: String,
       required: true,
       min: 3,
-      max: 50
+      max: 50,
     },
     /**
      * Additional details of the user as a JSON object.
@@ -44,8 +44,8 @@ const UserBoundarySchema = new mongoose.Schema(
     userDetails: {
       type: Object,
       required: true,
-      default: {}
-    }
+      default: {},
+    },
   },
   /**
    * Additional options for the schema.

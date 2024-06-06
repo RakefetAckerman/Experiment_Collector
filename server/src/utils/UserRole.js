@@ -3,23 +3,23 @@
  * @enum {string}
  */
 const Roles = {
-    /**
-     * Represents the 'Admin' role.
-     * @type {string}
-     */
-    ADMIN: 'Admin',
+  /**
+   * Represents the 'Admin' role.
+   * @type {string}
+   */
+  ADMIN: "Admin",
 
-    /**
-     * Represents the 'Participant' role.
-     * @type {string}
-     */
-    PARTICIPANT: 'Participant',
+  /**
+   * Represents the 'Participant' role.
+   * @type {string}
+   */
+  PARTICIPANT: "Participant",
 
-    /**
-     * Represents the 'Researcher' role.
-     * @type {string}
-     */
-    RESEARCHER: 'Researcher'
+  /**
+   * Represents the 'Researcher' role.
+   * @type {string}
+   */
+  RESEARCHER: "Researcher",
 };
 
 /**

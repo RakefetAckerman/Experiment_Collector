@@ -31,7 +31,10 @@ class ObjectIdBoundary {
   equals(other) {
     if (this === other) return true;
     if (other === null || this.constructor !== other.constructor) return false;
-    return this.platform === other.platform && this.internalObjectId === other.internalObjectId;
+    return (
+      this.platform === other.platform &&
+      this.internalObjectId === other.internalObjectId
+    );
   }
 }
 

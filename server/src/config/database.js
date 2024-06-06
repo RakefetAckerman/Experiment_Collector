@@ -7,15 +7,15 @@
 // Import required modules
 import mongoose from "mongoose";
 import createCustomLogger from "./logger.js"; // Import the configured logger
-import { MONGO_URL } from "./env.js";// Import MongoDB URL from environment configuration
-import path from 'path';// Import the path identification for logging purposes
+import { MONGO_URL } from "./env.js"; // Import MongoDB URL from environment configuration
+import path from "path"; // Import the path identification for logging purposes
 
 //Creating tailored logger for database connectivity
 const logger = createCustomLogger({
-    moduleFilename: path.parse(new URL(import.meta.url).pathname).name,
-    loggingFileName: true,
-    logLevel: process.env.INFO_LOG,
-    logRotation: true
+  moduleFilename: path.parse(new URL(import.meta.url).pathname).name,
+  loggingFileName: true,
+  logLevel: process.env.INFO_LOG,
+  logRotation: true,
 });
 
 /**
@@ -29,15 +29,15 @@ const logger = createCustomLogger({
  * @throws {Error} Throws an error if the connection process encounters any issues.
  */
 export const connectToDatabase = async () => {
-    try {
-        // Attempt to connect to MongoDB
-        await mongoose.connect(MONGO_URL);
+  try {
+    // Attempt to connect to MongoDB
+    await mongoose.connect(MONGO_URL);
 
-        // Log successful connection
-        logger.info("Connected to MongoDB");
-    } catch (error) {
-        // Log connection error and exit process with error code
-        logger.error("MongoDB connection error:", error);
-        process.exit(1);
-    }
+    // Log successful connection
+    logger.info("Connected to MongoDB");
+  } catch (error) {
+    // Log connection error and exit process with error code
+    logger.error("MongoDB connection error:", error);
+    process.exit(1);
+  }
 };

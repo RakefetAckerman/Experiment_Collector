@@ -6,10 +6,9 @@
  * Author: Shoval Shabi
  */
 
-import dotenv from "dotenv-flow";// Import the dotenv-flow package for loading environment variables
-import createCustomLogger from './logger.js';// Import the logger module
-import path from 'path';// Import the path identification for logging purposes
-
+import dotenv from "dotenv-flow"; // Import the dotenv-flow package for loading environment variables
+import createCustomLogger from "./logger.js"; // Import the logger module
+import path from "path"; // Import the path identification for logging purposes
 
 // Load environment variables from .env files
 dotenv.config();
@@ -19,7 +18,7 @@ const logger = createCustomLogger({
   moduleFilename: path.parse(new URL(import.meta.url).pathname).name,
   loggingFileName: true,
   logLevel: process.env.INFO_LOG,
-  logRotation: true
+  logRotation: true,
 });
 
 // Log a message indicating that environment variables are being loaded

@@ -9,9 +9,12 @@ import express from "express";
 import { PORT } from "./config/env.js";
 import createCustomLogger from "./config/logger.js"; // Import the configured logger
 import { connectToDatabase } from "./config/database.js"; // Import the function to connect to the database
-import path from 'path';// Import the path identification for logging purposes
-import { instanceId } from "./logic/middleware/attachInstanceId.js";// Import generated instaceId and the attachInstaceId middleware
-import { setupMiddleware, attachCustomMiddleware } from "./logic/middleware/setupMiddleware.js";
+import path from "path"; // Import the path identification for logging purposes
+import { instanceId } from "./logic/middleware/attachInstanceId.js"; // Import generated instaceId and the attachInstaceId middleware
+import {
+  setupMiddleware,
+  attachCustomMiddleware,
+} from "./logic/middleware/setupMiddleware.js";
 import { mountRoutes } from "./routes/setupRoutes.js";
 // Create an instance of Express application
 const app = express();
@@ -21,7 +24,7 @@ const logger = createCustomLogger({
   moduleFilename: path.parse(new URL(import.meta.url).pathname).name,
   logToFile: true,
   logLevel: process.env.INFO_LOG,
-  logRotation: true
+  logRotation: true,
 });
 
 // Configure middleware - standard and custom-made
@@ -37,7 +40,9 @@ connectToDatabase()
     // Start the server
     app.listen(PORT, () => {
       // Log a message indicating server startup along with the instance ID
-      logger.info(`Server is running on port ${PORT}. Instance ID: ${instanceId}`);
+      logger.info(
+        `Server is running on port ${PORT}. Instance ID: ${instanceId}`
+      );
     });
   })
   .catch((error) => {

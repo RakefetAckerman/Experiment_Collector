@@ -9,70 +9,71 @@ import CommandIdBoundary from "../../boundaries/command/CommandIdBoundary.js";
 import CommandBoundary from "../../boundaries/command/CommandBoundary.js";
 import ObjectIdInvoker from "../../utils/Invokers/ObjectIdinvoker.js";
 
-
 const commandConverter = {
-    toBoundary: async (commandModel) => {
+  toBoundary: async (commandModel) => {
+    const internalId = commandModel._id;
+    const platform = commandModel.platform;
+    const commandIdBoundary = new CommandIdBoundary(platform, internalId);
 
-        const internalId = commandModel._id;
-        const platform = commandModel.platform;
-        const commandIdBoundary = new CommandIdBoundary(platform, internalId);
+    const creationTimestamp = new Date(commandModel.createdAt);
 
-        const creationTimestamp = new Date(commandModel.createdAt);
+    const userModel = await UserModel.findOne({ _id: commandModel.invokedBy });
 
-        const userModel = await UserModel.findOne({ _id: commandModel.invokedBy });
+    if (!userModel) throw new createHttpError.NotFound("User does not exists");
 
-        if (!userModel)
-            throw new createHttpError.NotFound("User does not exists");
+    //splitArr[0] = "example@email.org" splitArr[1] = "platformKind"
+    const splitArr = userModel.userId.split("$");
 
-        //splitArr[0] = "example@email.org" splitArr[1] = "platformKind"
-        const splitArr = userModel.
-            userId.
-            split('$');
+    const userIdBoundary = new UserIdBoundary(splitArr[1], splitArr[0]);
 
-        const userIdBoundary = new UserIdBoundary(splitArr[1], splitArr[0]);
+    const userIdInvoker = new UserIdInvoker(userIdBoundary);
 
-        const userIdInvoker = new UserIdInvoker(userIdBoundary)
+    const objectModel = await ObjectModel.findOne({
+      _id: commandModel.targetObject,
+    });
 
-        const objectModel = await ObjectModel.findOne({ _id: commandModel.targetObject });
+    if (!objectModel)
+      throw new createHttpError.NotFound("Object does not exists");
 
-        if (!objectModel)
-            throw new createHttpError.NotFound("Object does not exists");
+    const objectIdBoundary = new ObjectIdBoundary(
+      objectModel.platform,
+      objectModel._id
+    );
 
-        const objectIdBoundary = new ObjectIdBoundary(objectModel.platform, objectModel._id);
+    const objectIdInvoker = new ObjectIdInvoker(objectIdBoundary);
 
-        const objectIdInvoker = new ObjectIdInvoker(objectIdBoundary)
+    const commandBoundary = new CommandBoundary(
+      commandIdBoundary,
+      commandModel.command,
+      objectIdInvoker,
+      creationTimestamp,
+      userIdInvoker,
+      commandModel.commandAttributes
+    );
 
-        const commandBoundary = new CommandBoundary(
-            commandIdBoundary,
-            commandModel.command,
-            objectIdInvoker,
-            creationTimestamp,
-            userIdInvoker,
-            commandModel.commandAttributes
-        );
+    // Return the commandBoundary instance
+    return commandBoundary;
+  },
 
-        // Return the commandBoundary instance
-        return commandBoundary;
-    },
+  toModel: async (commandBoundary) => {
+    const userEmail = commandBoundary.invokedBy.userId.email;
+    const userPlatform = commandBoundary.invokedBy.userId.platform;
 
-    toModel: async (commandBoundary) => {
+    const userModel = await UserModel.findOne({
+      userId: userEmail + "$" + userPlatform,
+    });
 
-        const userEmail = commandBoundary.invokedBy.userId.email;
-        const userPlatform = commandBoundary.invokedBy.userId.platform;
+    const commandModel = new CommandModel({
+      platform: userPlatform,
+      command: commandBoundary.command,
+      targetObject: commandBoundary.targetObject.objectId.internalObjectId, //The internal ObjectId is already stored in this parameter
+      invokedBy: userModel._id,
+      commandAttributes: commandBoundary.commandAttributes,
+    });
 
-        const userModel = await UserModel.findOne({ "userId": userEmail + "$" + userPlatform });
-
-        const commandModel = new CommandModel({
-            platform: userPlatform,
-            command: commandBoundary.command,
-            targetObject: commandBoundary.targetObject.objectId.internalObjectId, //The internal ObjectId is already stored in this parameter
-            invokedBy: userModel._id,
-            commandAttributes: commandBoundary.commandAttributes
-        });
-
-        // Return the ObjectModel instance
-        return commandModel;
-    }
+    // Return the ObjectModel instance
+    return commandModel;
+  },
 };
 
 // Export the commandConverter object for use in other modules

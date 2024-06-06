@@ -1,5 +1,5 @@
 import ObjectIdBoundary from "./ObjectIdBoundary.js";
-import UserIdInvoker from "../../utils/Invokers/UserIdInvoker.js"
+import UserIdInvoker from "../../utils/Invokers/UserIdInvoker.js";
 import Location from "../../utils/Location.js";
 
 /**
@@ -16,13 +16,23 @@ class ObjectBoundary {
    * @param {Boolean} active - Whether the object boundary is active.
    * @param {Date} creationTimestamp - The creation timestamp of the object boundary,
    * can be undefined before data base insertion
-   * @param {Date} modificationTimestamp - The creation timestamp of the object boundary, 
+   * @param {Date} modificationTimestamp - The creation timestamp of the object boundary,
    * can be undefined before data base insertion
    * @param {Location} location - The location of the object boundary.
    * @param {UserIdInvoker} createdBy - The user ID who created the object boundary.
    * @param {Object} objectDetails - Details of the object boundary as a JSON object.
    */
-  constructor(objectId, type, alias, active, creationTimestamp, modificationTimestamp, location, createdBy, objectDetails) {
+  constructor(
+    objectId,
+    type,
+    alias,
+    active,
+    creationTimestamp,
+    modificationTimestamp,
+    location,
+    createdBy,
+    objectDetails
+  ) {
     /**
      * The ID of the object boundary.
      * @type {ObjectIdBoundary}
@@ -54,9 +64,9 @@ class ObjectBoundary {
     this.creationTimestamp = creationTimestamp;
 
     /**
-   * The modification timestamp of the object boundary.
-   * @type {Date}
-   */
+     * The modification timestamp of the object boundary.
+     * @type {Date}
+     */
     this.modificationTimestamp = modificationTimestamp;
 
     /**

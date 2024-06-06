@@ -4,29 +4,29 @@ import ObjectIdBoundary from "../../boundaries/object/ObjectIdBoundary.js";
  * @class
  */
 class ObjectIdInvoker {
+  /**
+   * Create an ObjectIdInvoker.
+   * @constructor
+   * @param {ObjectIdBoundary} objectId - The instance of ObjectIdBoundary.
+   */
+  constructor(objectId) {
     /**
-     * Create an ObjectIdInvoker.
-     * @constructor
-     * @param {ObjectIdBoundary} objectId - The instance of ObjectIdBoundary.
+     * The instance variable of type ObjectIdBoundary.
+     * @type {ObjectIdBoundary}
      */
-    constructor(objectId) {
-        /**
-         * The instance variable of type ObjectIdBoundary.
-         * @type {ObjectIdBoundary}
-         */
-        this.objectId = objectId;
-    }
+    this.objectId = objectId;
+  }
 
-    /**
-     * Checks if this ObjectIdInvoker is equal to another object.
-     * @param {ObjectIdInvoker} other - The object to compare with.
-     * @returns {boolean} True if the objects are equal, false otherwise.
-     */
-    equals(other) {
-        if (this === other) return true;
-        if (other === null || this.constructor !== other.constructor) return false;
-        return this.objectId.equals(other.objectId);
-    }
+  /**
+   * Checks if this ObjectIdInvoker is equal to another object.
+   * @param {ObjectIdInvoker} other - The object to compare with.
+   * @returns {boolean} True if the objects are equal, false otherwise.
+   */
+  equals(other) {
+    if (this === other) return true;
+    if (other === null || this.constructor !== other.constructor) return false;
+    return this.objectId.equals(other.objectId);
+  }
 }
 
 /**

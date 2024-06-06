@@ -1,5 +1,5 @@
 import express from "express";
-import entryController from "../controllers/entryController.js"
+import entryController from "../controllers/entryController.js";
 import UserBoundary from "../boundaries/user/UserBoundary.js";
 
 const router = express.Router();
@@ -14,7 +14,7 @@ const router = express.Router();
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.post("/register", async (req, res) => {
-    entryController.registerUser(req,res);
+  entryController.registerUser(req, res);
 });
 
 /**
@@ -28,9 +28,8 @@ router.post("/register", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.post("/login", async (req, res) => {
-    entryController.loginUser(req,res);
+  entryController.loginUser(req, res);
 });
-
 
 /**
  * Route for verifying user.
@@ -43,8 +42,7 @@ router.post("/login", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.post("/verify", async (req, res) => {
-    entryController.veirfyUser(req,res);
+  entryController.veirfyUser(req, res);
 });
-
 
 export default router;

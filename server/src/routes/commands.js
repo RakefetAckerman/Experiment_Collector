@@ -1,8 +1,7 @@
 import express from "express";
 import CommandBoundary from "../boundaries/object/ObjectIdBoundary.js";
-import commandsService from "../logic/serivces/CommandsService.js"
+import commandsService from "../logic/serivces/CommandsService.js";
 import commandsController from "../controllers/commandsController.js";
-
 
 const router = express.Router();
 
@@ -16,7 +15,7 @@ const router = express.Router();
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.post("/", async (req, res) => {
-  commandsController.createCommand(req,res);
+  commandsController.createCommand(req, res);
 });
 
 /**
@@ -29,7 +28,7 @@ router.post("/", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/", async (req, res) => {
-  commandsController.getAllCommands(req,res);
+  commandsController.getAllCommands(req, res);
 });
 
 /**
@@ -42,7 +41,7 @@ router.get("/", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.delete("/", async (req, res) => {
-  commandsController.deleteAllCommands(req,res);
+  commandsController.deleteAllCommands(req, res);
 });
 
 export default router;
