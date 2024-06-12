@@ -222,7 +222,7 @@ export default function SettingsDrawer() {
                   case "Sound":
                     return (
                       <TextField
-                        label="Sound Percentage"
+                        label="Volume Percentage"
                         type="number"
                         value={settingsValues.sound}
                         onChange={handleChange("sound")}
