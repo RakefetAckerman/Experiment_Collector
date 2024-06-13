@@ -1,6 +1,6 @@
 import axios from "axios";
 import { UserBoundary } from "../bounderies/user/UserBoundary";
-import UserService from "./userService";
+import UsersService from "./usersService";
 import getEnvVariables from "../etc/loadVariables";
 
 // Load environment variables from .env files
@@ -14,7 +14,7 @@ const authResearchersBaseUrl = backendURL + "/auth/researchers";
 /**
  * Implementation of UserService interface that interacts with backend APIs.
  */
-const userService: UserService = {
+const userService: UsersService = {
   /**
    * Creates a new user by sending a POST request to the registration endpoint.
    * @param newUserBoundary - User data to be registered.
