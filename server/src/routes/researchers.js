@@ -5,19 +5,6 @@ import UserBoundary from "../boundaries/user/UserBoundary.js";
 const router = express.Router();
 
 /**
- * Route for updating researcher information.
- * @name PUT researchers/:email/:platform
- * @function
- * @param {Object} req - Express request object formed as UserBoundary.
- * @param {Object} res - Express response object.
- * @returns {Object} An empty JSON reposne.
- * @throws {import("http-errors").HttpError} JSON response containing Http error message.
- */
-router.put("/:email/:platform", async (req, res) => {
-  researchersController.updateUser(req, res);
-});
-
-/**
  * Route for getting users information.
  * @name GET researchers/:email/:platform
  * @function

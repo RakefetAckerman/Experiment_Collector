@@ -23,6 +23,7 @@ chai.use(chaiHttp);
 chai.should();
 
 const baseEntryRegistrationURL = "/entry/register";
+const baseUpdateUserURL = "/entry";
 const baseEntryLoginURL = "/entry/login";
 const baseResearchersURL = "/auth/researchers";
 
@@ -772,7 +773,7 @@ describe("User Service Tests", () => {
         return chai
           .request(app)
           .put(
-            `${baseResearchersURL}/${updatedResearcher.email}/${updatedResearcher.platform}`
+            `${baseUpdateUserURL}/${updatedResearcher.email}/${updatedResearcher.platform}`
           )
           .set("Cookie", usersCookies[updatedResearcher.email])
           .send(updatedResearcher);
@@ -833,12 +834,12 @@ describe("User Service Tests", () => {
     chai
       .request(app)
       .put(
-        `${baseResearchersURL}/${updatedResearcher.email}/${updatedResearcher.platform}`
+        `${baseUpdateUserURL}/${updatedResearcher.email}/${updatedResearcher.platform}`
       )
       .send(updatedResearcher)
       .end((err, res) => {
         // Assert that the user is not found and the update fails with a status code of 403, The made up user does not have a JWT token
-        res.should.have.status(403);
+        res.should.have.status(404);
         // Call done() to indicate that the test has completed
         done();
       });
