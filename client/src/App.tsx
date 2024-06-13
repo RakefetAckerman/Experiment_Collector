@@ -12,6 +12,7 @@ import EditorPage from "./pages/EditorPage";
 import ExperimentPage from "./pages/ExperimentPage";
 import ExportDataPage from "./pages/ExportDataPage";
 import ProfilePage from "./pages/ProfilePage";
+import CustomAlert from "./components/common/CustomAlert";
 
 function App() {
   const mode = useSelector((state: State) => state.mode);
@@ -23,6 +24,7 @@ function App() {
       <BrowserRouter>
         <ThemeProvider theme={theme}>
           <CssBaseline />
+          <CustomAlert />
           <Routes>
             <Route
               path="/"
