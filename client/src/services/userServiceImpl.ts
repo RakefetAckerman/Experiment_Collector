@@ -1,42 +1,89 @@
 import axios from "axios";
-import UserService from "./userService";
 import { UserBoundary } from "../bounderies/user/UserBoundary";
+import UserService from "./userService";
+import getEnvVariables from "../etc/loadVariables";
 
-const backendURL: string | undefined =
-  process.env.VITE_ENV === "env"
-    ? process.env.VITE_REACT_APP_BACKEND_DEV_URL
-    : process.env.VITE_REACT_APP_BACKEND_PROD_URL;
+// Load environment variables from .env files
+const envVariables = getEnvVariables();
+const { backendURL } = envVariables;
 
-let entryBaseUrl = backendURL + "/entry";
+// Define base URLs for different API endpoints
+const entryBaseUrl = backendURL + "/entry";
+const authResearchersBaseUrl = backendURL + "/auth/researchers";
 
+/**
+ * Implementation of UserService interface that interacts with backend APIs.
+ */
 const userService: UserService = {
-  createUser: function (reqUserBoundary: UserBoundary): Promise<UserBoundary> {
-    throw new Error("Function not implemented.");
-  },
-  login: function (
-    reqUserBoundary: UserBoundary
-  ): Promise<{ jwtToken: string; body: UserBoundary; expirationCookie: Date }> {
-    throw new Error("Function not implemented.");
-  },
-  updateUser: function (
-    userEmail: string,
-    userPlatform: string,
-    updateUser: UserBoundary
+  /**
+   * Creates a new user by sending a POST request to the registration endpoint.
+   * @param newUserBoundary - User data to be registered.
+   * @returns Promise<UserBoundary> - User data returned from the backend.
+   */
+  createUser: async function (
+    newUserBoundary: UserBoundary
   ): Promise<UserBoundary> {
-    throw new Error("Function not implemented.");
+    const res = await axios.post(entryBaseUrl + "/register", newUserBoundary);
+    const data: UserBoundary = res.data;
+    return data;
   },
-  getAllUsers: function (
-    userEmail: string,
-    userPlatform: string
+
+  /**
+   * Logs in an existing user by sending a POST request to the login endpoint.
+   * @param existingUserBoundary - User data for logging in.
+   * @returns Promise<UserBoundary> - User data returned from the backend.
+   */
+  login: async function (
+    existingUserBoundary: UserBoundary
+  ): Promise<UserBoundary> {
+    const res = await axios.post(entryBaseUrl + "/login", existingUserBoundary);
+    const data: UserBoundary = res.data;
+    return data;
+  },
+
+  /**
+   * Updates user information by sending a PUT request to the update endpoint.
+   * @param userToUpdate - Updated user data.
+   * @returns Promise<void>
+   */
+  updateUser: async function (userToUpdate: UserBoundary): Promise<void> {
+    await axios.put(
+      authResearchersBaseUrl +
+        `/${userToUpdate.userId.email}/${userToUpdate.userId.email}`,
+      userToUpdate
+    );
+  },
+
+  /**
+   * Retrieves all users by sending a GET request to the users endpoint.
+   * @param existingUserBoundary - User data to identify the requesting user.
+   * @returns Promise<UserBoundary[]> - Array of user data returned from the backend.
+   */
+  getAllUsers: async function (
+    existingUserBoundary: UserBoundary
   ): Promise<UserBoundary[]> {
-    throw new Error("Function not implemented.");
+    const res = await axios.get(
+      authResearchersBaseUrl +
+        `/${existingUserBoundary.userId.email}/${existingUserBoundary.userId.email}`
+    );
+    return res.data as UserBoundary[];
   },
-  deleteAllUsers: function (
-    userEmail: string,
-    userPlatform: string
+
+  /**
+   * Deletes all users by sending a DELETE request to the users endpoint.
+   * @param existingUserBoundary - User data to identify the requesting user.
+   * @returns Promise<{ n: number; deletedCount: number; ok: number }>
+   */
+  deleteAllUsers: async function (
+    existingUserBoundary: UserBoundary
   ): Promise<{ n: number; deletedCount: number; ok: number }> {
-    throw new Error("Function not implemented.");
+    const res = await axios.delete(
+      authResearchersBaseUrl +
+        `/${existingUserBoundary.userId.email}/${existingUserBoundary.userId.email}`
+    );
+    return res.data;
   },
 };
 
+// Export the userService object as default
 export default userService;
