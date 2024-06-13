@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "test": "cross-env NODE_ENV=test VITE_PORT=0 vite",
     "dev": "cross-env NODE_ENV=dev VITE_PORT=3001 vite",
-    "prod": "cross-env NODE_ENV=prod VITE_PORT=8081 vite"
+    "prod": "cross-env NODE_ENV=prod VITE_PORT=8080 vite"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
