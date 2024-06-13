@@ -1,6 +1,5 @@
 import express from "express";
 import CommandBoundary from "../boundaries/object/ObjectIdBoundary.js";
-import commandsService from "../logic/serivces/CommandsService.js";
 import commandsController from "../controllers/commandsController.js";
 
 const router = express.Router();
@@ -9,9 +8,9 @@ const router = express.Router();
  * Route for creating new command, after the creation found out as successful the command will be executed and will be stord within the database.
  * @name POST objects/
  * @function
- * @param {Object} req - Express request object formed as UserBoundary.
+ * @param {Object} req - Express request object formed as CommandBoundary.
  * @param {Object} res - Express response object.
- * @returns {Object<CommandBoundary>} JSON response as ObjectBoundary structure containing user details.
+ * @returns {Object<CommandBoundary>} JSON response as CommandBoundary structure containing user details.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.post("/", async (req, res) => {
@@ -24,7 +23,7 @@ router.post("/", async (req, res) => {
  * @function
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
- * @returns {[CommandBoundary]} An Array of JSON object structured as ObjectBoundary form.
+ * @returns {[CommandBoundary]} An Array of JSON object structured as CommandBoundary form.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/", async (req, res) => {
