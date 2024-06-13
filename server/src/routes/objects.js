@@ -1,5 +1,6 @@
 import express from "express";
 import objectsController from "../controllers/objectsController.js";
+import ObjectBoundary from "../boundaries/object/ObjectBoundary.js";
 
 const router = express.Router();
 
@@ -7,7 +8,7 @@ const router = express.Router();
  * Route for creating new object
  * @name POST objects/
  * @function
- * @param {Object} req - Express request object formed as UserBoundary.
+ * @param {Object} req - Express request object formed as ObjectBoundary.
  * @param {Object} res - Express response object.
  * @returns {Object<ObjectBoundary>} JSON response as ObjectBoundary structure containing user details.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
@@ -21,7 +22,7 @@ router.post("/", async (req, res) => {
  * @name GET objects/:internalObjectId
  * @function
  * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
+ * @param {Object} res - Express response object formed as ObjectBoundary.
  * @returns {ObjectBoundary} An Array of JSON object structured as ObjectBoundary form.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
@@ -34,7 +35,7 @@ router.get("/:internalObjectId", async (req, res) => {
  * @name GET objects?email=example@org.com&platform=userPlatform
  * @function
  * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
+ * @param {Object} res - Express response formed as ObjectBoundary array.
  * @returns {[Object]} An Array of JSON object structured as ObjectBoundary form.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
@@ -60,7 +61,7 @@ router.delete("/", async (req, res) => {
  * @note Except Participnats, any user can us this API.
  * @name PUT objects/internalObjectId/bind?email=example@demo.org&platform=userPlatform
  * @function
- * @param {Object} req - Express request object formed as UserBoundary.
+ * @param {Object} req - Express request object formed as ObjectBoundary.
  * @param {Object} res - Express response object.
  * @returns {Object} An empty JSON reposne.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
@@ -74,7 +75,7 @@ router.put("/:internalObjectId/bind", async (req, res) => {
  * @note Except Participnats, any user can us this API.
  * @name PUT objects/internalObjectId/unbind?email=example@demo.org&platform=userPlatform
  * @function
- * @param {Object} req - Express request object formed as UserBoundary.
+ * @param {Object} req - Express request object formed as ObjectBoundary.
  * @param {Object} res - Express response object.
  * @returns {Object} An empty JSON reposne.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
@@ -88,7 +89,7 @@ router.put("/:internalObjectId/unbind", async (req, res) => {
  * @note Except Participnats, any user can update any objects.
  * @name PUT objects/internalObjectid?email=example@demo.org&platform=userPlatform
  * @function
- * @param {Object} req - Express request object formed as UserBoundary.
+ * @param {Object} req - Express request object formed as ObjectBoundary.
  * @param {Object} res - Express response object.
  * @returns {Object} An empty JSON reposne.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
@@ -102,7 +103,7 @@ router.put("/:internalObjectId", async (req, res) => {
  * @name GET objects/internalObjectId/children?email=example@org.com&platform=userPlatform
  * @function
  * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
+ * @param {Object} res - Express response object formed as ObjectBoundary array.
  * @returns {[ObjectBoundary]} An Array of JSON object structured as ObjectBoundary form.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
@@ -115,7 +116,7 @@ router.get("/:internalObjectId/children", async (req, res) => {
  * @name GET objects/internalObjectId/parents?email=example@org.com&platform=userPlatform
  * @function
  * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
+ * @param {Object} res - Express response object formed as ObjectBoundary array.
  * @returns {[ObjectBoundary]} An Array of JSON object structured as ObjectBoundary form.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
@@ -128,7 +129,7 @@ router.get("/:internalObjectId/parents", async (req, res) => {
  * @name GET objects/type/someType/?email=example@org.com&platform=userPlatform
  * @function
  * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
+ * @param {Object} res - Express response object formed as ObjectBoundary array.
  * @returns {[Object]} An Array of JSON object structured as ObjectBoundary form.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
@@ -141,7 +142,7 @@ router.get("/type/:targetType", async (req, res) => {
  * @name GET objects/type/distinct/someType/?email=example@org.com&platform=userPlatform
  * @function
  * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
+ * @param {Object} res - Express response object formed as ObjectBoundary.
  * @returns {Object} A JSON object structured as ObjectBoundary form.
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
