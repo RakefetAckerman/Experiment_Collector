@@ -125,6 +125,32 @@ router.get("/:internalObjectId/parents", async (req, res) => {
 });
 
 /**
+ * Route for getting all children objects of specific object, the retrieval is depened the presmissions of the user.
+ * @name GET objects/internalObjectId/children/targetType/targetAlias?email=example@org.com&platform=userPlatform
+ * @function
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object formed as ObjectBoundary array.
+ * @returns {[ObjectBoundary]} An Array of JSON object structured as ObjectBoundary form.
+ * @throws {import("http-errors").HttpError} JSON response containing Http error message.
+ */
+router.get("/:internalObjectId/children/:type/:alias", async (req, res) => {
+  objectsController.getChildrenByTypeAndAlias(req, res);
+});
+
+/**
+ * Route for getting all parents objects of specific object, the retrieval is depened the presmissions of the user.
+ * @name GET objects/internalObjectId/parents?email=example/targetType/targetAlias@org.com&platform=userPlatform
+ * @function
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object formed as ObjectBoundary array.
+ * @returns {[ObjectBoundary]} An Array of JSON object structured as ObjectBoundary form.
+ * @throws {import("http-errors").HttpError} JSON response containing Http error message.
+ */
+router.get("/:internalObjectId/parents/:type/:alias", async (req, res) => {
+  objectsController.getParentsByTypeAndAlias(req, res);
+});
+
+/**
  * Route for getting all objects by certain type, the retrieval is depened the presmissions of the user.
  * @name GET objects/type/someType/?email=example@org.com&platform=userPlatform
  * @function

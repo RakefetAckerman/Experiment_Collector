@@ -237,6 +237,65 @@ const objectsController = {
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
+  /**
+   * Controller function for getting all children objects of specific object and filtering them by specific type and alias, the retrieval depends on the permissions of the user.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   */
+  getChildrenByTypeAndAlias: async (req, res) => {
+    try {
+      const internalObjectId = req.params.internalObjectId;
+      const type = req.params.type;
+      const alias = req.params.alias;
+      const userEmail = req.query.email;
+      const userPlatform = req.query.platform;
+
+      const DBResponse = await objectsService.getChildrenByTypeAndAlias(
+        internalObjectId,
+        userEmail,
+        userPlatform,
+        type,
+        alias
+      );
+      res.status(200).json(DBResponse);
+    } catch (error) {
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during children retrieval by type and alias.";
+      res.status(error.status || 500).json({ error: errorMessage });
+    }
+  },
+
+  /**
+   * Controller function for getting all parents objects of specific object and filtering them by specific type and alias, the retrieval depends on the permissions of the user.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   */
+  getParentsByTypeAndAlias: async (req, res) => {
+    try {
+      const internalObjectId = req.params.internalObjectId;
+      const type = req.params.type;
+      const alias = req.params.alias;
+      const userEmail = req.query.email;
+      const userPlatform = req.query.platform;
+
+      const DBResponse = await objectsService.getParentsByTypeAndAlias(
+        internalObjectId,
+        userEmail,
+        userPlatform,
+        type,
+        alias
+      );
+      res.status(200).json(DBResponse);
+    } catch (error) {
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during parents retrieval by type and alias.";
+      res.status(error.status || 500).json({ error: errorMessage });
+    }
+  },
 
   /**
    * Controller function for getting all objects by certain type, the retrieval depends on the permissions of the user.

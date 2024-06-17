@@ -1,13 +1,11 @@
-import userService from "../logic/serivces/UsersService.js";
 import objectsService from "../logic/serivces/ObjectsService.js";
-import UserBoundary from "../boundaries/user/UserBoundary.js";
 import ObjectBoundary from "../boundaries/object/ObjectBoundary.js";
 import ObjectIdBoundary from "../boundaries/object/ObjectIdBoundary.js";
 
 const participantsController = {
   /**
    * Controller function for creating a new object
-   * @param {Object} req - Express request object formed as UserBoundary.
+   * @param {Object} req - Express request object formed as ObjectBoundary.
    * @param {Object} res - Express response object.
    */
   createObject: async (req, res) => {
@@ -55,7 +53,7 @@ const participantsController = {
   },
   /**
    * Controller function for binding two objects one to another.
-   * @param {Object} req - Express request object formed as UserBoundary.
+   * @param {Object} req - Express request object formed as ObjectBoundary.
    * @param {Object} res - Express response object.
    */
   bindNewChild: async (req, res) => {
@@ -129,6 +127,66 @@ const participantsController = {
         process.env.NODE_ENV !== "prod"
           ? error.message
           : "An error occurred during parents retrieval.";
+      res.status(error.status || 500).json({ error: errorMessage });
+    }
+  },
+
+  /**
+   * Controller function for getting all children objects of specific object and filtering them by specific type and alias, the retrieval depends on the permissions of the user.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   */
+  getChildrenByTypeAndAlias: async (req, res) => {
+    try {
+      const internalObjectId = req.params.internalObjectId;
+      const userEmail = req.query.email;
+      const type = req.params.type;
+      const alias = req.params.alias;
+      const userPlatform = req.query.platform;
+
+      const DBResponse = await objectsService.getChildrenByTypeAndAlias(
+        internalObjectId,
+        userEmail,
+        userPlatform,
+        type,
+        alias
+      );
+      res.status(200).json(DBResponse);
+    } catch (error) {
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during children retrieval by type and alias.";
+      res.status(error.status || 500).json({ error: errorMessage });
+    }
+  },
+
+  /**
+   * Controller function for getting all parents objects of specific object and filtering them by specific type and alias, the retrieval depends on the permissions of the user.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   */
+  getParentsByTypeAndAlias: async (req, res) => {
+    try {
+      const internalObjectId = req.params.internalObjectId;
+      const type = req.params.type;
+      const alias = req.params.alias;
+      const userEmail = req.query.email;
+      const userPlatform = req.query.platform;
+
+      const DBResponse = await objectsService.getParentsByTypeAndAlias(
+        internalObjectId,
+        userEmail,
+        userPlatform,
+        type,
+        alias
+      );
+      res.status(200).json(DBResponse);
+    } catch (error) {
+      const errorMessage =
+        process.env.NODE_ENV !== "prod"
+          ? error.message
+          : "An error occurred during parents retrieval by type and alias.";
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },

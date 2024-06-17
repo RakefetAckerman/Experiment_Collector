@@ -2320,4 +2320,485 @@ describe("Objects Service Tests", () => {
         done(error);
       });
   });
+
+  /**
+   * Test case to verify that a participant can retrieve all the children of an object by type and alias, considering only the active ones.
+   *
+   * @param {function} done - The callback function to signal the end of the test.
+   */
+  it("should get all the children of an object by type and alias, the requesting user is participant", (done) => {
+    /*
+      Scenario: Retrieve all the children of an object by type and alias when the requesting user is a participant
+          Given a parent object and multiple child objects of various types and aliases, some of which are inactive
+          When a participant requests to get all the children of the parent object by type and alias
+          Then the system should respond with only the active children of the specified type and alias visible to the participant
+      */
+
+    const numObjects = 10;
+    const childType = "desiredType";
+    const childAlias = "desiredAlias";
+
+    const parentObj = { ...researcherObj };
+    parentObj.objectDetails = { ...researcherObj.objectDetails };
+
+    let parentObjID;
+    const reqObjArr = new Array();
+    const childArr = new Array();
+
+    // Generate child objects with some inactive, some with desired type and alias
+    for (let index = 0; index < numObjects; index++) {
+      let tempObj = { ...researcherObj };
+      tempObj.objectDetails = { ...researcherObj.objectDetails };
+
+      if (index % 2 == 0) tempObj.active = false; // Half are inactive
+      if (index % 3 == 0) {
+        // Some have the desired type and alias
+        tempObj.type = childType;
+        tempObj.alias = childAlias;
+      }
+      reqObjArr.push(tempObj);
+    }
+
+    chai
+      .request(app)
+      .post(`${baseObjectsURL}`)
+      .set("Cookie", usersCookies[researcher.email])
+      .send(parentObj)
+      .then((postRes) => {
+        // Assert that the parent object is successfully created
+        postRes.should.have.status(201);
+        postRes.body.should.not.be.empty;
+        postRes.body.should.have.a.property("objectId");
+        postRes.body.objectId.should.have.property("internalObjectId");
+        parentObjID = postRes.body.objectId.internalObjectId;
+
+        // Post child objects
+        return Promise.all(
+          reqObjArr.map(async (obj) => {
+            const res = await chai
+              .request(app)
+              .post(`${baseObjectsURL}`)
+              .set("Cookie", usersCookies[researcher.email])
+              .send(obj);
+            res.should.have.status(201);
+            res.body.should.not.be.empty;
+            res.body.should.have.a.property("objectId");
+            res.body.objectId.should.have.property("internalObjectId");
+            childArr.push(Object.assign(new ObjectBoundary(), res.body));
+          })
+        );
+      })
+      .then(() => {
+        // Bind child objects to parent
+        return Promise.all(
+          childArr.map(async (obj) => {
+            const res = await chai
+              .request(app)
+              .put(
+                `${baseObjectsURL}/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`
+              )
+              .set("Cookie", usersCookies[researcher.email])
+              .send(obj);
+            res.should.have.status(200);
+            res.body.should.be.empty;
+          })
+        );
+      })
+      .then(() => {
+        // Get children of parent by type and alias as a participant
+        return chai
+          .request(app)
+          .get(
+            `${baseParticipantsURL}/objects/${parentObjID}/children/${childType}/${childAlias}?email=${participant.email}&platform=${participant.platform}`
+          )
+          .send();
+      })
+      .then((res) => {
+        // Assert that the system responds with only the active children of the specified type and alias visible to the participant
+        res.should.have.status(200);
+        res.body.should.not.be.empty;
+        res.body.should.be.a("array");
+
+        // Filter the expected child objects based on type, alias, and active status
+        const expectedActiveChildren = childArr.filter(
+          (child) =>
+            child.active &&
+            child.type === childType &&
+            child.alias === childAlias
+        );
+
+        res.body.length.should.be.equal(expectedActiveChildren.length);
+
+        // Assert that all returned objects have the specified type and alias
+        res.body.forEach((child) => {
+          child.type.should.be.equal(childType);
+          child.alias.should.be.equal(childAlias);
+          child.active.should.be.true; // Ensure the child is active
+        });
+
+        done();
+      })
+      .catch((error) => {
+        done(error);
+      });
+  });
+
+  /**
+   * Test case to verify that a researcher can retrieve all the children of an object by type and alias, including inactive ones.
+   *
+   * @param {function} done - The callback function to signal the end of the test.
+   */
+  it("should get all the children of an object by type and alias, the requesting user is researcher", (done) => {
+    /*
+      Scenario: Retrieve all the children of an object by type and alias when the requesting user is a researcher
+          Given a parent object and multiple child objects of various types and aliases, some of which are inactive
+          When a researcher requests to get all the children of the parent object by type and alias
+          Then the system should respond with all the children of the specified type and alias, including the inactive ones
+      */
+
+    const numObjects = 10;
+    const childType = "desiredType";
+    const childAlias = "desiredAlias";
+
+    const parentObj = { ...researcherObj };
+    parentObj.objectDetails = { ...researcherObj.objectDetails };
+
+    let parentObjID;
+    const reqObjArr = new Array();
+    const childArr = new Array();
+
+    // Generate child objects with some inactive, some with desired type and alias
+    for (let index = 0; index < numObjects; index++) {
+      let tempObj = { ...researcherObj };
+      tempObj.objectDetails = { ...researcherObj.objectDetails };
+
+      if (index % 2 == 0) tempObj.active = false; // Half are inactive
+      if (index % 3 == 0) {
+        // Some have the desired type and alias
+        tempObj.type = childType;
+        tempObj.alias = childAlias;
+      }
+      reqObjArr.push(tempObj);
+    }
+
+    chai
+      .request(app)
+      .post(`${baseObjectsURL}`)
+      .set("Cookie", usersCookies[researcher.email])
+      .send(parentObj)
+      .then((postRes) => {
+        // Assert that the parent object is successfully created
+        postRes.should.have.status(201);
+        postRes.body.should.not.be.empty;
+        postRes.body.should.have.a.property("objectId");
+        postRes.body.objectId.should.have.property("internalObjectId");
+        parentObjID = postRes.body.objectId.internalObjectId;
+
+        // Post child objects
+        return Promise.all(
+          reqObjArr.map(async (obj) => {
+            const res = await chai
+              .request(app)
+              .post(`${baseObjectsURL}`)
+              .set("Cookie", usersCookies[researcher.email])
+              .send(obj);
+            res.should.have.status(201);
+            res.body.should.not.be.empty;
+            res.body.should.have.a.property("objectId");
+            res.body.objectId.should.have.property("internalObjectId");
+            childArr.push(Object.assign(new ObjectBoundary(), res.body));
+          })
+        );
+      })
+      .then(() => {
+        // Bind child objects to parent
+        return Promise.all(
+          childArr.map(async (obj) => {
+            const res = await chai
+              .request(app)
+              .put(
+                `${baseObjectsURL}/${parentObjID}/bind?email=${researcher.email}&platform=${researcher.platform}`
+              )
+              .set("Cookie", usersCookies[researcher.email])
+              .send(obj);
+            res.should.have.status(200);
+            res.body.should.be.empty;
+          })
+        );
+      })
+      .then(() => {
+        // Get children of parent by type and alias as a researcher
+        return chai
+          .request(app)
+          .get(
+            `${baseObjectsURL}/${parentObjID}/children/${childType}/${childAlias}?email=${researcher.email}&platform=${researcher.platform}`
+          )
+          .set("Cookie", usersCookies[researcher.email])
+          .send();
+      })
+      .then((res) => {
+        // Assert that the system responds with all the children of the specified type and alias, including the inactive ones
+        res.should.have.status(200);
+        res.body.should.not.be.empty;
+        res.body.should.be.a("array");
+
+        // Filter the expected child objects based on type and alias
+        const expectedChildren = childArr.filter(
+          (child) => child.type === childType && child.alias === childAlias
+        );
+
+        res.body.length.should.be.equal(expectedChildren.length);
+
+        // Assert that all returned objects have the specified type and alias
+        res.body.forEach((child) => {
+          child.type.should.be.equal(childType);
+          child.alias.should.be.equal(childAlias);
+        });
+
+        done();
+      })
+      .catch((error) => {
+        done(error);
+      });
+  });
+
+  /**
+   * Test case to verify that a participant can retrieve all the parents of an object by type and alias, considering only the active ones.
+   *
+   * @param {function} done - The callback function to signal the end of the test.
+   */
+  it("should get all the parents of an object by type and alias, the requesting user is participant", (done) => {
+    /*
+    Scenario: Retrieve all the parents of an object by type and alias when the requesting user is a participant
+        Given a child object and multiple parent objects of various types and aliases, some of which are inactive
+        When a participant requests to get all the parents of the child object by type and alias
+        Then the system should respond with only the active parents of the specified type and alias visible to the participant
+    */
+
+    const numObjects = 10;
+    const parentType = "desiredType";
+    const parentAlias = "desiredAlias";
+
+    const childObj = { ...researcherObj };
+    childObj.objectDetails = { ...researcherObj.objectDetails };
+
+    let childObjID;
+    const reqObjArr = new Array();
+    const parentsArr = new Array();
+
+    // Generate parent objects with some inactive
+    for (let index = 0; index < numObjects; index++) {
+      let tempObj = { ...researcherObj };
+      tempObj.objectDetails = { ...researcherObj.objectDetails };
+
+      if (index % 2 == 0) tempObj.active = false; // Half are inactive
+      if (index % 3 == 0) {
+        // Some have the desired type and alias
+        tempObj.type = parentType;
+        tempObj.alias = parentAlias;
+      }
+      reqObjArr.push(tempObj);
+    }
+
+    chai
+      .request(app)
+      .post(`${baseObjectsURL}`)
+      .set("Cookie", usersCookies[researcher.email])
+      .send(childObj)
+      .then((postRes) => {
+        // Assert that the child object is successfully created
+        postRes.should.have.status(201);
+        postRes.body.should.not.be.empty;
+        postRes.body.should.have.a.property("objectId");
+        postRes.body.objectId.should.have.property("internalObjectId");
+        childObjID = postRes.body.objectId.internalObjectId;
+        Object.assign(childObj, postRes.body);
+
+        // Post parent objects
+        return Promise.all(
+          reqObjArr.map(async (obj) => {
+            const res = await chai
+              .request(app)
+              .post(`${baseObjectsURL}`)
+              .set("Cookie", usersCookies[researcher.email])
+              .send(obj);
+            res.should.have.status(201);
+            res.body.should.not.be.empty;
+            res.body.should.have.a.property("objectId");
+            res.body.objectId.should.have.property("internalObjectId");
+            parentsArr.push(Object.assign(new ObjectBoundary(), res.body));
+          })
+        );
+      })
+      .then(() => {
+        // Bind child object to parent objects
+        return Promise.all(
+          parentsArr.map(async (obj) => {
+            const res = await chai
+              .request(app)
+              .put(
+                `${baseObjectsURL}/${obj.objectId.internalObjectId}/bind?email=${researcher.email}&platform=${researcher.platform}`
+              )
+              .set("Cookie", usersCookies[researcher.email])
+              .send(childObj);
+            res.should.have.status(200);
+            res.body.should.be.empty;
+          })
+        );
+      })
+      .then(() => {
+        // Get parents of child object as a participant
+        return chai
+          .request(app)
+          .get(
+            `${baseParticipantsURL}/objects/${childObjID}/parents/${parentType}/${parentAlias}?email=${participant.email}&platform=${participant.platform}`
+          )
+          .send();
+      })
+      .then((res) => {
+        // Assert that the system responds with all the parents, only the inactive ones
+        res.should.have.status(200);
+        res.body.should.be.not.empty;
+        res.body.should.be.a("array");
+
+        // Filter the expected child objects based on type and alias
+        const expectedParents = parentsArr.filter(
+          (parent) =>
+            parent.type === parentType &&
+            parent.alias === parentAlias &&
+            parent.active
+        );
+
+        res.body.length.should.be.equal(expectedParents.length);
+
+        // Assert that all returned objects have the specified type and alias
+        res.body.forEach((parent) => {
+          parent.type.should.be.equal(parentType);
+          parent.alias.should.be.equal(parentAlias);
+        });
+        done();
+      })
+      .catch((error) => {
+        done(error);
+      });
+  });
+
+  /**
+   * Test case to verify that a researcher can retrieve all the parents of an object by type and alias, including the active ones.
+   *
+   * @param {function} done - The callback function to signal the end of the test.
+   */
+  it("should get all the parents of an object by type and alias, the requesting user is researcher", (done) => {
+    /*
+      Scenario: Retrieve all the parents of an object by type and alias when the requesting user is a researcher
+          Given a child object and multiple parent objects of various types and aliases, some of which are inactive
+          When a researcher requests to get all the parents of the child object by type and alias
+          Then the system should respond with the entire parents of the specified type and alias visible to the researcher
+      */
+
+    const numObjects = 10;
+    const parentType = "desiredType";
+    const parentAlias = "desiredAlias";
+
+    const childObj = { ...researcherObj };
+    childObj.objectDetails = { ...researcherObj.objectDetails };
+
+    let childObjID;
+    const reqObjArr = new Array();
+    const parentsArr = new Array();
+
+    // Generate parent objects with some inactive
+    for (let index = 0; index < numObjects; index++) {
+      let tempObj = { ...researcherObj };
+      tempObj.objectDetails = { ...researcherObj.objectDetails };
+
+      if (index % 2 == 0) tempObj.active = false; // Half are inactive
+      if (index % 3 == 0) {
+        // Some have the desired type and alias
+        tempObj.type = parentType;
+        tempObj.alias = parentAlias;
+      }
+      reqObjArr.push(tempObj);
+    }
+
+    chai
+      .request(app)
+      .post(`${baseObjectsURL}`)
+      .set("Cookie", usersCookies[researcher.email])
+      .send(childObj)
+      .then((postRes) => {
+        // Assert that the child object is successfully created
+        postRes.should.have.status(201);
+        postRes.body.should.not.be.empty;
+        postRes.body.should.have.a.property("objectId");
+        postRes.body.objectId.should.have.property("internalObjectId");
+        childObjID = postRes.body.objectId.internalObjectId;
+        Object.assign(childObj, postRes.body);
+
+        // Post parent objects
+        return Promise.all(
+          reqObjArr.map(async (obj) => {
+            const res = await chai
+              .request(app)
+              .post(`${baseObjectsURL}`)
+              .set("Cookie", usersCookies[researcher.email])
+              .send(obj);
+            res.should.have.status(201);
+            res.body.should.not.be.empty;
+            res.body.should.have.a.property("objectId");
+            res.body.objectId.should.have.property("internalObjectId");
+            parentsArr.push(Object.assign(new ObjectBoundary(), res.body));
+          })
+        );
+      })
+      .then(() => {
+        // Bind child object to parent objects
+        return Promise.all(
+          parentsArr.map(async (obj) => {
+            const res = await chai
+              .request(app)
+              .put(
+                `${baseObjectsURL}/${obj.objectId.internalObjectId}/bind?email=${researcher.email}&platform=${researcher.platform}`
+              )
+              .set("Cookie", usersCookies[researcher.email])
+              .send(childObj);
+            res.should.have.status(200);
+            res.body.should.be.empty;
+          })
+        );
+      })
+      .then(() => {
+        // Get parents of child object as a researcher
+        return chai
+          .request(app)
+          .get(
+            `${baseObjectsURL}/${childObjID}/parents/${parentType}/${parentAlias}?email=${researcher.email}&platform=${researcher.platform}`
+          )
+          .set("Cookie", usersCookies[researcher.email])
+          .send();
+      })
+      .then((res) => {
+        // Assert that the system responds with all the parents, including the inactive ones
+        res.should.have.status(200);
+        res.body.should.be.not.empty;
+        res.body.should.be.a("array");
+
+        // Filter the expected parents objects based on type and alias
+        const expectedParents = parentsArr.filter(
+          (parent) => parent.type === parentType && parent.alias === parentAlias
+        );
+
+        res.body.length.should.be.equal(expectedParents.length);
+
+        // Assert that all returned objects have the specified type and alias
+        res.body.forEach((parent) => {
+          parent.type.should.be.equal(parentType);
+          parent.alias.should.be.equal(parentAlias);
+        });
+        done();
+      })
+      .catch((error) => {
+        done(error);
+      });
+  });
 });

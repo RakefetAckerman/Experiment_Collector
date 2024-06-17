@@ -840,6 +840,84 @@ const objectsService = {
       throw new createHttpError.BadRequest(error);
     }
   },
+  /**
+   * Gets all children objects of a certain type and alias for a specific parent object, accessible to any user.
+   * Researchers and Admins are allowed to retrieve all objects without any activation restriction, unlike
+   * Participants who are only allowed to retrieve active objects.
+   * @async
+   * @function
+   * @param {string} internalObjectId - The internal objectId of the parent object
+   * @param {string} userEmail - The email of the user making the request.
+   * @param {string} userPlatform - The platform of the user making the request.
+   * @param {string} type - The type of the child objects to filter.
+   * @param {string} alias - The alias of the child objects to filter.
+   * @returns {Promise<ObjectBoundary[]>} An array of object bounderies.
+   * @throws {Error} Throws an error if the request encounters any issues.
+   */
+  getChildrenByTypeAndAlias: async (
+    internalObjectId,
+    userEmail,
+    userPlatform,
+    type,
+    alias
+  ) => {
+    // First, retrieve all children using the core method
+    const allChildren = await objectsService.getAllChildren(
+      internalObjectId,
+      userEmail,
+      userPlatform
+    );
+
+    // Then, filter the children based on type and alias
+    const filteredChildren = allChildren.filter(
+      (child) => child.type === type && child.alias === alias
+    );
+
+    logger.info(
+      `User with email ${userEmail} successfully retrieved child objects by type: ${type} and alias: ${alias}`
+    );
+
+    return filteredChildren;
+  },
+  /**
+   * Gets all parents objects of a certain type and alias for a specific parent object, accessible to any user.
+   * Researchers and Admins are allowed to retrieve all objects without any activation restriction, unlike
+   * Participants who are only allowed to retrieve active objects.
+   * @async
+   * @function
+   * @param {string} internalObjectId - The internal objectId of the parent object
+   * @param {string} userEmail - The email of the user making the request.
+   * @param {string} userPlatform - The platform of the user making the request.
+   * @param {string} type - The type of the child objects to filter.
+   * @param {string} alias - The alias of the child objects to filter.
+   * @returns {Promise<ObjectBoundary[]>} An array of object bounderies.
+   * @throws {Error} Throws an error if the request encounters any issues.
+   */
+  getParentsByTypeAndAlias: async (
+    internalObjectId,
+    userEmail,
+    userPlatform,
+    type,
+    alias
+  ) => {
+    // First, retrieve all parents using the core method
+    const allParents = await objectsService.getAllParents(
+      internalObjectId,
+      userEmail,
+      userPlatform
+    );
+
+    // Then, filter the parents based on type and alias
+    const filteredParents = allParents.filter(
+      (parent) => parent.type === type && parent.alias === alias
+    );
+
+    logger.info(
+      `User with email ${userEmail} successfully retrieved parents objects by type: ${type} and alias: ${alias}`
+    );
+
+    return filteredParents;
+  },
 };
 
 /**
