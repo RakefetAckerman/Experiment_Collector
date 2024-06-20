@@ -4,7 +4,17 @@ interface UserBoundaryImpl {
   userId: UserIdBoundaryImpl;
   role: string;
   username?: string;
-  userDetails: Record<string, object | string | boolean | number>;
+  userDetails: Record<
+    string,
+    | object
+    | string
+    | boolean
+    | number
+    | object[]
+    | string[]
+    | boolean[]
+    | number[]
+  >;
   equals(other: UserBoundaryImpl): boolean;
 }
 
@@ -14,7 +24,17 @@ class UserBoundary implements UserBoundaryImpl {
   constructor(
     public userId: UserIdBoundaryImpl,
     public role: string,
-    public userDetails: Record<string, object | string | boolean | number>,
+    public userDetails: Record<
+      string,
+      | object
+      | string
+      | boolean
+      | number
+      | object[]
+      | string[]
+      | boolean[]
+      | number[]
+    >,
     public username?: string
   ) {}
 

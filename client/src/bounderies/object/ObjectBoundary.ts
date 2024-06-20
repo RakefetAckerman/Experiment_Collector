@@ -15,7 +15,17 @@ interface ObjectBoundaryImpl {
   modificationTimestamp?: Date;
   location?: LocationImpl;
   createdBy: UserIdInvokerImpl;
-  objectDetails: Record<string, object | string | boolean | number>;
+  objectDetails: Record<
+    string,
+    | object
+    | string
+    | boolean
+    | number
+    | object[]
+    | string[]
+    | boolean[]
+    | number[]
+  >;
 }
 
 export type { ObjectBoundaryImpl };
@@ -31,7 +41,17 @@ class ObjectBoundary implements ObjectBoundaryImpl {
     public alias: string,
     public active: boolean,
     public createdBy: UserIdInvokerImpl,
-    public objectDetails: Record<string, object | string | boolean | number>,
+    public objectDetails: Record<
+      string,
+      | object
+      | string
+      | boolean
+      | number
+      | object[]
+      | string[]
+      | boolean[]
+      | number[]
+    >,
     public location?: LocationImpl,
     public creationTimestamp?: Date,
     public modificationTimestamp?: Date
