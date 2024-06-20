@@ -156,6 +156,34 @@ interface ObjectsService {
     role: UserRoles,
     queryParams?: Record<string, string | number | boolean>
   ): Promise<ObjectBoundary>;
+
+  /**
+   * Retrieves an array of children objects of a specific type and alias by sending a GET request to the objects endpoint with type filter.
+   * @param targetType - The type of object to retrieve.
+   * @param targetalias - The type of object to retrieve.
+   * @param role - User role for determining the correct endpoint.
+   * @param queryParams - Optional query parameters for filtering.
+   * @returns Promise<ObjectBoundary[]> - An array of objects formed as ObjectBoundary by specific type and alias from the backend.
+   */
+  getChildrenByTypeAndAlias(
+    targetType: string,
+    targetAlias: string,
+    role: UserRoles,
+    queryParams: Record<string, string | number | boolean>
+  ): Promise<ObjectBoundary[]>;
+  /**
+   * Retrieves an array of parents objects of a specific type and alias by sending a GET request to the objects endpoint with type filter.
+   * @param targetType - The type of object to retrieve.
+   * @param role - User role for determining the correct endpoint.
+   * @param queryParams - Optional query parameters for filtering.
+   * @returns Promise<ObjectBoundary[]> - An array of objects formed as ObjectBoundary by specific type and alias from the backend.
+   */
+  getParentsByTypeAndAlias(
+    targetType: string,
+    targetAlias: string,
+    role: UserRoles,
+    queryParams: Record<string, string | number | boolean>
+  ): Promise<ObjectBoundary[]>;
 }
 
 export default ObjectsService;

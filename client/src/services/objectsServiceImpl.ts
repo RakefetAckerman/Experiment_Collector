@@ -6,11 +6,11 @@ import UserRoles from "../utils/UserRoles";
 
 // Load environment variables from .env files
 const envVariables = getEnvVariables();
-const { backendURL } = envVariables;
+const { baseParticipantsURL, authObjRoute } = envVariables;
 
 // Define base URLs for different API endpoints related to objects
-const participantsObjBaseUrl = backendURL + "/participants/objects";
-const authResearchersObjBaseURL = backendURL + "/auth/objects";
+const participantsObjBaseUrl = baseParticipantsURL + "/objects";
+const authResearchersObjBaseURL = authObjRoute;
 
 // Helper function to get the correct base URL based on the user's role
 function getBaseUrl(role: UserRoles): string {
@@ -231,6 +231,51 @@ const objectService: ObjectsService = {
       params: queryParams,
     });
     return res.data as ObjectBoundary;
+  },
+  /**
+   * Retrieves an array of children objects of a specific type and alias by sending a GET request to the objects endpoint with type filter.
+   * @param targetType - The type of object to retrieve.
+   * @param targetalias - The type of object to retrieve.
+   * @param role - User role for determining the correct endpoint.
+   * @param queryParams - Optional query parameters for filtering.
+   * @returns Promise<ObjectBoundary[]> - An array of objects formed as ObjectBoundary by specific type and alias from the backend.
+   */
+  getChildrenByTypeAndAlias: async function (
+    targetType: string,
+    targetAlias: string,
+    role: UserRoles,
+    queryParams: Record<string, string | number | boolean> = {}
+  ): Promise<ObjectBoundary[]> {
+    const baseUrl = getBaseUrl(role);
+    const res = await axios.get(
+      `${baseUrl}/children/${targetType}/${targetAlias}`,
+      {
+        params: queryParams,
+      }
+    );
+    return res.data as ObjectBoundary[];
+  },
+  /**
+   * Retrieves an array of parents objects of a specific type and alias by sending a GET request to the objects endpoint with type filter.
+   * @param targetType - The type of object to retrieve.
+   * @param role - User role for determining the correct endpoint.
+   * @param queryParams - Optional query parameters for filtering.
+   * @returns Promise<ObjectBoundary[]> - An array of objects formed as ObjectBoundary by specific type and alias from the backend.
+   */
+  getParentsByTypeAndAlias: async function (
+    targetType: string,
+    targetAlias: string,
+    role: UserRoles,
+    queryParams: Record<string, string | number | boolean> = {}
+  ): Promise<ObjectBoundary[]> {
+    const baseUrl = getBaseUrl(role);
+    const res = await axios.get(
+      `${baseUrl}/parents/${targetType}/${targetAlias}`,
+      {
+        params: queryParams,
+      }
+    );
+    return res.data as ObjectBoundary[];
   },
 };
 
