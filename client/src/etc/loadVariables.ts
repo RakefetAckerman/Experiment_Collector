@@ -20,10 +20,27 @@ const getEnvVariables = () => {
       ? VITE_REACT_APP_BACKEND_DEV_URL
       : VITE_REACT_APP_BACKEND_PROD_URL || "http://localhost:3000"; // Choosing the backend URL based on the enviorment variable, using the dev URL as default
 
+  const authURL = backendURL + "/auth";
+
+  const baseParticipantsURL = backendURL + "/participnats";
+
+  const entryURL = backendURL + "/entry";
+
+  const authObjRoute = authURL + "/objects";
+
+  const authUsersURL = authURL + "/users";
+
+  const commandsURL = authURL + "/commands";
+
   return {
     port,
     env,
     backendURL,
+    baseParticipantsURL,
+    entryURL,
+    authObjRoute,
+    authUsersURL,
+    commandsURL,
   };
 };
 
