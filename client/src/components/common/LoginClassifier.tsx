@@ -1,7 +1,7 @@
 // import React, { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import LoginPage from "../../pages/LoginPage";
-import UserTypes from "../../utils/UserTypes";
+import UserTypes from "../../utils/types/userTypes/userTypes";
 import * as yup from "yup";
 import { FormikValues } from "formik";
 import createValidationSchema from "../../utils/FormValidation";
@@ -13,7 +13,7 @@ import {
   UserIdBoundary,
   UserIdBoundaryImpl,
 } from "../../bounderies/user/UserIdBoundary";
-import UserRoles from "../../utils/UserRoles";
+import UserRoles from "../../utils/userRoles";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { logedIn } from "../../states/reducer";

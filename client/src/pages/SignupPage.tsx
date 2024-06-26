@@ -10,7 +10,7 @@ import {
 import { FormikValues } from "formik";
 import WrapperForm from "../components/common/WrapperForm";
 import { AnyObject, ObjectSchema } from "yup";
-import UserTypes from "../utils/UserTypes";
+import UserTypes from "../utils/types/userTypes/userTypes";
 import { useNavigate } from "react-router-dom";
 
 interface SignupProps {

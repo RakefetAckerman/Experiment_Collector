@@ -1,7 +1,3 @@
-// import dotenv and call config to load variables into process.env
-import dotenv from "dotenv";
-dotenv.config();
-
 // Define a function to retrieve environment variables
 const getEnvVariables = () => {
   const {

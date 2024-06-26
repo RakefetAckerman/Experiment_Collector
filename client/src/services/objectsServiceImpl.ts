@@ -2,7 +2,7 @@ import axios from "axios";
 import { ObjectBoundary } from "../bounderies/object/ObjectBoundary";
 import ObjectsService from "./objectsService";
 import getEnvVariables from "../etc/loadVariables";
-import UserRoles from "../utils/UserRoles";
+import UserRoles from "../utils/userRoles";
 
 // Load environment variables from .env files
 const envVariables = getEnvVariables();

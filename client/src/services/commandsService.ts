@@ -1,5 +1,5 @@
 import { CommandBoundary } from "../bounderies/command/CommandBoundary";
-import UserRoles from "../utils/UserRoles";
+import UserRoles from "../utils/userRoles";
 
 /**
  * Interface representing a Command Service with various command-related operations.

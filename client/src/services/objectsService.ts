@@ -1,5 +1,5 @@
 import { ObjectBoundary } from "../bounderies/object/ObjectBoundary";
-import UserRoles from "../utils/UserRoles";
+import UserRoles from "../utils/userRoles";
 
 /**
  * Interface representing an Object Service with various object-related operations.

@@ -1,11 +1,11 @@
 import React from "react";
-import UserTypes from "../../utils/UserTypes";
+import UserTypes from "../../utils/types/userTypes/userTypes";
 import * as yup from "yup";
 import { FormikValues } from "formik";
 import createValidationSchema from "../../utils/FormValidation";
 import SignupPage from "../../pages/SignupPage";
 import axios from "axios";
-import UserRoles from "../../utils/UserRoles";
+import UserRoles from "../../utils/userRoles";
 import { useNavigate } from "react-router-dom";
 
 const SignupPrep: React.FC = () => {

@@ -1,7 +1,7 @@
 import axios from "axios";
 import CommandsService from "./commandsService";
 import getEnvVariables from "../etc/loadVariables";
-import UserRoles from "../utils/UserRoles";
+import UserRoles from "../utils/userRoles";
 import { CommandBoundary } from "../bounderies/command/CommandBoundary";
 
 // Load environment variables from .env files
