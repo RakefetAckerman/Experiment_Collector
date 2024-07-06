@@ -13,6 +13,7 @@ import ExperimentPage from "./pages/ExperimentPage";
 import ExportDataPage from "./pages/ExportDataPage";
 import ProfilePage from "./pages/ProfilePage";
 import CustomAlert from "./components/common/CustomAlert";
+import EditorComponent from "./components/common/EditorComponent";
 
 function App() {
   const mode = useSelector((state: State) => state.mode);
@@ -66,6 +67,7 @@ function App() {
             />
             <Route path="/login/:userType" element={<LoginClassifier />} />
             <Route path="/signup" element={<SignupPrep />} />
+            <Route path="/reuseable" element={<EditorComponent />} />
           </Routes>
         </ThemeProvider>
       </BrowserRouter>
