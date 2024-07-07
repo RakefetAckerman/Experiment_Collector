@@ -17,8 +17,8 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
   max = 100,
   defaultPosition = Math.round((max - min) / 2),
   disabled = false,
-  minLabel = "",
-  maxLabel = "",
+  minLabel = `${min}`,
+  maxLabel = `${max}`,
 }) => {
   const marks = [
     {
@@ -37,12 +37,15 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
         defaultValue={defaultPosition}
         min={min}
         max={max}
-        aria-label="Default"
+        aria-label="Always visible"
         marks={marks}
         disabled={disabled}
+        valueLabelDisplay="on"
       />
     </Box>
   );
 };
 
 export default CustomSlider;
+
+export type { CustomSliderProps };
