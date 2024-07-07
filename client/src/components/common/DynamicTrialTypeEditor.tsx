@@ -7,6 +7,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
+import TextField from "@mui/material/TextField"; // Import TextField component
 import SettingsDrawer from "./SettingsDrawer";
 import CustomAlert from "./CustomAlert"; // Import CustomAlert component
 import useAlert from "../../hooks/useAlert"; // Import useAlert hook
@@ -22,29 +23,76 @@ const DynamicTrialTypeEditor: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const { setAlert } = useAlert(); // Access alert state and setAlert function
 
+  // State to store form inputs for CustomSlider
+  const [sliderMin, setSliderMin] = useState<number>(0);
+  const [sliderMax, setSliderMax] = useState<number>(100);
+  const [sliderDefaultPosition, setSliderDefaultPosition] =
+    useState<number>(50);
+  const [sliderDisabled, setSliderDisabled] = useState<boolean>(false);
+  const [sliderMinLabel, setSliderMinLabel] = useState<string>("Min");
+  const [sliderMaxLabel, setSliderMaxLabel] = useState<string>("Max");
+
+  // State to store form inputs for CustomRate
+  const [rateMax, setRateMax] = useState<number>(5);
+  const [rateMinLabel, setRateMinLabel] = useState<string>("");
+  const [rateMaxLabel, setRateMaxLabel] = useState<string>("");
+
+  // State to store form inputs for CustomParagraph
+  const [paragraphHeadline, setParagraphHeadline] = useState<string>("");
+  const [paragraphHeadlineFontSize, setParagraphHeadlineFontSize] = useState<
+    string | number
+  >("1.5rem");
+  const [paragraphText, setParagraphText] = useState<string>("");
+  const [paragraphTextFontSize, setParagraphTextFontSize] = useState<
+    string | number
+  >("1rem");
+  const [paragraphDirection, setParagraphDirection] = useState<"ltr" | "rtl">(
+    "ltr"
+  );
+
   const toggleDropdown = () => {
     setShowDropdown(true);
   };
 
   const addComponent = async (component: string) => {
     let path = "";
+    let props: any = {}; // Initialize props variable
+
     switch (component) {
       case "CustomParagraph":
         path = "./CustomParagraph"; // Update path accordingly
+        props = {
+          headline: paragraphHeadline,
+          headlineFontSize: paragraphHeadlineFontSize,
+          text: paragraphText,
+          textFontSize: paragraphTextFontSize,
+          direction: paragraphDirection,
+        };
         break;
       case "CustomRate":
         path = "./CustomRate"; // Update path accordingly
+        props = {
+          max: rateMax,
+          minLabel: rateMinLabel,
+          maxLabel: rateMaxLabel,
+        };
         break;
       case "CustomSlider":
         path = "./CustomSlider"; // Update path accordingly
+        props = {
+          min: sliderMin,
+          max: sliderMax,
+          defaultPosition: sliderDefaultPosition,
+          disabled: sliderDisabled,
+          minLabel: sliderMinLabel,
+          maxLabel: sliderMaxLabel,
+        };
         break;
       default:
         return;
     }
 
-    /* @vite-ignore */
-    const { default: Component } = await import(/* @vite-ignore */ `${path}`);
-    const newComponent: ComponentInfo = { path, props: {} }; // You can pass props here if needed
+    const newComponent: ComponentInfo = { path, props }; // Pass specific props here
     const newComponents = [...components, newComponent]; // Add new component at the end
     setComponents(newComponents);
     setSelectedComponent(""); // Clear selected component
@@ -100,6 +148,161 @@ const DynamicTrialTypeEditor: React.FC = () => {
     });
   };
 
+  const updateComponentProps = (index: number, updatedProps: any) => {
+    const updatedComponents = [...components];
+    updatedComponents[index].props = {
+      ...updatedComponents[index].props,
+      ...updatedProps,
+    };
+    setComponents(updatedComponents);
+    setAlert({
+      message: "Component props updated successfully!",
+      severity: "success",
+    });
+  };
+
+  const renderSelectedComponent = () => {
+    switch (selectedComponent) {
+      case "CustomSlider":
+        return (
+          <Box mb={2} width="100%">
+            <TextField
+              label="Min Value"
+              type="number"
+              fullWidth
+              value={sliderMin}
+              onChange={(e) => setSliderMin(Number(e.target.value))}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Max Value"
+              type="number"
+              fullWidth
+              value={sliderMax}
+              onChange={(e) => setSliderMax(Number(e.target.value))}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Default Position"
+              type="number"
+              fullWidth
+              value={sliderDefaultPosition}
+              onChange={(e) => setSliderDefaultPosition(Number(e.target.value))}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Min Label"
+              type="text"
+              fullWidth
+              value={sliderMinLabel}
+              onChange={(e) => setSliderMinLabel(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Max Label"
+              type="text"
+              fullWidth
+              value={sliderMaxLabel}
+              onChange={(e) => setSliderMaxLabel(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Disabled</InputLabel>
+              <Select
+                value={sliderDisabled ? "true" : "false"}
+                onChange={(e) => setSliderDisabled(e.target.value === "true")}
+                variant="outlined"
+              >
+                <MenuItem value="true">True</MenuItem>
+                <MenuItem value="false">False</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        );
+      case "CustomRate":
+        return (
+          <Box mb={2} width="100%">
+            <TextField
+              label="Max Rating"
+              type="number"
+              fullWidth
+              value={rateMax}
+              onChange={(e) => setRateMax(Number(e.target.value))}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Min Label"
+              type="text"
+              fullWidth
+              value={rateMinLabel}
+              onChange={(e) => setRateMinLabel(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Max Label"
+              type="text"
+              fullWidth
+              value={rateMaxLabel}
+              onChange={(e) => setRateMaxLabel(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+          </Box>
+        );
+      case "CustomParagraph":
+        return (
+          <Box mb={2} width="100%">
+            <TextField
+              label="Headline"
+              type="text"
+              fullWidth
+              value={paragraphHeadline}
+              onChange={(e) => setParagraphHeadline(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Headline Font Size"
+              type="text"
+              fullWidth
+              value={paragraphHeadlineFontSize}
+              onChange={(e) => setParagraphHeadlineFontSize(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Paragraph Text"
+              type="text"
+              fullWidth
+              value={paragraphText}
+              onChange={(e) => setParagraphText(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Text Font Size"
+              type="text"
+              fullWidth
+              value={paragraphTextFontSize}
+              onChange={(e) => setParagraphTextFontSize(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Direction</InputLabel>
+              <Select
+                value={paragraphDirection}
+                onChange={(e) =>
+                  setParagraphDirection(e.target.value as "ltr" | "rtl")
+                }
+                variant="outlined"
+              >
+                <MenuItem value="ltr">Left to Right</MenuItem>
+                <MenuItem value="rtl">Right to Left</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
       <Box
@@ -153,13 +356,18 @@ const DynamicTrialTypeEditor: React.FC = () => {
                 <Suspense key={index} fallback={<div>Loading...</div>}>
                   <Box my={2} display="flex" alignItems="center">
                     <Box flex="1" textAlign="left">
-                      <LazyComponent {...component.props} />
+                      <LazyComponent
+                        {...component.props}
+                        updateProps={(updatedProps: any) =>
+                          updateComponentProps(index, updatedProps)
+                        }
+                      />
                     </Box>
                     <Button
                       variant="contained"
                       color="error"
                       onClick={() => removeComponent(index)}
-                      sx={{ ml: 1 }}
+                      sx={{ ml: 5 }}
                     >
                       Remove
                     </Button>
@@ -181,6 +389,7 @@ const DynamicTrialTypeEditor: React.FC = () => {
               <MenuItem value="CustomSlider">CustomSlider</MenuItem>
             </Select>
           </FormControl>
+          {renderSelectedComponent()}
           {showDropdown && (
             <Button
               variant="contained"
