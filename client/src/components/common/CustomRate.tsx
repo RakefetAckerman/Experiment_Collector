@@ -11,7 +11,11 @@ interface CustomRateProps {
   maxLabel: string;
 }
 
-const CustomRate: React.FC<CustomRateProps> = ({ max, minLabel, maxLabel }) => {
+const CustomRate: React.FC<CustomRateProps> = ({
+  max = 5,
+  minLabel = "",
+  maxLabel = "",
+}) => {
   return (
     <Box
       sx={{

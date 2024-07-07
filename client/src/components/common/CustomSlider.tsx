@@ -13,8 +13,8 @@ interface CustomSliderProps {
 }
 
 const CustomSlider: React.FC<CustomSliderProps> = ({
-  min,
-  max,
+  min = 0,
+  max = 100,
   defaultPosition = Math.round((max - min) / 2),
   disabled = false,
   minLabel = "",

@@ -12,9 +12,9 @@ interface CustomParagraphProps {
 }
 
 const CustomParagraph: React.FC<CustomParagraphProps> = ({
-  headline,
+  headline = "",
   headlineFontSize = "1.5rem",
-  text,
+  text = "",
   textFontSize = "1rem",
   direction = "ltr",
 }) => {
