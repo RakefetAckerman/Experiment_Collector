@@ -13,7 +13,7 @@ import ExperimentPage from "./pages/ExperimentPage";
 import ExportDataPage from "./pages/ExportDataPage";
 import ProfilePage from "./pages/ProfilePage";
 import CustomAlert from "./components/common/CustomAlert";
-import EditorComponent from "./components/common/EditorComponent";
+import EditorComponent from "./components/common/DynamicTrialTypeEditor";
 
 function App() {
   const mode = useSelector((state: State) => state.mode);
