@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import Button from "@mui/material/Button";
@@ -14,50 +14,37 @@ import { ListItemIcon, useTheme } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ManageHistoryIcon from "@mui/icons-material/ManageHistory";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
-import ImageIcon from "@mui/icons-material/Image";
-import PercentIcon from "@mui/icons-material/Percent";
-import HeadphonesIcon from "@mui/icons-material/Headphones";
 import SettingsIcon from "@mui/icons-material/Settings";
-import FavoriteIcon from "@mui/icons-material/Favorite";
+import {
+  AdditionalSettings,
+  MetaSettingsValues,
+} from "../../utils/types/metaSettingsValues";
 
-export default function SettingsDrawer() {
+interface SettingsDrawerProps {
+  settingsValues: MetaSettingsValues;
+  setSettingsValues: React.Dispatch<React.SetStateAction<MetaSettingsValues>>;
+}
+
+export default function SettingsDrawer({
+  settingsValues,
+  setSettingsValues,
+}: SettingsDrawerProps) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [settingsValues, setSettingsValues] = React.useState({
-    time: {
-      displayAlert: false,
-      seconds: "",
-      idleMessage: "",
-    },
-    response: "",
-    image: "",
-    judgement: {
-      text: "",
-      min: "",
-      max: "",
-    },
-    sound: "",
-    additionalSettings: {
-      shuffledQuestion: false,
-    },
-    likert: {
-      min: "",
-      max: "",
-    },
-  });
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
 
   const handleChange =
-    (setting: keyof typeof settingsValues, subSetting?: string) =>
+    (setting: keyof MetaSettingsValues, subSetting?: string) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
       if (subSetting) {
         setSettingsValues({
           ...settingsValues,
           [setting]: {
-            ...(settingsValues[setting] as Record<string, string>),
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ...(settingsValues[setting] as Record<string, any>),
             [subSetting]: event.target.value,
           },
         });
@@ -70,12 +57,12 @@ export default function SettingsDrawer() {
     };
 
   const handleCheckboxChange =
-    (setting: keyof typeof settingsValues) =>
+    (setting: keyof MetaSettingsValues) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setSettingsValues({
         ...settingsValues,
         [setting]: {
-          ...(settingsValues[setting] as Record<string, boolean>),
+          ...(settingsValues[setting] as AdditionalSettings),
           [event.target.name]: event.target.checked,
         },
       });
@@ -89,19 +76,9 @@ export default function SettingsDrawer() {
         idleMessage: "",
       },
       response: "",
-      image: "",
-      judgement: {
-        text: "",
-        min: "",
-        max: "",
-      },
-      sound: "",
       additionalSettings: {
         shuffledQuestion: false,
-      },
-      likert: {
-        min: "",
-        max: "",
+        trackFocus: false,
       },
     });
   };
@@ -109,11 +86,7 @@ export default function SettingsDrawer() {
   const settings = [
     { name: "Time", icon: <ManageHistoryIcon /> },
     { name: "Response", icon: <BorderColorIcon /> },
-    { name: "Image", icon: <ImageIcon /> },
-    { name: "Judgement", icon: <PercentIcon /> },
-    { name: "Sound", icon: <HeadphonesIcon /> },
     { name: "Additional Settings", icon: <SettingsIcon /> },
-    { name: "Likert", icon: <FavoriteIcon /> },
   ];
 
   const DrawerList = (
@@ -180,56 +153,6 @@ export default function SettingsDrawer() {
                         margin="normal"
                       />
                     );
-                  case "Image":
-                    return (
-                      <TextField
-                        label="Degrees for Rotation"
-                        type="number"
-                        value={settingsValues.image}
-                        onChange={handleChange("image")}
-                        fullWidth
-                        margin="normal"
-                      />
-                    );
-                  case "Judgement":
-                    return (
-                      <>
-                        <TextField
-                          label="Judgement Text"
-                          value={settingsValues.judgement.text}
-                          onChange={handleChange("judgement", "text")}
-                          fullWidth
-                          margin="normal"
-                        />
-                        <TextField
-                          label="Minimum Value"
-                          type="number"
-                          value={settingsValues.judgement.min}
-                          onChange={handleChange("judgement", "min")}
-                          fullWidth
-                          margin="normal"
-                        />
-                        <TextField
-                          label="Maximum Value"
-                          type="number"
-                          value={settingsValues.judgement.max}
-                          onChange={handleChange("judgement", "max")}
-                          fullWidth
-                          margin="normal"
-                        />
-                      </>
-                    );
-                  case "Sound":
-                    return (
-                      <TextField
-                        label="Volume Percentage"
-                        type="number"
-                        value={settingsValues.sound}
-                        onChange={handleChange("sound")}
-                        fullWidth
-                        margin="normal"
-                      />
-                    );
                   case "Additional Settings":
                     return (
                       <>
@@ -248,26 +171,19 @@ export default function SettingsDrawer() {
                           }
                           label="Shuffled Question"
                         />
-                      </>
-                    );
-                  case "Likert":
-                    return (
-                      <>
-                        <TextField
-                          label="Minimum Value"
-                          type="number"
-                          value={settingsValues.likert.min}
-                          onChange={handleChange("likert", "min")}
-                          fullWidth
-                          margin="normal"
-                        />
-                        <TextField
-                          label="Maximum Value"
-                          type="number"
-                          value={settingsValues.likert.max}
-                          onChange={handleChange("likert", "max")}
-                          fullWidth
-                          margin="normal"
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={
+                                settingsValues.additionalSettings.trackFocus
+                              }
+                              onChange={handleCheckboxChange(
+                                "additionalSettings"
+                              )}
+                              name="trackFocus"
+                            />
+                          }
+                          label="Track Focus"
                         />
                       </>
                     );
