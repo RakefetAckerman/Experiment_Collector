@@ -1,9 +1,24 @@
 import { Box } from "@mui/material";
 import Navbar from "../components/common/Navbar";
 import SettingsDrawer from "../components/common/SettingsDrawer";
-import ExperimentFormPage from "./ExperimentFormPage";
+// import ExperimentFormPage from "./ExperimentFormPage";
+import { useState } from "react";
+import DynamicTrialTypeEditor from "../components/common/DynamicTrialTypeEditor";
 
 const EditorPage = () => {
+  const [settingsValues, setSettingsValues] = useState({
+    time: {
+      displayAlert: false,
+      seconds: "",
+      idleMessage: "",
+    },
+    response: "",
+    additionalSettings: {
+      shuffledQuestion: false,
+      trackFocus: false,
+    },
+  });
+
   return (
     <>
       <Navbar />
@@ -21,7 +36,10 @@ const EditorPage = () => {
             borderRight: "1px solid #ddd",
           }}
         >
-          <SettingsDrawer />
+          <SettingsDrawer
+            settingsValues={settingsValues}
+            setSettingsValues={setSettingsValues}
+          />
         </Box>
         <Box
           sx={{
@@ -33,7 +51,8 @@ const EditorPage = () => {
             backgroundColor: "#fafafa",
           }}
         >
-          <ExperimentFormPage />
+          {/* <ExperimentFormPage /> */}
+          <DynamicTrialTypeEditor />
         </Box>
       </Box>
     </>
