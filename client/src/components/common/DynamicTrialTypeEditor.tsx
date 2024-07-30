@@ -1,5 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, Suspense, lazy } from "react";
+import React, { useState, Suspense, lazy, useCallback } from "react";
+import { debounce } from "lodash";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -8,7 +10,6 @@ import Select from "@mui/material/Select";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import TextField from "@mui/material/TextField"; // Import TextField component
-import SettingsDrawer from "./SettingsDrawer";
 import CustomAlert from "./CustomAlert"; // Import CustomAlert component
 import useAlert from "../../hooks/useAlert"; // Import useAlert hook
 
@@ -48,6 +49,46 @@ const DynamicTrialTypeEditor: React.FC = () => {
   >("1rem");
   const [paragraphDirection, setParagraphDirection] = useState<"ltr" | "rtl">(
     "ltr"
+  );
+
+  const debouncedSetSliderMin = useCallback(debounce(setSliderMin, 300), []);
+  const debouncedSetSliderMax = useCallback(debounce(setSliderMax, 300), []);
+  const debouncedSetSliderDefaultPosition = useCallback(
+    debounce(setSliderDefaultPosition, 300),
+    []
+  );
+  const debouncedSetSliderMinLabel = useCallback(
+    debounce(setSliderMinLabel, 300),
+    []
+  );
+  const debouncedSetSliderMaxLabel = useCallback(
+    debounce(setSliderMaxLabel, 300),
+    []
+  );
+  const debouncedSetRateMax = useCallback(debounce(setRateMax, 300), []);
+  const debouncedSetRateMinLabel = useCallback(
+    debounce(setRateMinLabel, 300),
+    []
+  );
+  const debouncedSetRateMaxLabel = useCallback(
+    debounce(setRateMaxLabel, 300),
+    []
+  );
+  const debouncedSetParagraphHeadline = useCallback(
+    debounce(setParagraphHeadline, 300),
+    []
+  );
+  const debouncedSetParagraphHeadlineFontSize = useCallback(
+    debounce(setParagraphHeadlineFontSize, 300),
+    []
+  );
+  const debouncedSetParagraphText = useCallback(
+    debounce(setParagraphText, 300),
+    []
+  );
+  const debouncedSetParagraphTextFontSize = useCallback(
+    debounce(setParagraphTextFontSize, 300),
+    []
   );
 
   const toggleDropdown = () => {
@@ -170,40 +211,42 @@ const DynamicTrialTypeEditor: React.FC = () => {
               label="Min Value"
               type="number"
               fullWidth
-              value={sliderMin}
-              onChange={(e) => setSliderMin(Number(e.target.value))}
+              defaultValue={sliderMin}
+              onChange={(e) => debouncedSetSliderMin(Number(e.target.value))}
               sx={{ mb: 2 }}
             />
             <TextField
               label="Max Value"
               type="number"
               fullWidth
-              value={sliderMax}
-              onChange={(e) => setSliderMax(Number(e.target.value))}
+              defaultValue={sliderMax}
+              onChange={(e) => debouncedSetSliderMax(Number(e.target.value))}
               sx={{ mb: 2 }}
             />
             <TextField
               label="Default Position"
               type="number"
               fullWidth
-              value={sliderDefaultPosition}
-              onChange={(e) => setSliderDefaultPosition(Number(e.target.value))}
+              defaultValue={sliderDefaultPosition}
+              onChange={(e) =>
+                debouncedSetSliderDefaultPosition(Number(e.target.value))
+              }
               sx={{ mb: 2 }}
             />
             <TextField
               label="Min Label"
               type="text"
               fullWidth
-              value={sliderMinLabel}
-              onChange={(e) => setSliderMinLabel(e.target.value)}
+              defaultValue={sliderMinLabel}
+              onChange={(e) => debouncedSetSliderMinLabel(e.target.value)}
               sx={{ mb: 2 }}
             />
             <TextField
               label="Max Label"
               type="text"
               fullWidth
-              value={sliderMaxLabel}
-              onChange={(e) => setSliderMaxLabel(e.target.value)}
+              defaultValue={sliderMaxLabel}
+              onChange={(e) => debouncedSetSliderMaxLabel(e.target.value)}
               sx={{ mb: 2 }}
             />
             <FormControl fullWidth sx={{ mb: 2 }}>
@@ -226,24 +269,24 @@ const DynamicTrialTypeEditor: React.FC = () => {
               label="Max Rating"
               type="number"
               fullWidth
-              value={rateMax}
-              onChange={(e) => setRateMax(Number(e.target.value))}
+              defaultValue={rateMax}
+              onChange={(e) => debouncedSetRateMax(Number(e.target.value))}
               sx={{ mb: 2 }}
             />
             <TextField
               label="Min Label"
               type="text"
               fullWidth
-              value={rateMinLabel}
-              onChange={(e) => setRateMinLabel(e.target.value)}
+              defaultValue={rateMinLabel}
+              onChange={(e) => debouncedSetRateMinLabel(e.target.value)}
               sx={{ mb: 2 }}
             />
             <TextField
               label="Max Label"
               type="text"
               fullWidth
-              value={rateMaxLabel}
-              onChange={(e) => setRateMaxLabel(e.target.value)}
+              defaultValue={rateMaxLabel}
+              onChange={(e) => debouncedSetRateMaxLabel(e.target.value)}
               sx={{ mb: 2 }}
             />
           </Box>
@@ -255,32 +298,36 @@ const DynamicTrialTypeEditor: React.FC = () => {
               label="Headline"
               type="text"
               fullWidth
-              value={paragraphHeadline}
-              onChange={(e) => setParagraphHeadline(e.target.value)}
+              defaultValue={paragraphHeadline}
+              onChange={(e) => debouncedSetParagraphHeadline(e.target.value)}
               sx={{ mb: 2 }}
             />
             <TextField
               label="Headline Font Size"
               type="text"
               fullWidth
-              value={paragraphHeadlineFontSize}
-              onChange={(e) => setParagraphHeadlineFontSize(e.target.value)}
+              defaultValue={paragraphHeadlineFontSize}
+              onChange={(e) =>
+                debouncedSetParagraphHeadlineFontSize(e.target.value)
+              }
               sx={{ mb: 2 }}
             />
             <TextField
               label="Paragraph Text"
               type="text"
               fullWidth
-              value={paragraphText}
-              onChange={(e) => setParagraphText(e.target.value)}
+              defaultValue={paragraphText}
+              onChange={(e) => debouncedSetParagraphText(e.target.value)}
               sx={{ mb: 2 }}
             />
             <TextField
               label="Text Font Size"
               type="text"
               fullWidth
-              value={paragraphTextFontSize}
-              onChange={(e) => setParagraphTextFontSize(e.target.value)}
+              defaultValue={paragraphTextFontSize}
+              onChange={(e) =>
+                debouncedSetParagraphTextFontSize(e.target.value)
+              }
               sx={{ mb: 2 }}
             />
             <FormControl fullWidth sx={{ mb: 2 }}>
@@ -306,21 +353,6 @@ const DynamicTrialTypeEditor: React.FC = () => {
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
       <Box
-        sx={{
-          width: "100px",
-          backgroundColor: "#f0f0f0",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-          pt: 2,
-          pb: 2,
-          borderRight: "1px solid #ddd",
-        }}
-      >
-        <SettingsDrawer />
-      </Box>
-      <Box
         display="flex"
         justifyContent="center"
         alignItems="center"
@@ -340,8 +372,6 @@ const DynamicTrialTypeEditor: React.FC = () => {
           bgcolor="#f0f0f0"
           boxShadow="0px 4px 10px rgba(0, 0, 0, 0.1)"
           textAlign="center"
-          ml="300px"
-          mb="100px"
         >
           <Typography variant="h4" color="primary" mb="1.5rem">
             Dynamic Trial Type Editor
