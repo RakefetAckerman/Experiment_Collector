@@ -143,4 +143,4 @@ VITE_REACT_APP_BACKEND_PROD_URL=http://localhost:8081
 
 ```
 
-**Reach [Prof. Rakefet Ackerman](ackerman@technion.ac.il) for the _.env files_**
+**Reach Prof. Rakefet Ackerman in mail: [ackerman\@technion.ac.il](mailto:ackerman@technion.ac.il?subject=Request%20for%20ENV%20files) for the _.env_ files**
