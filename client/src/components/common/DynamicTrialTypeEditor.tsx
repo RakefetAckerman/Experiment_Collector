@@ -1,7 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, Suspense, lazy, useCallback } from "react";
-import { debounce } from "lodash";
+import React, { useState, Suspense, lazy, useRef, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -9,22 +7,49 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
-import TextField from "@mui/material/TextField"; // Import TextField component
 import CustomAlert from "./CustomAlert"; // Import CustomAlert component
 import useAlert from "../../hooks/useAlert"; // Import useAlert hook
-
-interface ComponentInfo {
-  path: string;
-  props?: any;
-}
+import { ComponentSettings } from "../../utils/types/trialTypeobjectDetails";
+import CustomRateComposer, {
+  InnerCustomRateComposerHooks,
+  InnerCustomRateComposerProps,
+} from "./CustomRateComposer";
+import CustomSliderComposer, {
+  InnerCustomSliderComposerHooks,
+  InnerCustomSliderComposerProps,
+} from "./CustomSliderComposer";
+import CustomParagraphComposer, {
+  InnerCustomParagraphComposerHooks,
+  InnerCustomParagraphComposerProps,
+} from "./CustomParagraphComposer";
 
 const DynamicTrialTypeEditor: React.FC = () => {
-  const [components, setComponents] = useState<ComponentInfo[]>([]);
+  const [components, setComponents] = useState<ComponentSettings[]>([]);
+  useEffect(() => {
+    console.log("Components updated: ", components);
+  }, [components]);
+
   const [selectedComponent, setSelectedComponent] = useState<string>("");
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const { setAlert } = useAlert(); // Access alert state and setAlert function
+  const [lockBeforeUseArr, setLockBeforeUserArr] = useState<boolean[]>([]);
 
-  // State to store form inputs for CustomSlider
+  //States and functions for all types of componenets
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isLockbeforeUse, setIsLockBeforeUse] = useState(false);
+  const [isLockAfterUse, setIsLockAfterUse] = useState(false);
+
+  const activateNext = () => {
+    while (activeIndex < components.length) {
+      // if (lockBeforeUseArr[activeIndex]) {
+      // }
+    }
+    setActiveIndex((prevIndex) =>
+      Math.min(prevIndex + 1, components.length - 1)
+    );
+  };
+
+  //// Props and hooks declaration of CustomSlider ////////////
   const [sliderMin, setSliderMin] = useState<number>(0);
   const [sliderMax, setSliderMax] = useState<number>(100);
   const [sliderDefaultPosition, setSliderDefaultPosition] =
@@ -33,12 +58,54 @@ const DynamicTrialTypeEditor: React.FC = () => {
   const [sliderMinLabel, setSliderMinLabel] = useState<string>("Min");
   const [sliderMaxLabel, setSliderMaxLabel] = useState<string>("Max");
 
-  // State to store form inputs for CustomRate
+  const innerSliderComposerProps: InnerCustomSliderComposerProps = {
+    sliderMin,
+    sliderMax,
+    sliderDefaultPosition,
+    sliderMinLabel,
+    sliderMaxLabel,
+    sliderDisabled,
+    lockBeforeUse: isLockbeforeUse,
+    activateNext,
+    lockAfterUse: isLockAfterUse,
+  };
+
+  const innerSliderComposerHooks: InnerCustomSliderComposerHooks = {
+    setSliderMin,
+    setSliderMax,
+    setSliderDefaultPosition,
+    setSliderMinLabel,
+    setSliderMaxLabel,
+    setSliderDisabled,
+    setLockBeforeUse: setIsLockBeforeUse,
+    setLockAfterUse: setIsLockAfterUse,
+  };
+
+  /////////////////////////////////////////////////////////////
+
+  //// Props and hooks declaration of CustomRateComposer //////
   const [rateMax, setRateMax] = useState<number>(5);
   const [rateMinLabel, setRateMinLabel] = useState<string>("");
   const [rateMaxLabel, setRateMaxLabel] = useState<string>("");
+  const innerRateComposerProps: InnerCustomRateComposerProps = {
+    rateMax,
+    rateMinLabel,
+    rateMaxLabel,
+    lockBeforeUse: isLockbeforeUse,
+    activateNext,
+    lockAfterUse: isLockAfterUse,
+  };
 
-  // State to store form inputs for CustomParagraph
+  const innerRateComposerHooks: InnerCustomRateComposerHooks = {
+    setRateMax,
+    setRateMinLabel,
+    setRateMaxLabel,
+    setLockBeforeUse: setIsLockBeforeUse,
+    setLockAfterUse: setIsLockAfterUse,
+  };
+  ///////////////////////////////////////////////////////
+
+  //// Props and hooks declaration of CustomParagraphComposer //////
   const [paragraphHeadline, setParagraphHeadline] = useState<string>("");
   const [paragraphHeadlineFontSize, setParagraphHeadlineFontSize] = useState<
     string | number
@@ -50,47 +117,32 @@ const DynamicTrialTypeEditor: React.FC = () => {
   const [paragraphDirection, setParagraphDirection] = useState<"ltr" | "rtl">(
     "ltr"
   );
+  const innerParagraphComposerProps: InnerCustomParagraphComposerProps = {
+    paragraphHeadline,
+    paragraphHeadlineFontSize,
+    paragraphText,
+    paragraphTextFontSize,
+    paragraphDirection,
+  };
 
-  const debouncedSetSliderMin = useCallback(debounce(setSliderMin, 300), []);
-  const debouncedSetSliderMax = useCallback(debounce(setSliderMax, 300), []);
-  const debouncedSetSliderDefaultPosition = useCallback(
-    debounce(setSliderDefaultPosition, 300),
-    []
-  );
-  const debouncedSetSliderMinLabel = useCallback(
-    debounce(setSliderMinLabel, 300),
-    []
-  );
-  const debouncedSetSliderMaxLabel = useCallback(
-    debounce(setSliderMaxLabel, 300),
-    []
-  );
-  const debouncedSetRateMax = useCallback(debounce(setRateMax, 300), []);
-  const debouncedSetRateMinLabel = useCallback(
-    debounce(setRateMinLabel, 300),
-    []
-  );
-  const debouncedSetRateMaxLabel = useCallback(
-    debounce(setRateMaxLabel, 300),
-    []
-  );
-  const debouncedSetParagraphHeadline = useCallback(
-    debounce(setParagraphHeadline, 300),
-    []
-  );
-  const debouncedSetParagraphHeadlineFontSize = useCallback(
-    debounce(setParagraphHeadlineFontSize, 300),
-    []
-  );
-  const debouncedSetParagraphText = useCallback(
-    debounce(setParagraphText, 300),
-    []
-  );
-  const debouncedSetParagraphTextFontSize = useCallback(
-    debounce(setParagraphTextFontSize, 300),
-    []
-  );
+  const innerParagraphComposerHooks: InnerCustomParagraphComposerHooks = {
+    setParagraphHeadline,
+    setParagraphHeadlineFontSize,
+    setParagraphText,
+    setParagraphTextFontSize,
+    setParagraphDirection,
+  };
 
+  ////////////////////////////////////////////////////////////////
+
+  // Mapping component names to their refs
+  const paragraphComposerRef = useRef<any>(null); // Create a ref for CustomParagraphComposer
+
+  // Mapping component names to their refs
+  const componentRefs: { [key: string]: React.RefObject<any> } = {
+    CustomParagraph: paragraphComposerRef,
+    // Add other refs here if needed
+  };
   const toggleDropdown = () => {
     setShowDropdown(true);
   };
@@ -98,6 +150,13 @@ const DynamicTrialTypeEditor: React.FC = () => {
   const addComponent = async (component: string) => {
     let path = "";
     let props: any = {}; // Initialize props variable
+
+    // Save changes if there's a ref for the selected component
+    const componentRef = componentRefs[component];
+    if (componentRef?.current) {
+      componentRef.current.saveChanges(); // Save changes before adding
+      componentRef.current.clear();
+    }
 
     switch (component) {
       case "CustomParagraph":
@@ -132,10 +191,13 @@ const DynamicTrialTypeEditor: React.FC = () => {
       default:
         return;
     }
-
-    const newComponent: ComponentInfo = { path, props }; // Pass specific props here
+    const newComponent: ComponentSettings = { path, props }; // Pass specific props here
     const newComponents = [...components, newComponent]; // Add new component at the end
     setComponents(newComponents);
+
+    const newLockBeforeUseArr = [...lockBeforeUseArr, isLockbeforeUse];
+    setLockBeforeUserArr(newLockBeforeUseArr);
+
     setSelectedComponent(""); // Clear selected component
     setShowDropdown(false); // Hide dropdown after adding component
 
@@ -190,12 +252,14 @@ const DynamicTrialTypeEditor: React.FC = () => {
   };
 
   const updateComponentProps = (index: number, updatedProps: any) => {
-    const updatedComponents = [...components];
-    updatedComponents[index].props = {
-      ...updatedComponents[index].props,
-      ...updatedProps,
-    };
-    setComponents(updatedComponents);
+    setComponents((prevComponents) => {
+      const updatedComponents = [...prevComponents];
+      updatedComponents[index].props = {
+        ...updatedComponents[index].props,
+        ...updatedProps,
+      };
+      return updatedComponents;
+    });
     setAlert({
       message: "Component props updated successfully!",
       severity: "success",
@@ -206,144 +270,25 @@ const DynamicTrialTypeEditor: React.FC = () => {
     switch (selectedComponent) {
       case "CustomSlider":
         return (
-          <Box mb={2} width="100%">
-            <TextField
-              label="Min Value"
-              type="number"
-              fullWidth
-              defaultValue={sliderMin}
-              onChange={(e) => debouncedSetSliderMin(Number(e.target.value))}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              label="Max Value"
-              type="number"
-              fullWidth
-              defaultValue={sliderMax}
-              onChange={(e) => debouncedSetSliderMax(Number(e.target.value))}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              label="Default Position"
-              type="number"
-              fullWidth
-              defaultValue={sliderDefaultPosition}
-              onChange={(e) =>
-                debouncedSetSliderDefaultPosition(Number(e.target.value))
-              }
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              label="Min Label"
-              type="text"
-              fullWidth
-              defaultValue={sliderMinLabel}
-              onChange={(e) => debouncedSetSliderMinLabel(e.target.value)}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              label="Max Label"
-              type="text"
-              fullWidth
-              defaultValue={sliderMaxLabel}
-              onChange={(e) => debouncedSetSliderMaxLabel(e.target.value)}
-              sx={{ mb: 2 }}
-            />
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Disabled</InputLabel>
-              <Select
-                value={sliderDisabled ? "true" : "false"}
-                onChange={(e) => setSliderDisabled(e.target.value === "true")}
-                variant="outlined"
-              >
-                <MenuItem value="true">True</MenuItem>
-                <MenuItem value="false">False</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
+          <CustomSliderComposer
+            customSliderProps={innerSliderComposerProps}
+            hooks={innerSliderComposerHooks}
+          />
         );
       case "CustomRate":
         return (
-          <Box mb={2} width="100%">
-            <TextField
-              label="Max Rating"
-              type="number"
-              fullWidth
-              defaultValue={rateMax}
-              onChange={(e) => debouncedSetRateMax(Number(e.target.value))}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              label="Min Label"
-              type="text"
-              fullWidth
-              defaultValue={rateMinLabel}
-              onChange={(e) => debouncedSetRateMinLabel(e.target.value)}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              label="Max Label"
-              type="text"
-              fullWidth
-              defaultValue={rateMaxLabel}
-              onChange={(e) => debouncedSetRateMaxLabel(e.target.value)}
-              sx={{ mb: 2 }}
-            />
-          </Box>
+          <CustomRateComposer
+            customRateProps={innerRateComposerProps}
+            hooks={innerRateComposerHooks}
+          />
         );
       case "CustomParagraph":
         return (
-          <Box mb={2} width="100%">
-            <TextField
-              label="Headline"
-              type="text"
-              fullWidth
-              defaultValue={paragraphHeadline}
-              onChange={(e) => debouncedSetParagraphHeadline(e.target.value)}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              label="Headline Font Size"
-              type="text"
-              fullWidth
-              defaultValue={paragraphHeadlineFontSize}
-              onChange={(e) =>
-                debouncedSetParagraphHeadlineFontSize(e.target.value)
-              }
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              label="Paragraph Text"
-              type="text"
-              fullWidth
-              defaultValue={paragraphText}
-              onChange={(e) => debouncedSetParagraphText(e.target.value)}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              label="Text Font Size"
-              type="text"
-              fullWidth
-              defaultValue={paragraphTextFontSize}
-              onChange={(e) =>
-                debouncedSetParagraphTextFontSize(e.target.value)
-              }
-              sx={{ mb: 2 }}
-            />
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Direction</InputLabel>
-              <Select
-                value={paragraphDirection}
-                onChange={(e) =>
-                  setParagraphDirection(e.target.value as "ltr" | "rtl")
-                }
-                variant="outlined"
-              >
-                <MenuItem value="ltr">Left to Right</MenuItem>
-                <MenuItem value="rtl">Right to Left</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
+          <CustomParagraphComposer
+            ref={paragraphComposerRef} // Attach the ref here
+            customParagraphProps={innerParagraphComposerProps}
+            hooks={innerParagraphComposerHooks}
+          />
         );
       default:
         return null;
@@ -383,7 +328,10 @@ const DynamicTrialTypeEditor: React.FC = () => {
                 () => import(/* @vite-ignore */ `${component.path}`)
               );
               return (
-                <Suspense key={index} fallback={<div>Loading...</div>}>
+                <Suspense
+                  key={index}
+                  fallback={<div>Loading Component...</div>}
+                >
                   <Box my={2} display="flex" alignItems="center">
                     <Box flex="1" textAlign="left">
                       <LazyComponent
