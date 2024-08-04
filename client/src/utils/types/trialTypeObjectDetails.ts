@@ -6,7 +6,8 @@ export interface ComponentSettings {
 }
 
 export interface ComponentsSettingsByCondition {
-  [conditionDescription: string]: ComponentSettings[]; // Could be any Condtion named with it's own array of Componenet Settings
+  components: ComponentSettings[]; // Could be any Condtion named with it's own array of Componenet Settings
+  lockBeforeUse: boolean[]; // An array of flags that sign on which component is not enabled before use and some there are
 }
 
 export interface TrialTypeObjectDetails {
