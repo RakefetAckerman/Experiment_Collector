@@ -6,6 +6,8 @@ This is the client application for the Experiment Collector project. It includes
 
 - [Requirements](#requirements)
 - [Installation](#installation)
+  - [Local Environment](#local-environment)
+  - [Dockerized Environment](#dockerized-environment)
 - [Running the Application](#running-the-application)
   - [Local Environment](#local-environment)
   - [Dockerized Environment](#dockerized-environment)
@@ -51,7 +53,6 @@ For this point in time the code is supported by these versions:
      ```
 4. **Install dependencies**:
    ```bash
-    cd client
     npm install
    ```
    Step into the client source code and then install the dependencies.
