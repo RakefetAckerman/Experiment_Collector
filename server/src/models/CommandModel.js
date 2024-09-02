@@ -34,7 +34,7 @@ const CommandSchema = new mongoose.Schema(
      */
     targetObject: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "ObjectBoundary",
+      ref: "ObjectEntity",
       required: true,
     },
     /**
