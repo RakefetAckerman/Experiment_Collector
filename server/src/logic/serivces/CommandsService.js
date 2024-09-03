@@ -195,7 +195,7 @@ const commandHandler = {
       case "ImportFromCSV":
         console.log("Converting csv files to objects");
         break;
-      case "SendDateToDP":
+      case "SendDataToDP":
         console.log("Sending data to DP");
         break;
       case "Testing Service":
