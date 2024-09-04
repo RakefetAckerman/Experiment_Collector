@@ -13,11 +13,11 @@ import {
   UserIdBoundary,
   UserIdBoundaryImpl,
 } from "../../bounderies/user/UserIdBoundary";
-import UserRoles from "../../utils/userRoles";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { logedIn } from "../../states/reducer";
 import Cookies from "universal-cookie";
+import UserRoles from "../../utils/UserRoles";
 
 const LoginClassifier: React.FC = () => {
   const { userType } = useParams();

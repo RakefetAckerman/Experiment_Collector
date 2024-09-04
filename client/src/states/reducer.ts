@@ -1,8 +1,8 @@
 import { createAction, createReducer } from "@reduxjs/toolkit";
-import UserRoles from "../utils/userRoles";
 import { UserBoundaryImpl } from "../bounderies/user/UserBoundary";
 import { ObjectBoundaryImpl } from "../bounderies/object/ObjectBoundary";
-import ReduxActions from "../utils/reduxActions";
+import UserRoles from "../utils/UserRoles";
+import ReduxActions from "../utils/ReduxActions";
 
 interface State {
   user: UserBoundaryImpl | null;

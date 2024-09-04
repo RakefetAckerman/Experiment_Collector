@@ -12,7 +12,7 @@ import {
 import storage from "redux-persist/lib/storage";
 import reducer, { State } from "./reducer";
 import dayjs from "dayjs";
-import ReduxActions from "../utils/reduxActions";
+import ReduxActions from "../utils/ReduxActions";
 
 // Configuration for Redux Persist
 const persistConfig = {

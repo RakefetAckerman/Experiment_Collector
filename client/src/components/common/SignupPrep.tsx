@@ -5,8 +5,8 @@ import { FormikValues } from "formik";
 import createValidationSchema from "../../utils/FormValidation";
 import SignupPage from "../../pages/SignupPage";
 import axios from "axios";
-import UserRoles from "../../utils/userRoles";
 import { useNavigate } from "react-router-dom";
+import UserRoles from "../../utils/UserRoles";
 
 const SignupPrep: React.FC = () => {
   const role = UserRoles.Researcher;
