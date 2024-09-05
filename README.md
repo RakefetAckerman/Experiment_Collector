@@ -69,6 +69,7 @@ docker-compose up -d
 6. **Validation** if done correctly vite should view this information in the terminal
 
 ![img.png](images/run_vite.png)
+
 7. Visit the url given by vite in your preferred browser. Should be greeted by a login page if done correctly.
 
 ![img.png](images/login_page.png)
