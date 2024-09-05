@@ -131,7 +131,7 @@ The application will be available at http://localhost:8080.
 
 The application uses dotenv-flow to manage environment variables, and cannot run without them.
 
-.env file for exmple:
+.env file for example:
 
 ```env
 VITE_PORT=3001

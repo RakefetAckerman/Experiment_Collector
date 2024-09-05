@@ -22,3 +22,55 @@ To get started with the Experiment Collector platform, follow these steps:
    # or
    cd client # To enter the frontend part of the system
    ```
+## File Structure
+
+```
+Experiment_Collector/
+│
+├── server/                            # The Api / Backend of the website.
+├── client/                            # The Frontend of the website.
+├── images/                            # The Images for the readme file.
+├── .gitignore                         # Files git ignores.
+└── README.md                          # README file 
+```
+
+## Backend Installation
+#### more information can be found in the readme file in the server directory
+1. Enter the server: using the terminal enter the server directory using the command ```cd server```
+2. **Install Docker:**  If Docker is not already installed, download and install it from [Docker's official website](https://www.docker.com/) based on your operating system.
+3. **Env files**: ensure the environment variables files is set correctly - **more information and a template can be found in the readme in the server directory**.  
+4. **Build the containers**: using the command 
+```bash
+docker-compose build
+```
+5. **Start the containers**: using the command 
+```bash
+docker-compose up -d
+```
+6. **Validation** if set correctly, should be greeted with this information in the Docker desktop app 
+
+![img.png](images/dockerdesktop.png)
+- check that server-testing-1 passed all tests
+
+## Frontend Installation
+#### more information can be found in the readme file in the client directory
+1. **Install Node.js** Visit the [Node.js official website](https://nodejs.org/).
+- Download the LTS version (which includes npm) suitable for your operating system.
+2. **Install dependencies**: 
+```bash
+    npm install
+   ```
+3. **Env files**: ensure the environment variables files is set correctly - **more information and a template can be found in the readme in the client directory**.  
+4. **Start the frontend server**
+```bash
+ npm run dev
+```
+- To start the production server visit the readme in the client directory
+6. **Validation** if done correctly vite should view this information in the terminal
+
+![img.png](images/run_vite.png)
+7. Visit the url given by vite in your preferred browser. Should be greeted by a login page if done correctly.
+
+![img.png](images/login_page.png)
+
+

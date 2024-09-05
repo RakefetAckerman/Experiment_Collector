@@ -134,7 +134,7 @@ The application will be available at http://localhost:8081.
 
 The application uses dotenv-flow to manage environment variables, and cannot run without them.
 
-.env file for exmple:
+.env file for example:
 
 ```env
 MONGO_PORT = 27017
