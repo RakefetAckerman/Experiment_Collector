@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import Navbar from "../components/common/Navbar";
+import SideBar from "../components/common/SideBar.tsx";
 import SettingsDrawer from "../components/common/SettingsDrawer";
 // import ExperimentFormPage from "./ExperimentFormPage";
 import { useState } from "react";
@@ -21,7 +21,7 @@ const EditorPage = () => {
 
   return (
     <>
-      <Navbar />
+      <SideBar />
       <Box sx={{ display: "flex", height: "calc(100vh - 64px)" }}>
         <Box
           sx={{

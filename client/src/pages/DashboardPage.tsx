@@ -1,9 +1,9 @@
-import Navbar from "../components/common/Navbar";
+import SideBar from "../components/common/SideBar.tsx";
 
 const DashboardPage: React.FC = () => {
   return (
     <>
-      <Navbar />
+      <SideBar />
     </>
   );
 };

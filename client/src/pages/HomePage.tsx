@@ -1,7 +1,10 @@
 
 function HomePage() {
     return (
-        <div>HELLO WORLD</div>
+        <div className="w-full h-dvh bg-background-grey">
+            <div>HELLO WORLD</div>
+        </div>
+
     );
 }
 
