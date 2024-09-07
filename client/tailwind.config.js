@@ -10,7 +10,9 @@ export default {
       colors: {
         "buttons-blue": "#C0DFFD",
         "background-grey": "#F2F2F2",
-        "button-grey": "#FAFAFA"
+        "button-grey": "#FAFAFA",
+        "black-half": "rgba(0,0,0,0.5)",
+        "button-light-blue": "#E8EEF4",
       },
     },
   },
