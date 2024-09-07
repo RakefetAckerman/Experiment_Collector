@@ -1,4 +1,5 @@
 import {useState} from "react";
+import {USERNAME_TEXT} from "../../utils/constants.ts";
 import LogoNavBar from "./LogoNavBar.tsx";
 import CardNavBar from "./CardNavBar.tsx";
 function SideBar() {
@@ -7,10 +8,12 @@ function SideBar() {
     function closeSideBar() {
         setIsCollapsed(!isCollapsed);
     }
+
+
     return (
         <aside className={`transition-all duration-300 flex justify-between items-center flex-col pt-4 bg-white h-dvh  ${isCollapsed ? "w-28" : "w-80"} relative`}>
             <div className={`flex justify-center items-center flex-col w-full gap-4`}>
-                <LogoNavBar isCollapsed={isCollapsed} userName="Username"/>
+                <LogoNavBar isCollapsed={isCollapsed} className={""} userName={USERNAME_TEXT}/>
                 <CardNavBar to={"/"} title="Home" img="home_icon.svg" isCollapsed={isCollapsed}/>
                 <CardNavBar to={"/experiments"} title="Experiments" img="experiment_icon.svg" isCollapsed={isCollapsed}/>
                 <CardNavBar to={"/editor"} title="Editor" img="editor_icon.svg" isCollapsed={isCollapsed}/>

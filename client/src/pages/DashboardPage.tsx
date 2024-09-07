@@ -1,4 +1,4 @@
-import SideBar from "../components/common/SideBar.tsx";
+import SideBar from "../components/sideBar/SideBar.tsx";
 
 const DashboardPage: React.FC = () => {
   return (

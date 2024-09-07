@@ -1,5 +1,4 @@
 import { Box } from "@mui/material";
-import SideBar from "../components/common/SideBar.tsx";
 import SettingsDrawer from "../components/common/SettingsDrawer";
 // import ExperimentFormPage from "./ExperimentFormPage";
 import { useState } from "react";
@@ -20,13 +19,11 @@ const EditorPage = () => {
   });
 
   return (
-    <>
-      <SideBar />
+    <div className="w-full">
       <Box sx={{ display: "flex", height: "calc(100vh - 64px)" }}>
         <Box
           sx={{
             width: "100px",
-            backgroundColor: "#f0f0f0",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -55,7 +52,7 @@ const EditorPage = () => {
           <DynamicTrialTypeEditor />
         </Box>
       </Box>
-    </>
+    </div>
   );
 };
 

@@ -1,1 +1,2 @@
 export const DESKTOP_WIDTH = 1000
+export const USERNAME_TEXT = "USERNAME_TEXT"
