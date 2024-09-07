@@ -13,9 +13,9 @@
 }
 
 /*For testing only!!! set all borders to red*/
-/* *{
+*{
     border: red dotted 1px;
-}*/
+}
 .center-absolute {
     position: absolute;
     top: 50%;

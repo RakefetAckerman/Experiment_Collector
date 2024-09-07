@@ -12,7 +12,7 @@ function SideBar() {
 
 
     return (
-        <aside className={`border-gray-300 border-solid border transition-all duration-300 flex justify-between items-center flex-col pt-4 bg-white h-dvh  ${isCollapsed ? "w-32" : "w-80"} relative`}>
+        <aside className={`border-gray-300 border-solid border transition-all duration-300 flex justify-between items-center flex-col pt-4 bg-white h-dvh  ${isCollapsed ? "w-32" : "w-96"} relative`}>
             <div className={`flex justify-center items-center flex-col w-full gap-4`}>
                 <LogoNavBar isCollapsed={isCollapsed} className={""} userName={USERNAME_TEXT}/>
                 <CardNavBar to={"/"} title="Home" img="home_icon.svg" isCollapsed={isCollapsed}/>
