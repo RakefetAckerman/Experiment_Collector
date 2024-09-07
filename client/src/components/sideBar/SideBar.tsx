@@ -2,6 +2,7 @@ import {useState} from "react";
 import {USERNAME_TEXT} from "../../utils/constants.ts";
 import LogoNavBar from "./LogoNavBar.tsx";
 import CardNavBar from "./CardNavBar.tsx";
+
 function SideBar() {
     const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -11,7 +12,7 @@ function SideBar() {
 
 
     return (
-        <aside className={`transition-all duration-300 flex justify-between items-center flex-col pt-4 bg-white h-dvh  ${isCollapsed ? "w-28" : "w-80"} relative`}>
+        <aside className={`border-gray-300 border-solid border transition-all duration-300 flex justify-between items-center flex-col pt-4 bg-white h-dvh  ${isCollapsed ? "w-32" : "w-80"} relative`}>
             <div className={`flex justify-center items-center flex-col w-full gap-4`}>
                 <LogoNavBar isCollapsed={isCollapsed} className={""} userName={USERNAME_TEXT}/>
                 <CardNavBar to={"/"} title="Home" img="home_icon.svg" isCollapsed={isCollapsed}/>
@@ -19,9 +20,9 @@ function SideBar() {
                 <CardNavBar to={"/editor"} title="Editor" img="editor_icon.svg" isCollapsed={isCollapsed}/>
             </div>
             <div className={"w-full mb-6 flex justify-center items-center"}>
-                <CardNavBar to={"/editor"} title="Editor" img="editor_icon.svg" isCollapsed={isCollapsed}/>
+                <CardNavBar to={"/logout"} title="Logout" img="logout_icon.svg" isCollapsed={isCollapsed}/>
             </div>
-            <img src={"/back_icon.svg"} onClick={()=>closeSideBar()} className={`${isCollapsed ? "rotate-180" : ""} rounded-full transition-all duration-200 hover:bg-buttons-blue active:scale-110 absolute top-1/2 right-3`} alt="image of a arrow"/>
+            <img src={"/back_icon.svg"} onClick={()=>closeSideBar()} className={`${isCollapsed ? "rotate-180" : ""} p-2 w-9 border-gray-300 border-solid border rounded-full transition-all duration-200 hover:bg-buttons-blue active:scale-110 absolute top-1/2 right-3`} alt="image of a arrow"/>
 
         </aside>
     );
