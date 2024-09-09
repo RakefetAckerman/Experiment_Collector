@@ -5,6 +5,13 @@ import "./index.css"
 import EditorPage from "./pages/EditorPage.tsx";
 import ExperimentPage from "./pages/ExperimentPage.tsx";
 
+/**
+ * Features to add to page:
+ * TODO add Login page
+ * TODO add Error handling - page not found
+ * TODO add protected routing for relevant pages
+ * @constructor
+ */
 function App() {
     return (
         <BrowserRouter>
