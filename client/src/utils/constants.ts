@@ -6,3 +6,6 @@ export const LIST_TEMPLATE_TEXT: ExperimentsDate[] = [{name: "Xray", date: "20/0
 
 export const EXAMPLE_TITLE_ANSWERED = "EXPERIMENTS ANSWERED"
 export const EXAMPLE_TITLE_PARTIALLY_ANSWERED = "EXPERIMENTS STARTED"
+export const TABLET_SIZE = 850;
+export const LAPTOP_SIZE = 1024;
+export const DESKTOP_SIZE = 1280;
