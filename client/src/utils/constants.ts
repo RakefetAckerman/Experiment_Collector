@@ -9,3 +9,7 @@ export const EXAMPLE_TITLE_PARTIALLY_ANSWERED = "EXPERIMENTS STARTED"
 export const TABLET_SIZE = 850;
 export const LAPTOP_SIZE = 1024;
 export const DESKTOP_SIZE = 1280;
+export const IMAGES = "images"
+export const HEADLINE = "headline"
+export const BUTTONS = "buttons"
+export const SUBMIT = "submit"

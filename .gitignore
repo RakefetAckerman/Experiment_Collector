@@ -135,3 +135,4 @@ dist
 
 !*/Dockerfile.test
 .idea
+client/src/assets/
