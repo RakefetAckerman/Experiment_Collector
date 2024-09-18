@@ -5,7 +5,6 @@ type ImagesContainerProps = {
     images: UiObjects;
 }
 function ImagesContainer({className, images}: ImagesContainerProps) {
-    console.log(images)
     return (
         <div className={`flex justify-center w-full ${className} ${images.objectDetails!.order === "h" ?"flex-row" : "flex-col"}`}>
             {images.urls!.map((url, index) => (

@@ -24,8 +24,6 @@ function App() {
                     <Route path="/experiment/:experiment_name" element={<ExperimentPage/>}/>
                 </Route>
             </Routes>
-
-
         </BrowserRouter>
     )
 }

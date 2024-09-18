@@ -1,55 +1,109 @@
 import ImagesContainer from "./ImagesContainer.tsx";
 import {TrialType, UiObjects} from "../../utils/types/experimentTypes/experimentsTypes.ts";
 import right_arrow from "../../assets/right_arrow.svg"
-import ButtonIcon from "../common/ButtonIcon.tsx";
-import {BUTTONS, HEADLINE, IMAGES, SUBMIT} from "../../utils/constants.ts";
+import ButtonIcon from "./ButtonIcon.tsx";
+import {BUTTONS, HALF_MINUTE, HEADLINE, IMAGES, SUBMIT, TEXT} from "../../utils/constants.ts";
 import {useState} from "react";
+import Button from "./Button.tsx";
+import {isOnlySubmitButton} from "../../utils/helperMethods.ts";
+import useHandleFirstInteraction from "../../hooks/experimentFeatures/useHandleFirstInteraction.ts";
+import useIdleTimer from "../../hooks/experimentFeatures/useHandleIdle.ts";
+import ToastIdle from "./ToastIdle.tsx";
 
 type TrailTypeProps = {
     trailType: TrialType,
-    features?: object,
     setNextSlide: React.Dispatch<React.SetStateAction<number>>,
+    startTime: number,
 }
 
-function TrailType({trailType, setNextSlide}: TrailTypeProps) {
-    const [isAnswered , setIsAnswered] = useState(false);
-    if (!trailType) {
-        return undefined;
-    }
+/**
+ * A single TrailTypeElement - A single way to show every trail type.
+ * Features to add to page:
+ * TODO reading from the object details the features need to be set to true.
+ * TODO create a implementation of the RESPONSE TIME.
+ * TODO create a implementation of the IDLE.
+ * TODO create a implementation of the ACURERCY.
+ * TODO create a implementation of the IDLE.
+ * TODO create a implementation of the IDLE.
+ * TODO create a implementation of the IDLE.
+ * @param trailType
+ * @param setNextSlide
+ * @param startTime
+ * @constructor
+ */
+function TrailType({trailType, setNextSlide, startTime}: TrailTypeProps) {
+    const [answer, setAnswer] = useState("");
+    const [output, setOutput] = useState<object>({});
+    const { isIdle, totalIdleTime } = useIdleTimer(HALF_MINUTE);
+
+    useHandleFirstInteraction(startTime, setOutput);
+
+    console.log({output,totalIdleTime})
 
     function moveToNextSlide() {
         setNextSlide((prevState) => (prevState + 1));
     }
 
-    function renderTrailType(object: UiObjects, index: number) {
-        if (object.type === IMAGES) {
-            return <ImagesContainer images={object} key={index} />
-        }
-        if (object.type === HEADLINE) {
-            return <h2 className={"font-exo text-clamping-lg"} key={index} > {object.text!}</h2>
-        }
-        if (object.type === SUBMIT) {
-            const buttonCSS =`${isAnswered ? "" :"hidden" } bg-buttons-blue hover:border-black transition-all duration-200 hover:bg-button-grey`
-            return <ButtonIcon text={"next"} onClick={moveToNextSlide} icon={right_arrow} key={index} className={buttonCSS}/>
+    function handleAnswerSet({answerClicked, object}: { answerClicked?: string, object: UiObjects }) {
+        if (answerClicked) {
+            setAnswer((answerClicked));
         }
         if (object.type === BUTTONS) {
-            return(
-            <div className="flex laptop:flex-row gap-4 max-laptop:flex-col w-3/4">
-                {object.buttons!.map(
-                    (value , index)=> <button className={"p-4 grow transition-all truncate bg-white border border-gray-300 drop-shadow-xl duration-300  hover:bg-buttons-blue rounded-xl"} key={index}>{value}</button>)}
-            </div>
+            const correct = answerClicked === object.correct ? 100 : 0;
+            setOutput({...output, Response: answerClicked, Accuracy: correct, ResponseTime: Date.now() - startTime});
+        }
+        if (object.type === SUBMIT) {
+            setOutput({...output, ResponseTimeLast: Date.now() - startTime ,idle:totalIdleTime});
+        }
+
+    }
+
+    function renderTrailType(object: UiObjects, index: number) {
+        const key = `${object.type}-${index}`;
+        if (object.type === IMAGES) {
+            return <ImagesContainer images={object} key={index}/>
+        }
+        if (object.type === HEADLINE) {
+            return <h2 className={"font-exo text-center text-clamping-mid max-w-[90%]"} key={key}> {object.text!}</h2>
+        }
+        if (object.type === TEXT) {
+            return <h2 className={"font-exo text-clamping-sm max-w-[80%]"} key={key}> {object.text!}</h2>
+        }
+        if (object.type === SUBMIT) {
+            const buttonCSSActions = `bg-white transition-all duration-200 hover:bg-buttons-blue`
+            const buttonCSSLocation = `mt-10`
+            if (isOnlySubmitButton(trailType)) {
+                return <ButtonIcon text={object.text} onClick={moveToNextSlide} icon={right_arrow} key={key}
+                                   className={buttonCSSActions}/>
+            }
+            return <ButtonIcon text={object.text} onClick={moveToNextSlide} icon={right_arrow} disabled={answer === ""}
+                               key={key}
+                               className={`${buttonCSSLocation} ${answer !== "" ? buttonCSSActions : "opacity-30"}`}/>
+        }
+        if (object.type === BUTTONS) {
+            return (
+                <div key={key}
+                     className="flex justify-center max-laptop:items-center laptop:flex-row gap-4 max-laptop:flex-col w-3/4 ">
+                    {object.buttons!.map(
+                        (value, buttonIndex) => <Button
+                            disabled={answer !== ""}
+                            className={(answer !== "" ? (value !== answer ? "opacity-30" : "bg-blue-300") : "bg-white hover:bg-buttons-blue")}
+                            onClick={() => handleAnswerSet({answerClicked: value, object: object})}
+                            key={`${key}-button-${buttonIndex}`}>{value}</Button>)}
+                </div>
             );
         }
         return undefined;
     }
 
+    const trailTypeCss = "min-w-[90%] flex flex-auto flex-col items-center justify-start gap-8 h-full m-5 p-10 pt-16 bg-white drop-shadow-xl rounded-3xl overflow-x-hidden relative"
     return (
-        <div
-            className={"w-[90%] flex flex-auto flex-col items-center justify-center gap-8 h-full m-5 p-10 bg-white drop-shadow-xl rounded-3xl overflow-x-hidden relative"}>
-            <h2 className={"center-absolute-vertical mt-10 font-exo text-2xl"}> {trailType.id}</h2>
-            {trailType.children.map((value, index) => renderTrailType(value, index))}
-
-        </div>
+        <>
+            {isIdle && <ToastIdle/>}
+            <div className={trailTypeCss}>
+                {trailType.children.map((value, index) => renderTrailType(value, index))}
+            </div>
+        </>
     );
 }
 

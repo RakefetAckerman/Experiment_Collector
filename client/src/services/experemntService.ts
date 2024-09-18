@@ -6,7 +6,7 @@ import {Experiment} from "../utils/types/experimentTypes/experimentsTypes.ts";
  * TODO Validate the data and return errors as needed
  * @param experiment_name
  */
-export function getExperimentData(experiment_name: string | undefined) : Experiment | undefined {
+export async function getExperimentData(experiment_name: string | undefined) : Promise<Experiment | undefined> {
     const data = mockup;
     if (!experiment_name){
         return undefined;
