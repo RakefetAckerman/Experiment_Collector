@@ -35,5 +35,8 @@ export type UiObjects = {
     objectDetails?: object,
     text?: string,
     buttons?: string[],
-    correct?: string
+    correct?: string,
+    textLeft?: string,
+    textCenter?: string,
+    textRight?: string,
 }

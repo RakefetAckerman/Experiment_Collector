@@ -2,18 +2,20 @@ import ImagesContainer from "./ImagesContainer.tsx";
 import {TrialType, UiObjects} from "../../utils/types/experimentTypes/experimentsTypes.ts";
 import right_arrow from "../../assets/right_arrow.svg"
 import ButtonIcon from "./ButtonIcon.tsx";
-import {BUTTONS, HALF_MINUTE, HEADLINE, IMAGES, SUBMIT, TEXT} from "../../utils/constants.ts";
-import {useState} from "react";
+import {BUTTONS, HALF_MINUTE, HEADLINE, IMAGES, SLIDER, SUBMIT, TEXT} from "../../utils/constants.ts";
+import {useEffect, useState} from "react";
 import Button from "./Button.tsx";
 import {isOnlySubmitButton} from "../../utils/helperMethods.ts";
 import useHandleFirstInteraction from "../../hooks/experimentFeatures/useHandleFirstInteraction.ts";
 import useIdleTimer from "../../hooks/experimentFeatures/useHandleIdle.ts";
 import ToastIdle from "./ToastIdle.tsx";
+import Slider from "./Slider.tsx";
 
 type TrailTypeProps = {
     trailType: TrialType,
     setNextSlide: React.Dispatch<React.SetStateAction<number>>,
     startTime: number,
+    setUserOutput: React.Dispatch<React.SetStateAction<object[]>>,
 }
 
 /**
@@ -27,21 +29,29 @@ type TrailTypeProps = {
  * TODO create a implementation of the IDLE.
  * TODO create a implementation of the IDLE.
  * @param trailType
+ * @param currentSlide
  * @param setNextSlide
  * @param startTime
+ * @param setUserOutput
  * @constructor
  */
-function TrailType({trailType, setNextSlide, startTime}: TrailTypeProps) {
+function TrailType({trailType, setNextSlide, startTime, setUserOutput}: TrailTypeProps) {
     const [answer, setAnswer] = useState("");
     const [output, setOutput] = useState<object>({});
-    const { isIdle, totalIdleTime } = useIdleTimer(HALF_MINUTE);
+    const [isMoveToNext, setIsMoveToNextTrail] = useState<boolean>(false);
+    const {isIdle, totalIdleTime} = useIdleTimer(HALF_MINUTE);
 
     useHandleFirstInteraction(startTime, setOutput);
-
-    console.log({output,totalIdleTime})
+    useEffect(() => {
+        if (isMoveToNext){
+            setUserOutput(prevState => [...prevState, output]);
+            setNextSlide((prevState) => (prevState + 1));
+        }
+    }, [output]);
 
     function moveToNextSlide() {
-        setNextSlide((prevState) => (prevState + 1));
+        setIsMoveToNextTrail(true);
+        setOutput({...output, ResponseTimeLast: Date.now() - startTime, idle: totalIdleTime});
     }
 
     function handleAnswerSet({answerClicked, object}: { answerClicked?: string, object: UiObjects }) {
@@ -52,10 +62,6 @@ function TrailType({trailType, setNextSlide, startTime}: TrailTypeProps) {
             const correct = answerClicked === object.correct ? 100 : 0;
             setOutput({...output, Response: answerClicked, Accuracy: correct, ResponseTime: Date.now() - startTime});
         }
-        if (object.type === SUBMIT) {
-            setOutput({...output, ResponseTimeLast: Date.now() - startTime ,idle:totalIdleTime});
-        }
-
     }
 
     function renderTrailType(object: UiObjects, index: number) {
@@ -91,6 +97,11 @@ function TrailType({trailType, setNextSlide, startTime}: TrailTypeProps) {
                             onClick={() => handleAnswerSet({answerClicked: value, object: object})}
                             key={`${key}-button-${buttonIndex}`}>{value}</Button>)}
                 </div>
+            );
+        }
+        if (object.type === SLIDER) {
+            return (
+                <Slider object={object} key={key}/>
             );
         }
         return undefined;

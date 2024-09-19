@@ -16,3 +16,4 @@ export const SUBMIT = "submit";
 export const TEXT = "text";
 export const MINUTE = 60000;
 export const HALF_MINUTE = 30000;
+export const SLIDER = "slider";
