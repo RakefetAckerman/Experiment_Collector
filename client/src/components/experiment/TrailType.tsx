@@ -5,7 +5,7 @@ import ButtonIcon from "./ButtonIcon.tsx";
 import {BUTTONS, HALF_MINUTE, HEADLINE, IMAGES, SLIDER, SUBMIT, TEXT} from "../../utils/constants.ts";
 import {useEffect, useState} from "react";
 import Button from "./Button.tsx";
-import {isOnlySubmitButton} from "../../utils/helperMethods.ts";
+import {getAnswerIndex, getAnswersNeededBeforeSubmit} from "../../utils/helperMethods.ts";
 import useHandleFirstInteraction from "../../hooks/experimentFeatures/useHandleFirstInteraction.ts";
 import useIdleTimer from "../../hooks/experimentFeatures/useHandleIdle.ts";
 import ToastIdle from "./ToastIdle.tsx";
@@ -36,14 +36,14 @@ type TrailTypeProps = {
  * @constructor
  */
 function TrailType({trailType, setNextSlide, startTime, setUserOutput}: TrailTypeProps) {
-    const [answer, setAnswer] = useState("");
+    const [answer, setAnswer] = useState(getAnswersNeededBeforeSubmit(trailType));
     const [output, setOutput] = useState<object>({});
     const [isMoveToNext, setIsMoveToNextTrail] = useState<boolean>(false);
     const {isIdle, totalIdleTime} = useIdleTimer(HALF_MINUTE);
 
     useHandleFirstInteraction(startTime, setOutput);
     useEffect(() => {
-        if (isMoveToNext){
+        if (isMoveToNext) {
             setUserOutput(prevState => [...prevState, output]);
             setNextSlide((prevState) => (prevState + 1));
         }
@@ -54,9 +54,13 @@ function TrailType({trailType, setNextSlide, startTime, setUserOutput}: TrailTyp
         setOutput({...output, ResponseTimeLast: Date.now() - startTime, idle: totalIdleTime});
     }
 
-    function handleAnswerSet({answerClicked, object}: { answerClicked?: string, object: UiObjects }) {
+    function handleAnswerSet({answerClicked,answerIndex, object}: { answerClicked?: string, answerIndex?: number , object: UiObjects }) {
         if (answerClicked) {
-            setAnswer((answerClicked));
+            setAnswer(prevArray => {
+                const newArray = [...prevArray];
+                newArray[answerIndex!] = answerClicked;
+                return newArray;
+            });
         }
         if (object.type === BUTTONS) {
             const correct = answerClicked === object.correct ? 100 : 0;
@@ -76,25 +80,25 @@ function TrailType({trailType, setNextSlide, startTime, setUserOutput}: TrailTyp
             return <h2 className={"font-exo text-clamping-sm max-w-[80%]"} key={key}> {object.text!}</h2>
         }
         if (object.type === SUBMIT) {
-            const buttonCSSActions = `bg-white transition-all duration-200 hover:bg-buttons-blue`
-            const buttonCSSLocation = `mt-10`
-            if (isOnlySubmitButton(trailType)) {
-                return <ButtonIcon text={object.text} onClick={moveToNextSlide} icon={right_arrow} key={key}
-                                   className={buttonCSSActions}/>
-            }
-            return <ButtonIcon text={object.text} onClick={moveToNextSlide} icon={right_arrow} disabled={answer === ""}
+            const buttonCSSActions = `bg-white transition-all duration-200 hover:bg-buttons-blue`;
+            const buttonCSSLocation = `mt-10`;
+            const isDisabled = (answer.length !== 0 && answer[answer.length - 1] === "");
+
+            return <ButtonIcon text={object.text} onClick={moveToNextSlide} icon={right_arrow} disabled={isDisabled}
                                key={key}
-                               className={`${buttonCSSLocation} ${answer !== "" ? buttonCSSActions : "opacity-30"}`}/>
+                               className={`${buttonCSSLocation} ${isDisabled ? "opacity-30" : buttonCSSActions}`}/>
         }
         if (object.type === BUTTONS) {
+            const buttonContainerCSS = "flex justify-center max-laptop:items-center laptop:flex-row gap-4 max-laptop:flex-col w-3/4";
+            const answerIndex = getAnswerIndex(object , trailType);
+            console.log(answer , answer[answer.length - 1])
             return (
-                <div key={key}
-                     className="flex justify-center max-laptop:items-center laptop:flex-row gap-4 max-laptop:flex-col w-3/4 ">
+                <div key={key} className={buttonContainerCSS}>
                     {object.buttons!.map(
                         (value, buttonIndex) => <Button
-                            disabled={answer !== ""}
-                            className={(answer !== "" ? (value !== answer ? "opacity-30" : "bg-blue-300") : "bg-white hover:bg-buttons-blue")}
-                            onClick={() => handleAnswerSet({answerClicked: value, object: object})}
+                            disabled={answer[answerIndex] !== ""}
+                            className={(answer[answerIndex] !== "" ? (value !== answer[answerIndex] ? "opacity-30" : "bg-blue-300") : "bg-white hover:bg-buttons-blue")}
+                            onClick={() => handleAnswerSet({answerClicked: value, answerIndex:answerIndex , object: object})}
                             key={`${key}-button-${buttonIndex}`}>{value}</Button>)}
                 </div>
             );

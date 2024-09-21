@@ -39,4 +39,5 @@ export type UiObjects = {
     textLeft?: string,
     textCenter?: string,
     textRight?: string,
+    id?:string
 }
