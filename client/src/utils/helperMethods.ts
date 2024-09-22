@@ -26,5 +26,13 @@ export function getAnswerIndex(obj : UiObjects , trailType: TrialType) : number{
         }
     }
     return -1;
+}
 
+export function isConfidenceTrailType(trailType: TrialType):boolean {
+    for (const currObj of trailType.children){
+        if (currObj.type === SLIDER){
+            return true;
+        }
+    }
+    return false;
 }

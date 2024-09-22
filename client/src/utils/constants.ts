@@ -17,3 +17,6 @@ export const TEXT = "text";
 export const MINUTE = 60000;
 export const HALF_MINUTE = 30000;
 export const SLIDER = "slider";
+export const ERROR_SLIDER_INCORRECT = "Please adjust the slider to a value different from the default setting of 50.";
+export const INITIAL_CONFIDENCE = 50;
+export const EMPTY_STRING = "";
