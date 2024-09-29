@@ -3,23 +3,27 @@ import {TrialType, UiObjects} from "../../utils/types/experimentTypes/experiment
 import right_arrow from "../../assets/right_arrow.svg"
 import ButtonIcon from "./ButtonIcon.tsx";
 import {
-    BUTTONS, EMPTY_STRING,
-    ERROR_SLIDER_INCORRECT,
+    BUTTONS,
+    EMPTY_STRING,
     HALF_MINUTE,
     HEADLINE,
-    IMAGES, INITIAL_CONFIDENCE,
+    IMAGES,
     SLIDER,
     SUBMIT,
     TEXT
 } from "../../utils/constants.ts";
 import {useEffect, useState} from "react";
 import Button from "./Button.tsx";
-import {getAnswerIndex, getAnswersNeededBeforeSubmit, isConfidenceTrailType} from "../../utils/helperMethods.ts";
+import {
+    getAnswerIndex,
+    getAnswersNeededBeforeSubmit,
+    getInitialConfidence,
+    isConfidenceTrailType
+} from "../../utils/helperMethods.ts";
 import useHandleFirstInteraction from "../../hooks/experimentFeatures/useHandleFirstInteraction.ts";
 import useIdleTimer from "../../hooks/experimentFeatures/useHandleIdle.ts";
 import ToastIdle from "./ToastIdle.tsx";
 import Slider from "./Slider.tsx";
-import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 type TrailTypeProps = {
@@ -47,7 +51,8 @@ function TrailType({trailType, setNextSlide, startTime, setUserOutput}: TrailTyp
     const [output, setOutput] = useState<object>({});
     const [isMoveToNext, setIsMoveToNextTrail] = useState<boolean>(false);
     const {isIdle, totalIdleTime} = useIdleTimer(HALF_MINUTE);
-    const [confidence, setConfidence] = useState<number>(INITIAL_CONFIDENCE);
+    const initialConfidence = getInitialConfidence(trailType)
+    const [confidence, setConfidence] = useState<number>(initialConfidence);
 
     useHandleFirstInteraction(startTime, setOutput);
 
@@ -59,14 +64,10 @@ function TrailType({trailType, setNextSlide, startTime, setUserOutput}: TrailTyp
         }
     }, [output]);
 
-    function moveToNextSlide() {
-        const isTheTrailTypeContainsSlide = isConfidenceTrailType(trailType);
+    function moveToNextTrialType() {
+        const isTheTrailTypeContainsSlider = isConfidenceTrailType(trailType);
         let newOutput = {...output};
-        if (confidence === INITIAL_CONFIDENCE && isTheTrailTypeContainsSlide) {
-            toast.error(ERROR_SLIDER_INCORRECT);
-            return;
-        }
-        if (isTheTrailTypeContainsSlide) {
+        if (isTheTrailTypeContainsSlider) {
             newOutput = {...newOutput, Judgment: confidence};
         }
         newOutput = {...newOutput, ResponseTimeLast: Date.now() - startTime, Idle: totalIdleTime};
@@ -80,14 +81,14 @@ function TrailType({trailType, setNextSlide, startTime, setUserOutput}: TrailTyp
         if (answer[answerIndex] === EMPTY_STRING) {
             setOutput({...output, ResponseTimeFirstJudgment: Date.now() - startTime});
         }
-        // if (Number(event.target.value) === INITIAL_CONFIDENCE) {
-        //     setAnswer(prevArray => {
-        //         const newArray = [...prevArray];
-        //         newArray[answerIndex!] = EMPTY_STRING;
-        //         return newArray;
-        //     });
-        //     return;
-        // }
+        if (Number(event.target.value) === initialConfidence) {
+            setAnswer(prevArray => {
+                const newArray = [...prevArray];
+                newArray[answerIndex!] = EMPTY_STRING;
+                return newArray;
+            });
+            return;
+        }
         setAnswer(prevArray => {
             const newArray = [...prevArray];
             newArray[answerIndex!] = (event.target.value);
@@ -118,51 +119,51 @@ function TrailType({trailType, setNextSlide, startTime, setUserOutput}: TrailTyp
         }
     }
 
-    function renderTrailType(object: UiObjects, index: number) {
-        const key = `${object.type}-${index}`;
-        if (object.type === IMAGES) {
-            return <ImagesContainer images={object} key={index}/>
+    function renderTrailType(currentObj: UiObjects, index: number) {
+        const key = `${currentObj.type}-${index}`;
+        if (currentObj.type === IMAGES) {
+            return <ImagesContainer images={currentObj} key={index}/>
         }
-        if (object.type === HEADLINE) {
-            return <h2 className={"font-exo text-center text-clamping-mid max-w-[90%]"} key={key}> {object.text!}</h2>
+        if (currentObj.type === HEADLINE) {
+            return <h2 className={"font-exo text-center text-clamping-mid max-w-[90%]"} key={key}> {currentObj.text!}</h2>
         }
-        if (object.type === TEXT) {
-            return <h2 className={"font-exo text-clamping-sm max-w-[80%]"} key={key}> {object.text!}</h2>
+        if (currentObj.type === TEXT) {
+            return <h2 className={"font-exo text-clamping-sm max-w-[80%]"} key={key}> {currentObj.text!}</h2>
         }
-        if (object.type === SUBMIT) {
+        if (currentObj.type === SUBMIT) {
             const buttonCSSActions = `bg-white transition-all duration-200 hover:bg-buttons-blue`;
             const buttonCSSLocation = `mt-10`;
             const isDisabled = (answer.length !== 0 && answer[answer.length - 1] === EMPTY_STRING);
 
-            return <ButtonIcon text={object.text} onClick={moveToNextSlide} icon={right_arrow} disabled={isDisabled}
+            return <ButtonIcon text={currentObj.text} onClick={moveToNextTrialType} icon={right_arrow} disabled={isDisabled}
                                key={key}
                                className={`${buttonCSSLocation} ${isDisabled ? "opacity-30" : buttonCSSActions}`}/>
         }
-        if (object.type === BUTTONS) {
-            const buttonContainerCSS = "flex justify-center max-laptop:items-center laptop:flex-row gap-4 max-laptop:flex-col w-3/4";
-            const answerIndex = getAnswerIndex(object, trailType);
+        if (currentObj.type === BUTTONS) {
+            const buttonContainerCSS = "flex justify-center items-stretch max-laptop:items-center laptop:flex-row gap-4 max-laptop:flex-col w-3/4";
+            const answerIndex = getAnswerIndex(currentObj, trailType);
             const isDisabled = (answer[answerIndex] !== EMPTY_STRING) || (answer[answerIndex - 1] == EMPTY_STRING);
             return (
-                <div key={key} className={buttonContainerCSS}>
-                    {object.buttons!.map(
+                <div key={key} className={buttonContainerCSS }>
+                    {currentObj.buttons!.map(
                         (value, buttonIndex) => <Button
                             disabled={isDisabled}
                             className={isDisabled ? (value !== answer[answerIndex] ? "opacity-30" : "bg-blue-300") : "bg-white hover:bg-buttons-blue"}
                             onClick={() => handleAnswerSet({
                                 answerClicked: value,
                                 answerIndex: answerIndex,
-                                object: object
+                                object: currentObj
                             })}
                             key={`${key}-button-${buttonIndex}`}>{value}</Button>)}
                 </div>
             );
         }
-        if (object.type === SLIDER) {
-            const answerIndex = getAnswerIndex(object, trailType);
+        if (currentObj.type === SLIDER) {
+            const answerIndex = getAnswerIndex(currentObj, trailType);
             const isDisabled = (answer[answerIndex - 1] == EMPTY_STRING);
             return (
                 <Slider handleChange={handleChange} className={isDisabled ? "opacity-30" : ""} value={confidence}
-                        disabled={isDisabled} object={object} key={key}/>
+                        disabled={isDisabled} sliderObj={currentObj} key={key}/>
             );
         }
         return undefined;
@@ -171,8 +172,6 @@ function TrailType({trailType, setNextSlide, startTime, setUserOutput}: TrailTyp
     const trailTypeCss = "min-w-[90%] flex flex-auto flex-col items-center justify-start gap-8 h-full m-5 p-10 pt-16 bg-white drop-shadow-xl rounded-3xl overflow-x-hidden relative"
     return (
         <>
-            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false}
-                            draggable={false} theme="light"/>
             {isIdle && <ToastIdle/>}
             <div className={trailTypeCss}>
                 {trailType.children.map((value, index) => renderTrailType(value, index))}

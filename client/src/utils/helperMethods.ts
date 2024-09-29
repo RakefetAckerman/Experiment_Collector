@@ -36,3 +36,12 @@ export function isConfidenceTrailType(trailType: TrialType):boolean {
     }
     return false;
 }
+
+export function getInitialConfidence(trailType: TrialType):number {
+    for (const currObj of trailType.children){
+        if (currObj.type === SLIDER){
+            return Math.floor((currObj.max! + currObj.min! ) / 2);
+        }
+    }
+    return -1;
+}

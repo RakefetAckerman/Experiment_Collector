@@ -40,4 +40,6 @@ export type UiObjects = {
     textCenter?: string,
     textRight?: string,
     id?:string
+    min?: number,
+    max?: number,
 }

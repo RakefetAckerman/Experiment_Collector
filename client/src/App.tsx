@@ -3,7 +3,7 @@ import HomePage from "./pages/HomePage.tsx";
 import AppLayout from "./pages/AppLayout.tsx";
 import "./index.css"
 import EditorPage from "./pages/EditorPage.tsx";
-import ExperimentsPage from "./pages/ExperimentsPage.tsx";
+import ExperimentsDashboard from "./pages/ExperimentsDashboard.tsx";
 import ExperimentPage from "./pages/ExperimentPage.tsx";
 
 /**
@@ -20,7 +20,7 @@ function App() {
                 <Route element={<AppLayout/>}>
                     <Route path="/" element={<HomePage/>}/>
                     <Route path="/editor" element={<EditorPage/>}/>
-                    <Route path="/experiment" element={<ExperimentsPage/>}/>
+                    <Route path="/experiment" element={<ExperimentsDashboard/>}/>
                     <Route path="/experiment/:experiment_name" element={<ExperimentPage/>}/>
                 </Route>
             </Routes>
