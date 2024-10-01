@@ -1,7 +1,7 @@
 import {NavLink, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
 import Spinner from "../components/common/Spinner.tsx";
-import TrailType from "../components/experiment/TrailType.tsx";
+import TrialType from "../components/experiment/TrialType.tsx";
 import useExperimentData from "../hooks/experimentFeatures/useExperimentData.ts";
 
 
@@ -34,8 +34,8 @@ function ExperimentPage() {
             <h2 className={"font-exo text-center text-3xl"}>{experimentData.name}</h2>
             {experimentData.trailTypes.map((trailType, index) =>
                 index === currentTrailType &&
-                <TrailType setUserOutput={setUserOutput} startTime={Date.now()} setNextSlide={setCurrentTrailType}
-                           key={`trail-type-${index}`} trailType={trailType}/>
+                <TrialType setUserOutput={setUserOutput} startTime={Date.now()} setNextSlide={setCurrentTrailType}
+                           key={`trail-type-${index}`} trialType={trailType}/>
             )}
         </div>
     );

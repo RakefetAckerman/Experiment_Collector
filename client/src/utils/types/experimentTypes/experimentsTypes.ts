@@ -21,9 +21,9 @@ export default ExperimentTypes;
 export type Experiment = {
     name: string,
     objectDetails: object,
-    trailTypes: TrialType[]
+    trailTypes: TrialTypeType[]
 }
-export type TrialType = {
+export type TrialTypeType = {
     id: string,
     objectDetails: object,
     children: UiObjects[],

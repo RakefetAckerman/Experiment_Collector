@@ -1,11 +1,11 @@
-import {TrialType, UiObjects} from "./types/experimentTypes/experimentsTypes.ts";
+import {TrialTypeType, UiObjects} from "./types/experimentTypes/experimentsTypes.ts";
 import {BUTTONS, SLIDER} from "./constants.ts";
 
-export function isOnlySubmitButton(trailType: TrialType) : boolean{
+export function isOnlySubmitButton(trailType: TrialTypeType) : boolean{
     return !trailType.children.some((e)=> e.type === BUTTONS);
 }
 
-export function getAnswersNeededBeforeSubmit(trailType: TrialType) : string[]{
+export function getAnswersNeededBeforeSubmit(trailType: TrialTypeType) : string[]{
     const array:string[] = [];
     for(const obj of trailType.children){
         if (obj.type === BUTTONS || obj.type === SLIDER){
@@ -15,7 +15,7 @@ export function getAnswersNeededBeforeSubmit(trailType: TrialType) : string[]{
     return array;
 }
 
-export function getAnswerIndex(obj : UiObjects , trailType: TrialType) : number{
+export function getAnswerIndex(obj : UiObjects , trailType: TrialTypeType) : number{
     let count:number = 0;
     for (const currObj of trailType.children){
         if ((currObj.type === BUTTONS || currObj.type === SLIDER)){
@@ -28,7 +28,7 @@ export function getAnswerIndex(obj : UiObjects , trailType: TrialType) : number{
     return -1;
 }
 
-export function isConfidenceTrailType(trailType: TrialType):boolean {
+export function isConfidenceTrialType(trailType: TrialTypeType):boolean {
     for (const currObj of trailType.children){
         if (currObj.type === SLIDER){
             return true;
@@ -37,7 +37,7 @@ export function isConfidenceTrailType(trailType: TrialType):boolean {
     return false;
 }
 
-export function getInitialConfidence(trailType: TrialType):number {
+export function getInitialConfidence(trailType: TrialTypeType):number {
     for (const currObj of trailType.children){
         if (currObj.type === SLIDER){
             return Math.floor((currObj.max! + currObj.min! ) / 2);
