@@ -1,5 +1,6 @@
 import {TrialTypeType, UiObjects} from "./types/experimentTypes/experimentsTypes.ts";
-import {BUTTONS, SLIDER} from "./constants.ts";
+import {BUTTONS, SERVER_ERROR_GENERAL, SERVER_NOT_RESPONDING, SLIDER} from "./constants.ts";
+import {AxiosError} from "axios";
 
 export function isOnlySubmitButton(trailType: TrialTypeType) : boolean{
     return !trailType.children.some((e)=> e.type === BUTTONS);
@@ -44,4 +45,30 @@ export function getInitialConfidence(trailType: TrialTypeType):number {
         }
     }
     return -1;
+}
+
+interface ErrorResponse {
+    error?: string | { toString(): string };
+}
+
+export function getErrorData(error: AxiosError): string | undefined {
+    if (!error.response) {
+        return SERVER_NOT_RESPONDING;
+    }
+
+    const data = error.response.data as ErrorResponse;
+
+    if (!data || !data.error) {
+        return SERVER_ERROR_GENERAL;
+    }
+
+    if (typeof data.error === 'string') {
+        return data.error;
+    }
+
+    if (typeof data.error.toString === 'function') {
+        return data.error.toString();
+    }
+
+    return SERVER_ERROR_GENERAL;
 }

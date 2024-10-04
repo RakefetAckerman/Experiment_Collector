@@ -21,7 +21,7 @@
 }
 
 .text-clamping-sm {
-    font-size: clamp(0.5rem, 2.5vw, 1rem);
+    font-size: clamp(0.75rem, 2.5vw, 1rem);
 }
 
 /*!*For testing only!!! set all borders to red*!*/

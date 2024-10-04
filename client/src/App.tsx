@@ -5,6 +5,9 @@ import "./index.css"
 import EditorPage from "./pages/EditorPage.tsx";
 import ExperimentsDashboard from "./pages/ExperimentsDashboard.tsx";
 import ExperimentPage from "./pages/ExperimentPage.tsx";
+import SignupPage from "./components/register/SignupPage.tsx";
+import SignupPageResearcher from "./components/register/SignupPageResearcher.tsx";
+import Login from "./components/login/login.tsx";
 
 /**
  * Features to add to page:
@@ -23,6 +26,12 @@ function App() {
                     <Route path="/experiment" element={<ExperimentsDashboard/>}/>
                     <Route path="/experiment/:experiment_name" element={<ExperimentPage/>}/>
                 </Route>
+
+                <Route path="/signup" element={<SignupPage/>}/>
+                <Route path="/signup/researcher" element={<SignupPageResearcher/>}/>
+
+                <Route path="/login" element={<Login/>}/>
+                <Route path="/login/researcher" element={<SignupPageResearcher/>}/>
             </Routes>
         </BrowserRouter>
     )

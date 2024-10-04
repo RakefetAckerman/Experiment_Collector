@@ -23,7 +23,15 @@ const usersService: UsersService = {
   createUser: async function (
     newUserBoundary: UserBoundary
   ): Promise<UserBoundary> {
-    const res = await axios.post(`${entryBaseUrl}/register`, newUserBoundary);
+    const userFormated = {
+      role: newUserBoundary.role,
+      userDetails: newUserBoundary.userDetails,
+      email:newUserBoundary.userId.email,
+      username: newUserBoundary.username,
+      platform: newUserBoundary.userId.platform
+    }
+    const res = await axios.post(`${entryBaseUrl}/register`, userFormated);
+
     return res.data;
   },
 

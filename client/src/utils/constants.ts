@@ -18,3 +18,6 @@ export const MINUTE = 60000;
 export const HALF_MINUTE = 30000;
 export const SLIDER = "slider";
 export const EMPTY_STRING = "";
+export const SERVER_NOT_RESPONDING = "The server is not responding please try again later";
+export const SERVER_ERROR_GENERAL = "Something went wrong try again later";
+export const PLATFORM_WEBSITE = "WEBSITE";
