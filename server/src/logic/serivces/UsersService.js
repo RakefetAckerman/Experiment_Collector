@@ -73,8 +73,11 @@ const userService = {
 
     if (existingUser) {
       logger.info(
-        `The user already exits with the credentials email:${reqUserBoundary.userId.email} paltform:${reqUserBoundary.userId.platform}`
+        `The user already exists with the credentials email:${reqUserBoundary.userId.email} paltform:${reqUserBoundary.userId.platform}`
       );
+      // throw new createHttpError.BadRequest(
+      //     "user with this credentials already exists"
+      // );
       return userService.login(reqUserBoundary);
     }
 
