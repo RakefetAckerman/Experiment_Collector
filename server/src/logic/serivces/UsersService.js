@@ -75,10 +75,10 @@ const userService = {
       logger.info(
         `The user already exists with the credentials email:${reqUserBoundary.userId.email} paltform:${reqUserBoundary.userId.platform}`
       );
-      // throw new createHttpError.BadRequest(
-      //     "user with this credentials already exists"
-      // );
-      return userService.login(reqUserBoundary);
+      throw new createHttpError.BadRequest(
+          "user with this email / id already exists"
+      );
+      // return userService.login(reqUserBoundary);
     }
 
     const userModel = userConverter.toModel(reqUserBoundary);

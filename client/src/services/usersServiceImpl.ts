@@ -37,15 +37,20 @@ const usersService: UsersService = {
 
   /**
    * Logs in an existing user.
-   * @param email The email of the user.
-   * @param platform The platform of the user.
    * @returns A Promise resolving to the logged-in UserBoundary.
+   * @param user the The user data to sign-in.
    */
   login: async function (
-    email: string,
-    platform: string
+      user: UserBoundary
   ): Promise<UserBoundary> {
-    const res = await axios.post(`${entryBaseUrl}/login`, { email, platform });
+    const userFormated = {
+      role: user.role,
+      userDetails: user.userDetails,
+      email: user.userId.email,
+      username: user.username,
+      platform: user.userId.platform
+    }
+    const res = await axios.post(`${entryBaseUrl}/login`, userFormated);
     return res.data;
   },
 

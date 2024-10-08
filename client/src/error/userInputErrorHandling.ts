@@ -38,6 +38,28 @@ export function handleRegisterResearcherInputError(username: string, email: stri
     return {isError: false};
 }
 
+export function handleLoginResearcherInputError(email: string, password: string): ErrorType {
+    if (!email || email === "") {
+        return {errorMessage: "Email address is not provided", isError: true};
+    }
+    if (!password || password === "") {
+        return {errorMessage: "Password is required", isError: true};
+    }
+    if (!isPasswordContainsLetterAndNumber(password)) {
+        return {errorMessage: "Password must letters in english only and must contain also numbers", isError: true};
+    }
+    if (password.length < 8) {
+        return {errorMessage: "Password must contain at least 8 characters", isError: true};
+    }
+    return {isError: false};
+}
+export function handleLoginInputError(email: string): ErrorType {
+    if (!email || email === "") {
+        return {errorMessage: "Email address is not provided", isError: true};
+    }
+    return {isError: false};
+}
+
 function isPasswordContainsLetterAndNumber(password: string): boolean {
     let hasLetter = false;
     let hasNumber = false;

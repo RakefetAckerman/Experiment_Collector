@@ -14,12 +14,11 @@ interface UsersService {
 
   /**
    * Logs in an existing user.
-   * @param email The email of the user.
-   * @param platform The platform of the user.
+   * @param user The user details to log-in.
    * @returns A Promise resolving to an object containing user body.
    * @throws {Error} If login fails due to incorrect credentials or other errors.
    */
-  login(email: string, platform: string): Promise<UserBoundary>;
+  login(user: UserBoundary): Promise<UserBoundary>;
 
   /**
    * Updates an existing user.

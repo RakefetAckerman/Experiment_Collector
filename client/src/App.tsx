@@ -7,7 +7,8 @@ import ExperimentsDashboard from "./pages/ExperimentsDashboard.tsx";
 import ExperimentPage from "./pages/ExperimentPage.tsx";
 import SignupPage from "./components/register/SignupPage.tsx";
 import SignupPageResearcher from "./components/register/SignupPageResearcher.tsx";
-import Login from "./components/login/login.tsx";
+import Login from "./components/login/Login.tsx";
+import LoginResearcher from "./components/login/LoginResearcher.tsx";
 
 /**
  * Features to add to page:
@@ -31,7 +32,7 @@ function App() {
                 <Route path="/signup/researcher" element={<SignupPageResearcher/>}/>
 
                 <Route path="/login" element={<Login/>}/>
-                <Route path="/login/researcher" element={<SignupPageResearcher/>}/>
+                <Route path="/login/researcher" element={<LoginResearcher/>}/>
             </Routes>
         </BrowserRouter>
     )
