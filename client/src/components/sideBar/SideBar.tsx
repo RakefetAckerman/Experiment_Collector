@@ -1,5 +1,4 @@
 import {useState} from "react";
-import {USERNAME_TEXT} from "../../utils/constants.ts";
 import LogoNavBar from "./LogoNavBar.tsx";
 import CardNavBar from "./CardNavBar.tsx";
 import home_icon from "../../assets/home_icon.svg"
@@ -19,7 +18,7 @@ function SideBar() {
     return (
         <aside className={`border-gray-300 gap-4 border-solid border transition-all duration-300 flex justify-between items-center flex-col pt-4 bg-white h-dvh overflow-y-scroll  ${isCollapsed ? "w-32" : "w-96"} relative`}>
             <div className={`flex justify-center items-center flex-col w-full gap-4`}>
-                <LogoNavBar isCollapsed={isCollapsed} className={""} userName={USERNAME_TEXT}/>
+                <LogoNavBar isCollapsed={isCollapsed} className={""} />
                 <CardNavBar to={"/"} title="Home" img={home_icon} isCollapsed={isCollapsed}/>
                 <CardNavBar to={"/experiment"} title="Experiments" img={experiment_icon} isCollapsed={isCollapsed}/>
                 <CardNavBar to={"/editor"} title="Editor" img={editor_icon} isCollapsed={isCollapsed}/>

@@ -233,7 +233,7 @@ const userService = {
    * @returns {Promise<UserBoundary>} The updated user details.
    * @throws {Error} Throws an error if the update process encounters any issues.
    */
-  updateUser: async (userEmail, userPlatform, updateUser) => {
+  setUser: async (userEmail, userPlatform, updateUser) => {
     if (userEmail.length === 0 || userPlatform.platform === 0) {
       logger.error(
         `A user tried to edit his information with illeagal credentials`

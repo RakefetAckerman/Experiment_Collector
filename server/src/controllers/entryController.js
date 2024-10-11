@@ -98,7 +98,7 @@ const entryController = {
    * @param {Object} res - Express response object.
    * @returns {Promise<void>} Promise representing the user update process.
    */
-  updateUser: async (req, res) => {
+  setUser: async (req, res) => {
     const userEmail = req.params.email;
     const userPlatform = req.params.platform;
     const userData = req.body; // Getting the body of the request containing the NewUserBoundary data

@@ -15,7 +15,6 @@ interface UserBoundaryImpl {
     | boolean[]
     | number[]
   >;
-  equals(other: UserBoundaryImpl): boolean;
 }
 
 export type { UserBoundaryImpl };
@@ -42,6 +41,9 @@ class UserBoundary implements UserBoundaryImpl {
     if (this === other) return true;
     if (other === null || this.constructor !== other.constructor) return false;
     return this.userId.equals(other.userId);
+  }
+  updateUserName(username:string){
+    this.username = username.trim().toLowerCase();
   }
 }
 

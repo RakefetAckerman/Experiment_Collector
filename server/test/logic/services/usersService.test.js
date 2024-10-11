@@ -27,7 +27,7 @@ const baseUpdateUserURL = "/entry";
 const baseEntryLoginURL = "/entry/login";
 const baseResearchersURL = "/auth/researchers";
 
-// A dictionary to store cookies of JWT tokens mapped by user email
+// A dictionary to storeOld cookies of JWT tokens mapped by user email
 let usersCookies = {};
 
 describe("User Service Tests", () => {

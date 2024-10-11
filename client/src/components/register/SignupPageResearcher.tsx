@@ -14,7 +14,7 @@ import {getErrorData} from "../../utils/helperMethods.ts";
 import {useNavigate} from "react-router-dom";
 import {PLATFORM_WEBSITE} from "../../utils/constants.ts";
 
-
+// TODO TO SET THE DISPATCH BEFORE USE NAVIGATING TO THE NEXT PAGE
 function SignupPageResearcher() {
     const initialInput = {
         username: "",
@@ -47,7 +47,7 @@ function SignupPageResearcher() {
         }
 
         const ID = new UserIdBoundary(input.platform, input.email);
-        const user = new UserBoundary(ID, input.role, {password:input.password}, input.username);
+        const user = new UserBoundary(ID, input.role, {password: input.password}, input.username);
         setIsLoading(true);
         await usersServiceImpl.createUser(user).catch((error: AxiosError) => {
             toast.error(getErrorData(error));
@@ -70,15 +70,18 @@ function SignupPageResearcher() {
     const spinnerContainerCss = "center-absolute z-10 bg-white  border-gray-200 border w-[30vmin] shadow-2xl aspect-square rounded-3xl flex justify-center items-center"
     return (
         <>
-            <div className={`${isLoading ? "" : "hidden"} ${spinnerContainerCss}`}>
-                <Spinner/>
-            </div>
+            {isLoading &&
+                <div className={` ? "" : "hidden"} ${spinnerContainerCss}`}>
+                    <Spinner/>
+                </div>
+            }
 
             <ToastContainer autoClose={3000}/>
             <div
                 className={"w-dvw min-h-dvh flex bg-background-grey max-tablet:items-start max-tablet:pt-10 items-center justify-center"}>
-                <form onSubmit={handleSubmit} className={` ${inputState.shake ? 'shake' : ''} gap-5 max-w-[500px] w-9/12 flex flex-col 
-                items-center justify-center p-10 bg-white drop-shadow-xl border rounded-2xl`}
+
+                <form onSubmit={handleSubmit} className={` ${inputState.shake ? 'shake' : ''} gap-5 max-h-[90dvh] max-w-[500px] w-9/12 flex flex-col 
+                items-center justify-center p-10 bg-white drop-shadow-xl border rounded-2xl overflow-y-scroll`}
                       style={{borderColor: inputState.color}}
                 >
                     <img src={"/logo.svg"} alt={"Logo Image"} className={"w-28 m-5 drop-shadow-lg"}/>

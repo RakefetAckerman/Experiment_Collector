@@ -34,7 +34,7 @@ const baseResearchersURL = "/auth/researchers";
 const baseObjectsURL = "/auth/objects";
 const baseParticipantsURL = "/participants";
 
-// A dictionary to store cookies of JWT tokens mapped by user email
+// A dictionary to storeOld cookies of JWT tokens mapped by user email
 let usersCookies = {};
 
 describe("Objects Service Tests", () => {
@@ -1032,7 +1032,7 @@ describe("Objects Service Tests", () => {
 
     const numObjects = 10; // Number of objects to create
 
-    // Array to store promises for creating objects
+    // Array to storeOld promises for creating objects
     const objArr = new Array();
 
     // Create objects

@@ -9,6 +9,8 @@ import SignupPage from "./components/register/SignupPage.tsx";
 import SignupPageResearcher from "./components/register/SignupPageResearcher.tsx";
 import Login from "./components/login/Login.tsx";
 import LoginResearcher from "./components/login/LoginResearcher.tsx";
+import ProtectedRoutes from "./components/utils/ProtectedRoutes.tsx";
+import ProtectedResearcher from "./components/utils/ProtectedResearcher.tsx";
 
 /**
  * Features to add to page:
@@ -21,11 +23,17 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route element={<AppLayout/>}>
-                    <Route path="/" element={<HomePage/>}/>
-                    <Route path="/editor" element={<EditorPage/>}/>
-                    <Route path="/experiment" element={<ExperimentsDashboard/>}/>
-                    <Route path="/experiment/:experiment_name" element={<ExperimentPage/>}/>
+                {/*Protecting against users that aren't in the database */}
+                <Route element={<ProtectedRoutes/>}>
+                    <Route element={<AppLayout/>}>
+                        <Route path="/experiment/:experiment_name" element={<ExperimentPage/>}/>
+                        {/*Protecting against users that don't have researcher role */}
+                        <Route element={<ProtectedResearcher/>}>
+                            <Route path="/" element={<HomePage/>}/>
+                            {/*<Route path="/editor" element={<EditorPage/>}/>*/}
+                            <Route path="/experiment" element={<ExperimentsDashboard/>}/>
+                        </Route>
+                    </Route>
                 </Route>
 
                 <Route path="/signup" element={<SignupPage/>}/>

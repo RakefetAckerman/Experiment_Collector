@@ -5,13 +5,16 @@ import Button from "../experiment/Button.tsx";
 import {PLATFORM_WEBSITE} from "../../utils/constants.ts";
 import UserRoles from "../../utils/UserRoles.ts";
 import {FormEvent, useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {handleLoginInputError} from "../../error/userInputErrorHandling.ts";
 import {UserIdBoundary} from "../../bounderies/user/UserIdBoundary.ts";
 import {UserBoundary} from "../../bounderies/user/UserBoundary.ts";
 import usersServiceImpl from "../../services/usersServiceImpl.ts";
 import {AxiosError} from "axios";
 import {getErrorData} from "../../utils/helperMethods.ts";
+import {useDispatch, useSelector} from "react-redux";
+import {setUser} from "../../states/user/userSlice.ts";
+import {RootState} from "../../states/store.ts";
 
 function Login() {
     const initialInput = {
@@ -20,12 +23,16 @@ function Login() {
         role:UserRoles.Participant
     }
     const [input, setInput] = useState(initialInput)
+    const dispatch = useDispatch();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || "/";  // Get the original location, fallback to "/" if not available
 
     const initialInputState = {color: "#cfcfcf", shake: false};
     const [inputState, setInputState] = useState(initialInputState);
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const spinnerContainerCss = "center-absolute z-10 bg-white  border-gray-200 border w-[30vmin] shadow-2xl aspect-square rounded-3xl flex justify-center items-center"
+
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault(); // Prevent default form submission
         const error = handleLoginInputError(input.email);
@@ -54,16 +61,31 @@ function Login() {
             }
             toast.success("Login successfully.");
             // TODO HERE TO ADD THE CHANGE IN THE REDUX TOOLKIT SLICE USER
-            console.log(successRes);
-            setTimeout(() => {
-                navigate("/");
-            }, 200)
+            if (successRes.username) {
+                user.updateUserName(successRes.username!)
+            }
+            const serializedUser = {
+                userId: { platform:user.userId.platform  , email: user.userId.email },
+                role: user.role,
+                username: user.username,
+            }
+            // setting the user to global state
+            dispatch(setUser(serializedUser))
+            navigate(from, { replace: true });
+
         }).finally(() => {
             setTimeout(() => {
                 setIsLoading(false);
             }, 500)
         })
     }
+
+    const userState = useSelector((state:RootState ) => (state.user.user))
+    if(userState){
+        navigate(from, { replace: true });
+        return;
+    }
+
     return (
         <>
             <div className={`${isLoading ? "" : "hidden"} ${spinnerContainerCss}`}>

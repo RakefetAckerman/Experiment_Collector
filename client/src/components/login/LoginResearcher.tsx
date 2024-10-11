@@ -11,17 +11,23 @@ import {UserBoundary} from "../../bounderies/user/UserBoundary.ts";
 import usersServiceImpl from "../../services/usersServiceImpl.ts";
 import {AxiosError} from "axios";
 import {getErrorData} from "../../utils/helperMethods.ts";
-import {useNavigate} from "react-router-dom";
+import {useDispatch} from "react-redux";
+import {setUser} from "../../states/user/userSlice.ts";
+import {useLocation, useNavigate} from "react-router-dom";
 
-function LoginResearcher(){
+function LoginResearcher() {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || "/";  // Get the original location, fallback to "/" if not available
+
     const initialInput = {
-        email:"",
-        password:"",
+        email: "",
+        password: "",
         platform: PLATFORM_WEBSITE,
-        role:UserRoles.Researcher
+        role: UserRoles.Researcher
     }
     const [input, setInput] = useState(initialInput)
-    const navigate = useNavigate();
     const initialInputState = {color: "#cfcfcf", shake: false};
     const [inputState, setInputState] = useState(initialInputState);
     const [isLoading, setIsLoading] = useState(false);
@@ -43,28 +49,36 @@ function LoginResearcher(){
         }
 
         const ID = new UserIdBoundary(input.platform, input.email);
-        const user = new UserBoundary(ID, input.role, {password:input.password},"");
+        const user = new UserBoundary(ID, input.role, {password: input.password}, "");
         setIsLoading(true);
 
         await usersServiceImpl.login(user).catch((error: AxiosError) => {
             toast.error(getErrorData(error));
-            console.log(error)
         }).then((successRes) => {
             if (!successRes) {
                 return;
             }
             toast.success("Login successfully.");
-            // TODO HERE TO ADD THE CHANGE IN THE REDUX TOOLKIT SLICE USER
-            console.log(successRes);
-            setTimeout(() => {
-                navigate("/");
-            }, 200)
+            if (successRes.username) {
+                user.updateUserName(successRes.username!)
+            }
+
+            const serializedUser = {
+                userId: { platform:user.userId.platform  , email: user.userId.email },
+                role: user.role,
+                username: user.username,
+            }
+            // setting the user to global state
+            dispatch(setUser(serializedUser))
+            navigate(from, { replace: true });
+
         }).finally(() => {
             setTimeout(() => {
                 setIsLoading(false);
             }, 500)
         })
     }
+
     return (
         <>
             <div className={`${isLoading ? "" : "hidden"} ${spinnerContainerCss}`}>
@@ -99,11 +113,13 @@ function LoginResearcher(){
                             className={"w-full h-10 p-2 ml-2 text-clamping-sm font-exo"}
                             type={"password"}
                             id={"password"}
+                            autoComplete={"true"}
                             value={input.password}
                             onChange={(e) => setInput(prevState => ({...prevState, password: e.target.value}))}
                             placeholder={"Password"}
                         />
                     </div>
+                    <h3 onClick={() => navigate("/signup/researcher")} className={"text-clamping-sm text-black-half hover:text-black duration-200 transition-all truncate cursor-pointer"}>Open Researcher Account</h3>
                     <Button disabled={isLoading}
                             className={"font-exo hover:bg-buttons-blue shadow-md hover:shadow-xl m-10 active:scale-110 w-[60%]"}>
                         Login

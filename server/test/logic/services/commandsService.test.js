@@ -31,7 +31,7 @@ const baseEntryLoginURL = "/entry/login";
 const baseResearchersURL = "/auth/researchers";
 const baseObjectsURL = "/auth/objects";
 
-// A dictionary to store cookies of JWT tokens mapped by user email
+// A dictionary to storeOld cookies of JWT tokens mapped by user email
 let usersCookies = {};
 
 // An agentfor cookie management
@@ -332,7 +332,7 @@ describe("Commands Service Tests", () => {
     // Define the number of commands to create
     const numCommands = 10; // Could be any number
 
-    // Create an array to store the commands
+    // Create an array to storeOld the commands
     const commandsArr = Array.from({ length: numCommands }, () => ({
       ...commandObj,
     }));
@@ -401,7 +401,7 @@ describe("Commands Service Tests", () => {
     // Define the number of commands to create
     const numCommands = 10; // Could be any number
 
-    // Create an array to store the commands
+    // Create an array to storeOld the commands
     const commandsArr = Array.from({ length: numCommands }, () => ({
       ...commandObj,
     }));
@@ -470,7 +470,7 @@ describe("Commands Service Tests", () => {
     // Define the number of commands to create
     const numCommands = 10; // Could be any number
 
-    // Create an array to store the commands
+    // Create an array to storeOld the commands
     const commandsArr = Array.from({ length: numCommands }, () => ({
       ...commandObj,
     }));
@@ -541,7 +541,7 @@ describe("Commands Service Tests", () => {
     // Define the number of commands to create
     const numCommands = 10; // Could be any number
 
-    // Create an array to store the commands
+    // Create an array to storeOld the commands
     const commandsArr = Array.from({ length: numCommands }, () => ({
       ...commandObj,
     }));
