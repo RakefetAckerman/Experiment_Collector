@@ -81,7 +81,7 @@ function SignupPageResearcher() {
                 className={"w-dvw min-h-dvh flex bg-background-grey max-tablet:items-start max-tablet:pt-10 items-center justify-center"}>
 
                 <form onSubmit={handleSubmit} className={` ${inputState.shake ? 'shake' : ''} gap-5 max-h-[90dvh] max-w-[500px] w-9/12 flex flex-col 
-                items-center justify-center p-10 bg-white drop-shadow-xl border rounded-2xl overflow-y-scroll`}
+                items-center justify-start p-10 bg-white drop-shadow-xl border rounded-2xl overflow-y-scroll`}
                       style={{borderColor: inputState.color}}
                 >
                     <img src={"/logo.svg"} alt={"Logo Image"} className={"w-28 m-5 drop-shadow-lg"}/>

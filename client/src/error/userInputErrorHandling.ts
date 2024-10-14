@@ -1,6 +1,7 @@
 import {ErrorType} from "./errorType.ts";
 
 export function handleRegisterInputError(username: string, email: string): ErrorType {
+    console.log(username)
     if (!username || username === "") {
         return {errorMessage: "Username is not provided", isError: true};
     }

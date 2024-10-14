@@ -6,3 +6,9 @@ enum UserTypes {
   }
   
   export default UserTypes;
+
+export interface SerializedUser {
+    userId: { platform: string, email: string };
+    role: string;
+    username?: string;
+}

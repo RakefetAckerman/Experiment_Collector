@@ -1,16 +1,12 @@
-import axios from "axios";
 import { UserBoundary } from "../bounderies/user/UserBoundary";
 import UsersService from "./usersService";
-import getEnvVariables from "../etc/loadVariables";
+import api from "../api.ts";
 
-// Load environment variables from .env files
-const envVariables = getEnvVariables();
-const { backendURL } = envVariables;
 
-// Define base URLs for different API endpoints
-const entryBaseUrl = backendURL + "/entry";
-const authResearchersBaseUrl = backendURL + "/auth/researchers";
+const entryBaseUrl = "/entry"; // Now we can use relative paths
 
+
+const authResearchersBaseUrl =  "/auth/researchers";
 /**
  * Implementation of UsersService interface that interacts with backend APIs.
  */
@@ -30,7 +26,7 @@ const usersService: UsersService = {
       username: newUserBoundary.username,
       platform: newUserBoundary.userId.platform
     }
-    const res = await axios.post(`${entryBaseUrl}/register`, userFormated);
+    const res = await api.post(`${entryBaseUrl}/register`, userFormated);
 
     return res.data;
   },
@@ -50,7 +46,7 @@ const usersService: UsersService = {
       username: user.username,
       platform: user.userId.platform
     }
-    const res = await axios.post(`${entryBaseUrl}/login`, userFormated);
+    const res = await api.post(`${entryBaseUrl}/login`, userFormated);
     return res.data;
   },
 
@@ -66,7 +62,7 @@ const usersService: UsersService = {
     userToUpdate: UserBoundary
   ): Promise<void> {
     const url = `${authResearchersBaseUrl}/${email}/${platform}`;
-    await axios.put(url, userToUpdate);
+    await api.put(url, userToUpdate);
   },
 
   /**
@@ -80,7 +76,7 @@ const usersService: UsersService = {
     platform: string
   ): Promise<UserBoundary[]> {
     const url = `${authResearchersBaseUrl}/${email}/${platform}`;
-    const res = await axios.get(url);
+    const res = await api.get(url);
     return res.data;
   },
 
@@ -95,7 +91,7 @@ const usersService: UsersService = {
     platform: string
   ): Promise<{ n: number; deletedCount: number; ok: number }> {
     const url = `${authResearchersBaseUrl}/${email}/${platform}`;
-    const res = await axios.delete(url);
+    const res = await api.delete(url);
     return res.data;
   },
 };

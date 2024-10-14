@@ -21,3 +21,4 @@ export const EMPTY_STRING = "";
 export const SERVER_NOT_RESPONDING = "The server is not responding please try again later";
 export const SERVER_ERROR_GENERAL = "Something went wrong try again later";
 export const PLATFORM_WEBSITE = "WEBSITE";
+export const JWT_TOKEN = "jwt"

@@ -15,7 +15,7 @@ import {
 } from "../../bounderies/user/UserIdBoundary";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { logedIn } from "../../states/reducer";
+import { logedIn } from "../../states/old/reducer.ts";
 import Cookies from "universal-cookie";
 import UserRoles from "../../utils/UserRoles";
 

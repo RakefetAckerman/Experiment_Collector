@@ -1,26 +1,32 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {TokenType} from "../../utils/tokenType.ts";
+import {SerializedUser} from "../../utils/types/userTypes/userTypes.ts";
+import {fetchUserUsingToken, getTokenFromBrowser} from "../../utils/helperMethods.ts";
 
-interface SerializedUser {
-    userId: { platform: string, email: string };
-    role: string;
-    username?: string;
-}
+
+const initialToken = getTokenFromBrowser();
+const initialUser = fetchUserUsingToken(initialToken);
+
+
+
 
 interface State {
     user: SerializedUser | undefined;
-    token: string | undefined;
+    token: TokenType | undefined;
 }
 
 const initialState: State = {
-    user: undefined,
-    token: undefined,
+    user: initialUser,
+    token: initialToken,
 };
+
+
 
 const userSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        updateToken: (state: State, action: PayloadAction<string>) => {
+        updateToken: (state: State, action: PayloadAction<TokenType>) => {
             state.token = action.payload;
         },
         setUser: (state: State, action: PayloadAction<SerializedUser>) => {

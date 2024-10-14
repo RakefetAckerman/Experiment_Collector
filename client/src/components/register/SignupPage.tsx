@@ -11,13 +11,15 @@ import usersServiceImpl from "../../services/usersServiceImpl.ts";
 import Spinner from "../common/Spinner.tsx";
 import {AxiosError} from "axios";
 import {getErrorData} from "../../utils/helperMethods.ts";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {PLATFORM_WEBSITE} from "../../utils/constants.ts";
+import {useDispatch} from "react-redux";
+import {setUser} from "../../states/user/userSlice.ts";
 
 
 function SignupPage() {
     const initialInput = {
-        username:"",
+        username: UserRoles.Participant,
         email:"",
         platform: PLATFORM_WEBSITE,
         role:UserRoles.Participant
@@ -29,8 +31,13 @@ function SignupPage() {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
+    const location = useLocation();
+    const dispatch = useDispatch();
+    const from = location.state?.from?.pathname || "/";  // Get the original location, fallback to "/" if not available
+
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault(); // Prevent default form submission
+        console.log({input , initialInput})
         const error = handleRegisterInputError(input.username, input.email);
         if (error.isError) {
             setInputState({color: "red", shake: true});
@@ -54,10 +61,15 @@ function SignupPage() {
             if (!successRes) {
                 return;
             }
-            toast.success("created user successfully.");
-            setTimeout(() => {
-                navigate("/login");
-            }, 200)
+            toast.success("connected successfully.");
+            const serializedUser = {
+                userId: { platform:user.userId.platform  , email: user.userId.email },
+                role: user.role,
+                username: user.username,
+            }
+            // setting the user to global state
+            dispatch(setUser(serializedUser))
+            navigate(from, { replace: true });
         }).finally(() => {
             setTimeout(() => {
                 setIsLoading(false);
@@ -80,33 +92,19 @@ function SignupPage() {
                 >
                     <img src={"logo.svg"} alt={"Logo Image"} className={"w-28 m-5 drop-shadow-lg"}/>
                     <div
-                        className={`transition-all duration-100 p-4 border flex flex-row w-[80%] rounded-2xl shadow-md`}
-                    >
-                        <img src={icon} className={"w-9 p-1 drop-shadow-md"} alt={"icon of pencil"}/>
-                        <input
-                            className={"w-full p-2 h-10 ml-2 text-clamping-sm font-exo"}
-                            type={"text"}
-                            id={"username"}
-                            value={input.username}
-                            onChange={(e) => setInput(prevState => ({...prevState, username: e.target.value}))}
-                            placeholder={"Username"}
-                        />
-                    </div>
-                    <div
                         className={`transition-all duration-100 p-4 border flex flex-row w-[80%] rounded-2xl shadow-md`}>
                         <img src={icon} className={"w-9 p-1 drop-shadow-md"} alt={"icon of pencil"}/>
                         <input
                             className={"w-full h-10 p-2 ml-2 text-clamping-sm font-exo"}
-                            type={"email"}
+                            type={"text"}
                             id={"email"}
                             value={input.email}
                             onChange={(e) => setInput(prevState => ({...prevState, email: e.target.value}))}
-                            placeholder={"Email"}
+                            placeholder={"Email / ID"}
                         />
                     </div>
-
                     <Button disabled={isLoading}
-                            className={"hover:bg-buttons-blue shadow-md hover:shadow-xl m-10 active:scale-110 w-[60%]"}>
+                            className={"font-exo hover:bg-buttons-blue shadow-md hover:shadow-xl m-10 active:scale-110 w-[60%]"}>
                         Register
                     </Button>
                 </form>

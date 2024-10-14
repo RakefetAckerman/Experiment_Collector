@@ -10,9 +10,9 @@ import {
   REGISTER,
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import reducer, { State } from "./reducer";
+import reducer, { State } from "./reducer.ts";
 import dayjs from "dayjs";
-import ReduxActions from "../utils/ReduxActions";
+import ReduxActions from "../../utils/ReduxActions.ts";
 
 // Configuration for Redux Persist
 const persistConfig = {

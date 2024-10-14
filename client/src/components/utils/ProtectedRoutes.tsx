@@ -9,7 +9,7 @@ function ProtectedRoutes() {
     const isExperiment = matchPath("/experiment/:experiment_name", location.pathname);
 
     if (isExperiment){
-        return (user? <Outlet/> : <Navigate to={"/login"} state={{ from: location }} /> );
+        return (user? <Outlet/> : <Navigate to={"/signup"} state={{ from: location }} /> );
 
     }
     return (user? <Outlet/> : <Navigate to={"/login/researcher"} state={{ from: location }} /> );

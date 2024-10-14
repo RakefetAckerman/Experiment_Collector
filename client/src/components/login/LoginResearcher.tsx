@@ -1,5 +1,5 @@
 import {FormEvent, useState} from 'react';
-import {PLATFORM_WEBSITE} from "../../utils/constants.ts";
+import {JWT_TOKEN, PLATFORM_WEBSITE} from "../../utils/constants.ts";
 import UserRoles from "../../utils/UserRoles.ts";
 import Spinner from "../common/Spinner.tsx";
 import {toast, ToastContainer} from "react-toastify";
@@ -12,14 +12,16 @@ import usersServiceImpl from "../../services/usersServiceImpl.ts";
 import {AxiosError} from "axios";
 import {getErrorData} from "../../utils/helperMethods.ts";
 import {useDispatch} from "react-redux";
-import {setUser} from "../../states/user/userSlice.ts";
+import {setUser, updateToken} from "../../states/user/userSlice.ts";
 import {useLocation, useNavigate} from "react-router-dom";
+import Cookies from "universal-cookie";
 
 function LoginResearcher() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from?.pathname || "/";  // Get the original location, fallback to "/" if not available
+    const myCookies = new Cookies();
 
     const initialInput = {
         email: "",
@@ -64,14 +66,19 @@ function LoginResearcher() {
             }
 
             const serializedUser = {
-                userId: { platform:user.userId.platform  , email: user.userId.email },
+                userId: {platform: user.userId.platform, email: user.userId.email},
                 role: user.role,
                 username: user.username,
             }
+            const token = myCookies.get(JWT_TOKEN);
+
+            // Ensure expiryStr is a string before assigning it - expiry str formatted as ISOString
+            const expiry: string = successRes.userDetails.expiryStr as string;
+
             // setting the user to global state
             dispatch(setUser(serializedUser))
+            dispatch(updateToken({token , expiry}))
             navigate(from, { replace: true });
-
         }).finally(() => {
             setTimeout(() => {
                 setIsLoading(false);
@@ -119,7 +126,9 @@ function LoginResearcher() {
                             placeholder={"Password"}
                         />
                     </div>
-                    <h3 onClick={() => navigate("/signup/researcher")} className={"text-clamping-sm text-black-half hover:text-black duration-200 transition-all truncate cursor-pointer"}>Open Researcher Account</h3>
+                    <h3 onClick={() => navigate("/signup/researcher")}
+                        className={"text-clamping-sm text-black-half hover:text-black duration-200 transition-all truncate cursor-pointer"}>Open
+                        Researcher Account</h3>
                     <Button disabled={isLoading}
                             className={"font-exo hover:bg-buttons-blue shadow-md hover:shadow-xl m-10 active:scale-110 w-[60%]"}>
                         Login
