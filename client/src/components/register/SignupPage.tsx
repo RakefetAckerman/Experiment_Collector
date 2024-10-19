@@ -37,7 +37,6 @@ function SignupPage() {
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault(); // Prevent default form submission
-        console.log({input , initialInput})
         const error = handleRegisterInputError(input.username, input.email);
         if (error.isError) {
             setInputState({color: "red", shake: true});

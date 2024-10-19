@@ -25,6 +25,8 @@ import useIdleTimer from "../../hooks/experimentFeatures/useHandleIdle.ts";
 import ToastIdle from "./ToastIdle.tsx";
 import Slider from "./Slider.tsx";
 import 'react-toastify/dist/ReactToastify.css';
+import getFeatures, {FeaturesDataType, updateByFeatures} from "../../utils/features.ts";
+import useFocusTime from "../../hooks/experimentFeatures/useHandleFocus.ts";
 
 type TrialTypeProps = {
     trialType: TrialTypeType,
@@ -53,6 +55,7 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
     const {isIdle, totalIdleTime} = useIdleTimer(HALF_MINUTE);
     const initialConfidence = getInitialConfidence(trialType)
     const [confidence, setConfidence] = useState<number>(initialConfidence);
+    const { unFocusTime } = useFocusTime();
 
     useHandleFirstInteraction(startTime, setOutput);
 
@@ -64,13 +67,22 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
         }
     }, [output]);
 
+    const features  = getFeatures(trialType);
+
+
     function moveToNextTrialType() {
         const isTheTrialTypeContainsSlider = isConfidenceTrialType(trialType);
+        const responseTimeLast = Date.now() - startTime;
         let newOutput = {...output};
+
+        const featuresData :FeaturesDataType = {totalIdleTime , unFocusTime , responseTimeLast }
+
+        // Updating the output with the necessary features
+        newOutput = updateByFeatures(features,featuresData ,newOutput );
+
         if (isTheTrialTypeContainsSlider) {
             newOutput = {...newOutput, Judgment: confidence};
         }
-        newOutput = {...newOutput, ResponseTimeLast: Date.now() - startTime, Idle: totalIdleTime};
         setIsMoveToNextTrial(true);
         setOutput(newOutput);
     }
@@ -172,7 +184,7 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
     const trialTypeCss = "min-w-[90%] flex flex-auto flex-col items-center justify-start gap-8 h-full m-5 p-10 pt-16 bg-white drop-shadow-xl rounded-3xl overflow-x-hidden relative"
     return (
         <>
-            {isIdle && <ToastIdle/>}
+            {features.idle && isIdle && <ToastIdle/>}
             <div className={trialTypeCss}>
                 {trialType.children.map((value, index) => renderTrialType(value, index))}
             </div>

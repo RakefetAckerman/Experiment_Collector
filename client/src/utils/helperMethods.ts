@@ -1,5 +1,5 @@
 import {TrialTypeType, UiObjects} from "./types/experimentTypes/experimentsTypes.ts";
-import {BUTTONS, JWT_TOKEN, SERVER_ERROR_GENERAL, SERVER_NOT_RESPONDING, SLIDER} from "./constants.ts";
+import {BUTTONS, JWT_TOKEN, SERVER_ERROR_GENERAL, SERVER_NOT_RESPONDING, SLIDER, USER_KEY} from "./constants.ts";
 import {AxiosError} from "axios";
 import {TokenType} from "./tokenType.ts";
 import Cookies from "universal-cookie";
@@ -82,9 +82,24 @@ export function getTokenFromBrowser(): TokenType | undefined {
     if (!token) {
         return undefined;
     }
-    return undefined;
+    return token;
 }
 
 export function fetchUserUsingToken(token: TokenType | undefined): SerializedUser | undefined {
+    if(!token){
+        return undefined;
+    }
+    return undefined;
+}
+
+export function fetchUserFromSessionStorage(): SerializedUser | undefined {
+    const value = sessionStorage.getItem(USER_KEY);
+    if (value){
+        try {
+            return JSON.parse(value);
+        } catch (e) {
+            console.error("Invalid data in sessionStorage", e);
+        }
+    }
     return undefined;
 }
