@@ -39,6 +39,9 @@ export type UiObjects = {
     textLeft?: string,
     textCenter?: string,
     textRight?: string,
+    headline?: string,
+    semiHeadlines?: string[],
+    scalePoints?:number,
     id?:string
     min?: number,
     max?: number,

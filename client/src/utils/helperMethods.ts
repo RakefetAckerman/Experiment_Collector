@@ -1,13 +1,18 @@
 import {TrialTypeType, UiObjects} from "./types/experimentTypes/experimentsTypes.ts";
-import {BUTTONS, JWT_TOKEN, SERVER_ERROR_GENERAL, SERVER_NOT_RESPONDING, SLIDER, USER_KEY} from "./constants.ts";
+import {
+    BUTTONS,
+    JWT_TOKEN,
+    SERVER_ERROR_GENERAL,
+    SERVER_NOT_RESPONDING,
+    SLIDER,
+    SUBMIT,
+    USER_KEY
+} from "./constants.ts";
 import {AxiosError} from "axios";
 import {TokenType} from "./tokenType.ts";
 import Cookies from "universal-cookie";
 import {SerializedUser} from "./types/userTypes/userTypes.ts";
-
-export function isOnlySubmitButton(trailType: TrialTypeType): boolean {
-    return !trailType.children.some((e) => e.type === BUTTONS);
-}
+import {LikertOutput} from "../components/experiment/Likert.tsx";
 
 export function getAnswersNeededBeforeSubmit(trailType: TrialTypeType): string[] {
     const array: string[] = [];
@@ -102,4 +107,18 @@ export function fetchUserFromSessionStorage(): SerializedUser | undefined {
         }
     }
     return undefined;
+}
+
+
+export function isSubmitButton(trialType: TrialTypeType): boolean {
+    return trialType.children.some((e) => e.type === SUBMIT);
+}
+
+export function isAllLikertAnswered(likertsValue: LikertOutput[]) :boolean{
+    for (let i = 0 ;i < likertsValue.length ; i++){
+        if (!likertsValue[i].output){
+            return false;
+        }
+    }
+    return true;
 }

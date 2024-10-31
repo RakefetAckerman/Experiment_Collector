@@ -7,7 +7,7 @@ import {
     EMPTY_STRING,
     HALF_MINUTE,
     HEADLINE,
-    IMAGES,
+    IMAGES, LIKERT, NO_SUBMIT_BUTTON,
     SLIDER,
     SUBMIT,
     TEXT
@@ -16,9 +16,9 @@ import {ChangeEvent, Dispatch, SetStateAction, useEffect, useState} from "react"
 import Button from "./Button.tsx";
 import {
     getAnswerIndex,
-    getAnswersNeededBeforeSubmit,
+    getAnswersNeededBeforeSubmit, getErrorData,
     getInitialConfidence,
-    isConfidenceTrialType
+    isConfidenceTrialType, isSubmitButton, isAllLikertAnswered
 } from "../../utils/helperMethods.ts";
 import useHandleFirstInteraction from "../../hooks/experimentFeatures/useHandleFirstInteraction.ts";
 import useIdleTimer from "../../hooks/experimentFeatures/useHandleIdle.ts";
@@ -28,6 +28,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import getFeatures, {FeaturesDataType, updateByFeatures, updateResponseTimeLast} from "../../utils/features.ts";
 import useFocusTime from "../../hooks/experimentFeatures/useHandleFocus.ts";
 import ZoomElement, {ZoomType} from "./ZoomElement.tsx";
+import Error from "../../error/Error.tsx";
+import Likert, {LikertOutput} from "./Likert.tsx";
+import {toast, ToastContainer} from "react-toastify";
 
 type TrialTypeProps = {
     trialType: TrialTypeType,
@@ -35,6 +38,22 @@ type TrialTypeProps = {
     startTime: number,
     setUserOutput: Dispatch<SetStateAction<object[]>>,
 }
+
+function buildLikertArray(uiObjects: UiObjects[]) {
+    const output:LikertOutput[] = [];
+    uiObjects.forEach((value, _ ) => {
+        if (value.type === LIKERT){
+            const currentLikert:LikertOutput = {
+                id:value.id!,
+                headline:value.textCenter!,
+                output:null
+            };
+            output.push(currentLikert);
+        }
+    })
+    return output;
+}
+
 
 /**
  * A single TrialTypeElement - A single way to show every trial type.
@@ -55,12 +74,18 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
     const {isIdle, totalIdleTime} = useIdleTimer(HALF_MINUTE);
     const initialConfidence = getInitialConfidence(trialType)
     const [confidence, setConfidence] = useState<number>(initialConfidence);
-    const [responseTimeFirstJudgment , setResponseTimeFirstJudgment] = useState<number>(0);
+    const [responseTimeFirstJudgment, setResponseTimeFirstJudgment] = useState<number>(0);
+    const [likertsValue, setLikertsValue] = useState<LikertOutput[]>(buildLikertArray(trialType.children));
     const {unFocusTime} = useFocusTime();
-    const [currentImageZoom, setCurrentImageZoom] = useState<ZoomType>({image: "", isOpen: false, zoomOutput:[], startTime:startTime});
+
+    const [currentImageZoom, setCurrentImageZoom] = useState<ZoomType>({
+        image: "",
+        isOpen: false,
+        zoomOutput: [],
+        startTime: startTime
+    });
     useHandleFirstInteraction(startTime, setOutput);
     const features = getFeatures(trialType);
-
 
     //todo NEED TO BE DELETED ONLY FOR TESTING TO SEE THE OUTPUT AS PRINTED
     useEffect(() => {
@@ -70,7 +95,7 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
         }
     }, [output]);
 
-    function moveToNextTrialType() {
+    function UpdateOutputAncContinueToNextTrialType() {
         const isTheTrialTypeContainsSlider = isConfidenceTrialType(trialType);
         const responseTimeLast = Date.now() - startTime;
         let newOutput = {...output};
@@ -78,11 +103,21 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
         const featuresData: FeaturesDataType = {totalIdleTime, unFocusTime, responseTimeLast}
 
         // Updating the output with the necessary features for the current trial type
-        newOutput = updateByFeatures(features, featuresData, newOutput , currentImageZoom.zoomOutput);
+        newOutput = updateByFeatures(features, featuresData, newOutput, currentImageZoom.zoomOutput);
 
-        newOutput = updateResponseTimeLast(newOutput , featuresData.responseTimeLast)
+        newOutput = updateResponseTimeLast(newOutput, featuresData.responseTimeLast)
         if (isTheTrialTypeContainsSlider) {
-            newOutput = {...newOutput, Judgment: {Judgment:confidence, ResponseTimeFirstJudgment: responseTimeFirstJudgment}};
+            newOutput = {
+                ...newOutput,
+                Judgment: {Judgment: confidence, ResponseTimeFirstJudgment: responseTimeFirstJudgment}
+            };
+        }
+        if (!(likertsValue.length === 0)) {
+            newOutput = {...newOutput, Likerts:likertsValue};
+        }
+        if (!(likertsValue.length === 0) && !isAllLikertAnswered(likertsValue)) {
+            toast.error("A value must be selected on the Likert scale to proceed.");
+            return;
         }
         setIsMoveToNextTrial(true);
         setOutput(newOutput);
@@ -152,7 +187,8 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
             const buttonCSSLocation = `mt-10`;
             const isDisabled = (answer.length !== 0 && answer[answer.length - 1] === EMPTY_STRING);
 
-            return <ButtonIcon text={currentObj.text} onClick={moveToNextTrialType} icon={right_arrow}
+            return <ButtonIcon text={currentObj.text} onClick={UpdateOutputAncContinueToNextTrialType}
+                               icon={right_arrow}
                                disabled={isDisabled}
                                key={key}
                                className={`${buttonCSSLocation} ${isDisabled ? "opacity-30" : buttonCSSActions}`}/>
@@ -184,17 +220,26 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
                         disabled={isDisabled} sliderObj={currentObj} key={key}/>
             );
         }
+        if (currentObj.type === LIKERT) {
+            return <Likert key={key} likertsValue={likertsValue} setLikertsValue={setLikertsValue} uiObject={currentObj}/>
+        }
         return undefined;
     }
 
     const trialTypeCss = "min-w-[90%] flex flex-auto flex-col items-center justify-start gap-8 h-full m-5 p-10 pt-16 bg-white drop-shadow-xl rounded-3xl overflow-x-hidden relative"
+
+    //IF NO SUBMIT BUTTON RENDERING THE ERROR
+    const isSubmit = isSubmitButton(trialType);
+
     return (
         <>
+            <ToastContainer autoClose={3000}/>
             {features.zoom && currentImageZoom.isOpen &&
                 <ZoomElement setCurrentImageZoom={setCurrentImageZoom} currentImageZoom={currentImageZoom}/>}
             {features.idle && isIdle && <ToastIdle/>}
             <div className={trialTypeCss}>
                 {trialType.children.map((value, index) => renderTrialType(value, index))}
+                {!isSubmit && <Error error={{isError: true, errorMessage: NO_SUBMIT_BUTTON}}/>}
             </div>
         </>
     );
