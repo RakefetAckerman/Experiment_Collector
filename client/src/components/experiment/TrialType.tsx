@@ -12,7 +12,7 @@ import {
     SUBMIT,
     TEXT
 } from "../../utils/constants.ts";
-import {useEffect, useState} from "react";
+import {ChangeEvent, Dispatch, SetStateAction, useEffect, useState} from "react";
 import Button from "./Button.tsx";
 import {
     getAnswerIndex,
@@ -25,28 +25,28 @@ import useIdleTimer from "../../hooks/experimentFeatures/useHandleIdle.ts";
 import ToastIdle from "./ToastIdle.tsx";
 import Slider from "./Slider.tsx";
 import 'react-toastify/dist/ReactToastify.css';
-import getFeatures, {FeaturesDataType, updateByFeatures} from "../../utils/features.ts";
+import getFeatures, {FeaturesDataType, updateByFeatures, updateResponseTimeLast} from "../../utils/features.ts";
 import useFocusTime from "../../hooks/experimentFeatures/useHandleFocus.ts";
+import ZoomElement, {ZoomType} from "./ZoomElement.tsx";
 
 type TrialTypeProps = {
     trialType: TrialTypeType,
-    setNextSlide: React.Dispatch<React.SetStateAction<number>>,
+    setNextSlide: Dispatch<SetStateAction<number>>,
     startTime: number,
-    setUserOutput: React.Dispatch<React.SetStateAction<object[]>>,
+    setUserOutput: Dispatch<SetStateAction<object[]>>,
 }
 
 /**
  * A single TrialTypeElement - A single way to show every trial type.
  * Features to add to page:
  * TODO reading from the object details the features need to be set to true.
- * TODO create a implementation of the IDLE.
- * TODO create a implementation of the judgment.
- * @param trialType
- * @param currentSlide
- * @param setNextSlide
- * @param startTime
- * @param setUserOutput
- * @constructor
+ * TODO create a implementation of the zoom.
+ * TODO add pop up
+ * TODO add Likert
+ * @param trialType the current trial type
+ * @param setNextSlide state to move between slides
+ * @param startTime the time the that the trail type started at.
+ * @param setUserOutput the output from the user.
  */
 function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTypeProps) {
     const [answer, setAnswer] = useState(getAnswersNeededBeforeSubmit(trialType));
@@ -55,9 +55,12 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
     const {isIdle, totalIdleTime} = useIdleTimer(HALF_MINUTE);
     const initialConfidence = getInitialConfidence(trialType)
     const [confidence, setConfidence] = useState<number>(initialConfidence);
-    const { unFocusTime } = useFocusTime();
-
+    const [responseTimeFirstJudgment , setResponseTimeFirstJudgment] = useState<number>(0);
+    const {unFocusTime} = useFocusTime();
+    const [currentImageZoom, setCurrentImageZoom] = useState<ZoomType>({image: "", isOpen: false, zoomOutput:[], startTime:startTime});
     useHandleFirstInteraction(startTime, setOutput);
+    const features = getFeatures(trialType);
+
 
     //todo NEED TO BE DELETED ONLY FOR TESTING TO SEE THE OUTPUT AS PRINTED
     useEffect(() => {
@@ -67,31 +70,29 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
         }
     }, [output]);
 
-    const features  = getFeatures(trialType);
-
-
     function moveToNextTrialType() {
         const isTheTrialTypeContainsSlider = isConfidenceTrialType(trialType);
         const responseTimeLast = Date.now() - startTime;
         let newOutput = {...output};
 
-        const featuresData :FeaturesDataType = {totalIdleTime , unFocusTime , responseTimeLast }
+        const featuresData: FeaturesDataType = {totalIdleTime, unFocusTime, responseTimeLast}
 
-        // Updating the output with the necessary features
-        newOutput = updateByFeatures(features,featuresData ,newOutput );
+        // Updating the output with the necessary features for the current trial type
+        newOutput = updateByFeatures(features, featuresData, newOutput , currentImageZoom.zoomOutput);
 
+        newOutput = updateResponseTimeLast(newOutput , featuresData.responseTimeLast)
         if (isTheTrialTypeContainsSlider) {
-            newOutput = {...newOutput, Judgment: confidence};
+            newOutput = {...newOutput, Judgment: {Judgment:confidence, ResponseTimeFirstJudgment: responseTimeFirstJudgment}};
         }
         setIsMoveToNextTrial(true);
         setOutput(newOutput);
     }
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>, sliderObject: UiObjects) => {
+    const handleChange = (event: ChangeEvent<HTMLInputElement>, sliderObject: UiObjects) => {
         setConfidence(Number(event.target.value));
         const answerIndex = getAnswerIndex(sliderObject, trialType);
         if (answer[answerIndex] === EMPTY_STRING) {
-            setOutput({...output, ResponseTimeFirstJudgment: Date.now() - startTime});
+            setResponseTimeFirstJudgment(Date.now() - startTime);
         }
         if (Number(event.target.value) === initialConfidence) {
             setAnswer(prevArray => {
@@ -122,11 +123,14 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
         }
         if (object.type === BUTTONS) {
             const correct = answerClicked === object.correct ? 100 : 0;
+            const currentAnswer = {
+                [`Response`]: answerClicked,
+                [`Accuracy`]: correct,
+                [`ResponseTime`]: Date.now() - startTime
+            }
             setOutput({
                 ...output,
-                [`Response${answerIndex}`]: answerClicked,
-                [`Accuracy${answerIndex}`]: correct,
-                [`ResponseTime${answerIndex}`]: Date.now() - startTime
+                [`Response${answerIndex}`]: currentAnswer,
             });
         }
     }
@@ -134,10 +138,11 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
     function renderTrialType(currentObj: UiObjects, index: number) {
         const key = `${currentObj.type}-${index}`;
         if (currentObj.type === IMAGES) {
-            return <ImagesContainer images={currentObj} key={index}/>
+            return <ImagesContainer setCurrentImageZoom={setCurrentImageZoom} images={currentObj} key={index}/>
         }
         if (currentObj.type === HEADLINE) {
-            return <h2 className={"font-exo text-center text-clamping-mid max-w-[90%]"} key={key}> {currentObj.text!}</h2>
+            return <h2 className={"font-exo text-center text-clamping-mid max-w-[90%]"}
+                       key={key}> {currentObj.text!}</h2>
         }
         if (currentObj.type === TEXT) {
             return <h2 className={"font-exo text-clamping-sm max-w-[80%]"} key={key}> {currentObj.text!}</h2>
@@ -147,7 +152,8 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
             const buttonCSSLocation = `mt-10`;
             const isDisabled = (answer.length !== 0 && answer[answer.length - 1] === EMPTY_STRING);
 
-            return <ButtonIcon text={currentObj.text} onClick={moveToNextTrialType} icon={right_arrow} disabled={isDisabled}
+            return <ButtonIcon text={currentObj.text} onClick={moveToNextTrialType} icon={right_arrow}
+                               disabled={isDisabled}
                                key={key}
                                className={`${buttonCSSLocation} ${isDisabled ? "opacity-30" : buttonCSSActions}`}/>
         }
@@ -156,7 +162,7 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
             const answerIndex = getAnswerIndex(currentObj, trialType);
             const isDisabled = (answer[answerIndex] !== EMPTY_STRING) || (answer[answerIndex - 1] == EMPTY_STRING);
             return (
-                <div key={key} className={buttonContainerCSS }>
+                <div key={key} className={buttonContainerCSS}>
                     {currentObj.buttons!.map(
                         (value, buttonIndex) => <Button
                             disabled={isDisabled}
@@ -184,6 +190,8 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
     const trialTypeCss = "min-w-[90%] flex flex-auto flex-col items-center justify-start gap-8 h-full m-5 p-10 pt-16 bg-white drop-shadow-xl rounded-3xl overflow-x-hidden relative"
     return (
         <>
+            {features.zoom && currentImageZoom.isOpen &&
+                <ZoomElement setCurrentImageZoom={setCurrentImageZoom} currentImageZoom={currentImageZoom}/>}
             {features.idle && isIdle && <ToastIdle/>}
             <div className={trialTypeCss}>
                 {trialType.children.map((value, index) => renderTrialType(value, index))}

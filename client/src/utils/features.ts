@@ -1,10 +1,10 @@
 import {TrialTypeType} from "./types/experimentTypes/experimentsTypes.ts";
+import {ZoomElement, ZoomType} from "../components/experiment/ZoomElement.tsx";
 
 export type Features = {
     idle?: boolean,
     zoom?: boolean,
     focus?: boolean,
-    responseTimeLast?: boolean,
 }
 
 /**
@@ -16,7 +16,6 @@ function getFeatures(trialType: TrialTypeType): Features {
         zoom: false,
         idle: false,
         focus: false,
-        responseTimeLast: false,
     };
 
     if (!('features' in trialType.objectDetails) ||
@@ -68,25 +67,27 @@ export function updateFocus(output :object , responseTimeLast:number , unFocusTi
     return {...output, Focus: focus};
 }
 
+export function updateZoom(output :object  , zoomOutput:ZoomElement[]) {
+    return {...output, Zoom: zoomOutput};
+}
 export type FeaturesDataType = {
     totalIdleTime: number,
     unFocusTime:number,
     responseTimeLast:number,
 
 }
-export function updateByFeatures(features: Features, featuresData: FeaturesDataType, newOutput: object) :object{
+export function updateByFeatures(features: Features, featuresData: FeaturesDataType, newOutput: object , zoomOutput:ZoomElement[]) :object{
     if (features.idle){
         newOutput = updateIdle(newOutput , featuresData.totalIdleTime);
     }
-    if(features.responseTimeLast){
-        newOutput = updateResponseTimeLast(newOutput , featuresData.responseTimeLast)
-    }
+
     if(features.focus){
         newOutput = updateFocus(newOutput , featuresData.responseTimeLast , featuresData.unFocusTime)
     }
-    // if (features.zoom){
-    //
-    // }
+    if (features.zoom){
+        newOutput = updateZoom(newOutput ,zoomOutput)
+
+    }
     return newOutput;
 }
 

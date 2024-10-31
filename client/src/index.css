@@ -23,7 +23,12 @@
 .text-clamping-sm {
     font-size: clamp(0.75rem, 2.5vw, 1rem);
 }
-
+.background-glass{
+    background: rgba(255,255,255,0.5);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.25);
+}
 /*!*For testing only!!! set all borders to red*!*/
 /**{*/
 /*    border: red dotted 1px;*/
