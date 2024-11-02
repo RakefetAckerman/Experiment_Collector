@@ -8,21 +8,16 @@ import right_arrow from "../../assets/right_arrow.svg"
 import ButtonIcon from "./ButtonIcon.tsx";
 import {
     BUTTONS,
-    EMPTY_STRING,
     HALF_MINUTE,
     HEADLINE,
-    IMAGES, LIKERT, NO_SUBMIT_BUTTON,
+    IMAGES, LIKERT,
     SLIDER,
     SUBMIT,
     TEXT
 } from "../../utils/constants.ts";
 import {Dispatch, SetStateAction, useState} from "react";
 import {
-    getAnswerIndex,
-    getAnswersNeededBeforeSubmit,
     isSubmitButton,
-    buildLikertArray,
-    buildSliderArray,
     getCurrentIndex,
     getIsSubmitDisabled
 } from "../../utils/helperMethods.ts";
@@ -38,7 +33,6 @@ import Error from "../../error/Error.tsx";
 import Likert from "./Likert.tsx";
 import {ToastContainer} from "react-toastify";
 import Buttons from "./Buttons.tsx";
-import {handleButtonsError} from "../../error/uiErrorHandling.ts";
 import {ErrorType} from "../../error/errorType.ts";
 
 type TrialTypeProps = {
@@ -87,6 +81,7 @@ function updateOutputForButton(updatedOutput: object, currentElement: PageFlowOu
         }
     }
 }
+
 function updateOutputForSlider(updatedOutput: object, currentElement: PageFlowOutput) {
     return {
         ...updatedOutput,
@@ -96,16 +91,18 @@ function updateOutputForSlider(updatedOutput: object, currentElement: PageFlowOu
         }
     }
 }
+
 function updateOutputForLikert(updatedOutput: object, currentElement: PageFlowOutput) {
     return {
         ...updatedOutput,
         [`Likert-${currentElement.id}`]: {
             Value: currentElement.output,
             ResponseTimeFirstLikert: currentElement.responseTimeFirst,
-            ScalePoint:currentElement.scalePoints
+            ScalePoint: currentElement.scalePoints
         }
     }
 }
+
 function updateOutputFromPageFlow(output: object, pageFlow: PageFlowOutput[]) {
     let updatedOutput: object = {...output};
     for (let i = 0; i < pageFlow.length; i++) {
@@ -126,18 +123,15 @@ function updateOutputFromPageFlow(output: object, pageFlow: PageFlowOutput[]) {
 /**
  * A single TrialTypeElement - A single way to show every trial type.
  * Features to add to page:
- * TODO reading from the object details the features need to be set to true.
- * TODO create a implementation of the zoom.
  * TODO add pop up
- * TODO add Likert
  * @param trialType the current trial type
  * @param setNextSlide state to move between slides
  * @param startTime the time the that the trail type started at.
  * @param setUserOutput the output from the user.
  */
 function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
-    // Page Flow (Output for each element):
-    const [pageFlow, setPageFlow] = useState(getPageFlowOutput(trialType.children));//TODO Implement it.
+    // Page Flow (Output for each Ui element):
+    const [pageFlow, setPageFlow] = useState(getPageFlowOutput(trialType.children));
     // Trial Type Final Output:
     const [output, setOutput] = useState<object>({});
     // For Idle
@@ -153,8 +147,8 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
     });
     // Updating the First Reaction time
     useHandleFirstInteraction(startTime, setOutput);
-    const features = getFeatures(trialType);
 
+    const features = getFeatures(trialType);
     const error = handleTrialTypeErrors(trialType);
 
     function UpdateOutputAncContinueToNextTrialType() {
@@ -220,7 +214,7 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
 
     const trialTypeCss = "min-w-[90%] flex flex-auto flex-col items-center justify-start gap-8 h-full m-5 p-10 pt-16 bg-white drop-shadow-xl rounded-3xl overflow-x-hidden relative"
 
-    //RENDING ERROR IF THERE IS
+    //Rendering error if needed
     if (error.isError) {
         return <div className={trialTypeCss}>
             <Error error={error}/>
