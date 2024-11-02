@@ -1,5 +1,9 @@
 import ImagesContainer from "./ImagesContainer.tsx";
-import {TrialTypeType, UiObjects} from "../../utils/types/experimentTypes/experimentsTypes.ts";
+import {
+    PageFlowOutput,
+    TrialTypeType,
+    UiObjects
+} from "../../utils/types/experimentTypes/experimentsTypes.ts";
 import right_arrow from "../../assets/right_arrow.svg"
 import ButtonIcon from "./ButtonIcon.tsx";
 import {
@@ -12,13 +16,15 @@ import {
     SUBMIT,
     TEXT
 } from "../../utils/constants.ts";
-import {ChangeEvent, Dispatch, SetStateAction, useEffect, useState} from "react";
-import Button from "./Button.tsx";
+import {Dispatch, SetStateAction, useState} from "react";
 import {
     getAnswerIndex,
-    getAnswersNeededBeforeSubmit, getErrorData,
-    getInitialConfidence,
-    isConfidenceTrialType, isSubmitButton, isAllLikertAnswered
+    getAnswersNeededBeforeSubmit,
+    isSubmitButton,
+    buildLikertArray,
+    buildSliderArray,
+    getCurrentIndex,
+    getIsSubmitDisabled
 } from "../../utils/helperMethods.ts";
 import useHandleFirstInteraction from "../../hooks/experimentFeatures/useHandleFirstInteraction.ts";
 import useIdleTimer from "../../hooks/experimentFeatures/useHandleIdle.ts";
@@ -29,31 +35,93 @@ import getFeatures, {FeaturesDataType, updateByFeatures, updateResponseTimeLast}
 import useFocusTime from "../../hooks/experimentFeatures/useHandleFocus.ts";
 import ZoomElement, {ZoomType} from "./ZoomElement.tsx";
 import Error from "../../error/Error.tsx";
-import Likert, {LikertOutput} from "./Likert.tsx";
-import {toast, ToastContainer} from "react-toastify";
+import Likert from "./Likert.tsx";
+import {ToastContainer} from "react-toastify";
+import Buttons from "./Buttons.tsx";
+import {handleButtonsError} from "../../error/uiErrorHandling.ts";
+import {ErrorType} from "../../error/errorType.ts";
 
 type TrialTypeProps = {
     trialType: TrialTypeType,
     setNextSlide: Dispatch<SetStateAction<number>>,
     startTime: number,
-    setUserOutput: Dispatch<SetStateAction<object[]>>,
 }
 
-function buildLikertArray(uiObjects: UiObjects[]) {
-    const output:LikertOutput[] = [];
-    uiObjects.forEach((value, _ ) => {
-        if (value.type === LIKERT){
-            const currentLikert:LikertOutput = {
-                id:value.id!,
-                headline:value.textCenter!,
-                output:null
+function getPageFlowOutput(uiObjects: UiObjects[]): PageFlowOutput[] {
+    const output: PageFlowOutput[] = [];
+    uiObjects.forEach((value, _) => {
+        if (value.type === SLIDER || value.type === LIKERT || value.type === BUTTONS || value.type === SUBMIT) {
+            const currentElement: PageFlowOutput = {
+                id: value.id!,
+                type: value.type,
+                responseTimeFirst: null,
+                output: null
             };
-            output.push(currentLikert);
+            output.push(currentElement);
         }
     })
     return output;
 }
 
+function handleTrialTypeErrors(trialType: TrialTypeType): ErrorType {
+    if (!trialType.id) {
+        return {isError: true, errorMessage: "No ID specified for Trial type"};
+    }
+    if (!trialType.children) {
+        return {isError: true, errorMessage: "No ui objects are mentioned for the current Trial type"};
+    }
+    if (!isSubmitButton(trialType)) {
+        return {isError: true, errorMessage: "No submit button specified for Trial type"};
+    }
+
+    return {isError: false, errorMessage: ""}
+}
+
+function updateOutputForButton(updatedOutput: object, currentElement: PageFlowOutput) {
+    return {
+        ...updatedOutput,
+        [`Response-${currentElement.id}`]: {
+            Response: currentElement.output,
+            ResponseTimeFirst: currentElement.responseTimeFirst,
+            Accuracy: currentElement.accuracy
+        }
+    }
+}
+function updateOutputForSlider(updatedOutput: object, currentElement: PageFlowOutput) {
+    return {
+        ...updatedOutput,
+        [`Judgment-${currentElement.id}`]: {
+            Judgment: currentElement.output,
+            ResponseTimeFirstJudgment: currentElement.responseTimeFirst,
+        }
+    }
+}
+function updateOutputForLikert(updatedOutput: object, currentElement: PageFlowOutput) {
+    return {
+        ...updatedOutput,
+        [`Likert-${currentElement.id}`]: {
+            Value: currentElement.output,
+            ResponseTimeFirstLikert: currentElement.responseTimeFirst,
+            ScalePoint:currentElement.scalePoints
+        }
+    }
+}
+function updateOutputFromPageFlow(output: object, pageFlow: PageFlowOutput[]) {
+    let updatedOutput: object = {...output};
+    for (let i = 0; i < pageFlow.length; i++) {
+        const currentElement: PageFlowOutput = pageFlow[i];
+        if (currentElement.type === BUTTONS) {
+            updatedOutput = updateOutputForButton(updatedOutput, currentElement);
+        }
+        if (currentElement.type === SLIDER) {
+            updatedOutput = updateOutputForSlider(updatedOutput, currentElement);
+        }
+        if (currentElement.type === LIKERT) {
+            updatedOutput = updateOutputForLikert(updatedOutput, currentElement);
+        }
+    }
+    return updatedOutput;
+}
 
 /**
  * A single TrialTypeElement - A single way to show every trial type.
@@ -67,36 +135,29 @@ function buildLikertArray(uiObjects: UiObjects[]) {
  * @param startTime the time the that the trail type started at.
  * @param setUserOutput the output from the user.
  */
-function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTypeProps) {
-    const [answer, setAnswer] = useState(getAnswersNeededBeforeSubmit(trialType));
+function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
+    // Page Flow (Output for each element):
+    const [pageFlow, setPageFlow] = useState(getPageFlowOutput(trialType.children));//TODO Implement it.
+    // Trial Type Final Output:
     const [output, setOutput] = useState<object>({});
-    const [isMoveToNext, setIsMoveToNextTrial] = useState<boolean>(false);
+    // For Idle
     const {isIdle, totalIdleTime} = useIdleTimer(HALF_MINUTE);
-    const initialConfidence = getInitialConfidence(trialType)
-    const [confidence, setConfidence] = useState<number>(initialConfidence);
-    const [responseTimeFirstJudgment, setResponseTimeFirstJudgment] = useState<number>(0);
-    const [likertsValue, setLikertsValue] = useState<LikertOutput[]>(buildLikertArray(trialType.children));
+    // For Focus
     const {unFocusTime} = useFocusTime();
-
+    // For Zoom
     const [currentImageZoom, setCurrentImageZoom] = useState<ZoomType>({
         image: "",
         isOpen: false,
         zoomOutput: [],
         startTime: startTime
     });
+    // Updating the First Reaction time
     useHandleFirstInteraction(startTime, setOutput);
     const features = getFeatures(trialType);
 
-    //todo NEED TO BE DELETED ONLY FOR TESTING TO SEE THE OUTPUT AS PRINTED
-    useEffect(() => {
-        if (isMoveToNext) {
-            setUserOutput(prevState => [...prevState, output]);
-            setNextSlide((prevState) => (prevState + 1));
-        }
-    }, [output]);
+    const error = handleTrialTypeErrors(trialType);
 
     function UpdateOutputAncContinueToNextTrialType() {
-        const isTheTrialTypeContainsSlider = isConfidenceTrialType(trialType);
         const responseTimeLast = Date.now() - startTime;
         let newOutput = {...output};
 
@@ -104,74 +165,20 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
 
         // Updating the output with the necessary features for the current trial type
         newOutput = updateByFeatures(features, featuresData, newOutput, currentImageZoom.zoomOutput);
+        newOutput = updateResponseTimeLast(newOutput, featuresData.responseTimeLast);
 
-        newOutput = updateResponseTimeLast(newOutput, featuresData.responseTimeLast)
-        if (isTheTrialTypeContainsSlider) {
-            newOutput = {
-                ...newOutput,
-                Judgment: {Judgment: confidence, ResponseTimeFirstJudgment: responseTimeFirstJudgment}
-            };
-        }
-        if (!(likertsValue.length === 0)) {
-            newOutput = {...newOutput, Likerts:likertsValue};
-        }
-        if (!(likertsValue.length === 0) && !isAllLikertAnswered(likertsValue)) {
-            toast.error("A value must be selected on the Likert scale to proceed.");
-            return;
-        }
-        setIsMoveToNextTrial(true);
+        //Setting the output to fit each ui element criteria
+        newOutput = updateOutputFromPageFlow(newOutput, pageFlow);
+        console.log(newOutput)
+
         setOutput(newOutput);
+        setNextSlide((prevState) => (prevState + 1));
+
     }
 
-    const handleChange = (event: ChangeEvent<HTMLInputElement>, sliderObject: UiObjects) => {
-        setConfidence(Number(event.target.value));
-        const answerIndex = getAnswerIndex(sliderObject, trialType);
-        if (answer[answerIndex] === EMPTY_STRING) {
-            setResponseTimeFirstJudgment(Date.now() - startTime);
-        }
-        if (Number(event.target.value) === initialConfidence) {
-            setAnswer(prevArray => {
-                const newArray = [...prevArray];
-                newArray[answerIndex!] = EMPTY_STRING;
-                return newArray;
-            });
-            return;
-        }
-        setAnswer(prevArray => {
-            const newArray = [...prevArray];
-            newArray[answerIndex!] = (event.target.value);
-            return newArray;
-        });
-    };
 
-    function handleAnswerSet({answerClicked, answerIndex, object}: {
-        answerClicked?: string,
-        answerIndex?: number,
-        object: UiObjects
-    }) {
-        if (answerClicked) {
-            setAnswer(prevArray => {
-                const newArray = [...prevArray];
-                newArray[answerIndex!] = answerClicked;
-                return newArray;
-            });
-        }
-        if (object.type === BUTTONS) {
-            const correct = answerClicked === object.correct ? 100 : 0;
-            const currentAnswer = {
-                [`Response`]: answerClicked,
-                [`Accuracy`]: correct,
-                [`ResponseTime`]: Date.now() - startTime
-            }
-            setOutput({
-                ...output,
-                [`Response${answerIndex}`]: currentAnswer,
-            });
-        }
-    }
-
-    function renderTrialType(currentObj: UiObjects, index: number) {
-        const key = `${currentObj.type}-${index}`;
+    function renderUi(currentObj: UiObjects, index: number) {
+        const key = `${currentObj.id}-${currentObj.type}-${index}`;
         if (currentObj.type === IMAGES) {
             return <ImagesContainer setCurrentImageZoom={setCurrentImageZoom} images={currentObj} key={index}/>
         }
@@ -185,7 +192,8 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
         if (currentObj.type === SUBMIT) {
             const buttonCSSActions = `bg-white transition-all duration-200 hover:bg-buttons-blue`;
             const buttonCSSLocation = `mt-10`;
-            const isDisabled = (answer.length !== 0 && answer[answer.length - 1] === EMPTY_STRING);
+            const currentIndex = getCurrentIndex(pageFlow, currentObj);
+            const isDisabled = getIsSubmitDisabled(pageFlow, currentIndex);
 
             return <ButtonIcon text={currentObj.text} onClick={UpdateOutputAncContinueToNextTrialType}
                                icon={right_arrow}
@@ -194,42 +202,30 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
                                className={`${buttonCSSLocation} ${isDisabled ? "opacity-30" : buttonCSSActions}`}/>
         }
         if (currentObj.type === BUTTONS) {
-            const buttonContainerCSS = "flex justify-center items-stretch max-laptop:items-center laptop:flex-row gap-4 max-laptop:flex-col w-3/4";
-            const answerIndex = getAnswerIndex(currentObj, trialType);
-            const isDisabled = (answer[answerIndex] !== EMPTY_STRING) || (answer[answerIndex - 1] == EMPTY_STRING);
-            return (
-                <div key={key} className={buttonContainerCSS}>
-                    {currentObj.buttons!.map(
-                        (value, buttonIndex) => <Button
-                            disabled={isDisabled}
-                            className={isDisabled ? (value !== answer[answerIndex] ? "opacity-30" : "bg-blue-300") : "bg-white hover:bg-buttons-blue"}
-                            onClick={() => handleAnswerSet({
-                                answerClicked: value,
-                                answerIndex: answerIndex,
-                                object: currentObj
-                            })}
-                            key={`${key}-button-${buttonIndex}`}>{value}</Button>)}
-                </div>
-            );
+            return <Buttons key={key} startTime={startTime} pageFlow={pageFlow}
+                            setPageFlow={setPageFlow} uiObject={currentObj}/>;
         }
         if (currentObj.type === SLIDER) {
-            const answerIndex = getAnswerIndex(currentObj, trialType);
-            const isDisabled = (answer[answerIndex - 1] == EMPTY_STRING);
             return (
-                <Slider handleChange={handleChange} className={isDisabled ? "opacity-30" : ""} value={confidence}
-                        disabled={isDisabled} sliderObj={currentObj} key={key}/>
+                <Slider key={key} startTime={startTime} pageFlow={pageFlow}
+                        setPageFlow={setPageFlow} uiObject={currentObj}/>
             );
         }
         if (currentObj.type === LIKERT) {
-            return <Likert key={key} likertsValue={likertsValue} setLikertsValue={setLikertsValue} uiObject={currentObj}/>
+            return <Likert key={key} startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow}
+                           uiObject={currentObj}/>
         }
         return undefined;
     }
 
     const trialTypeCss = "min-w-[90%] flex flex-auto flex-col items-center justify-start gap-8 h-full m-5 p-10 pt-16 bg-white drop-shadow-xl rounded-3xl overflow-x-hidden relative"
 
-    //IF NO SUBMIT BUTTON RENDERING THE ERROR
-    const isSubmit = isSubmitButton(trialType);
+    //RENDING ERROR IF THERE IS
+    if (error.isError) {
+        return <div className={trialTypeCss}>
+            <Error error={error}/>
+        </div>
+    }
 
     return (
         <>
@@ -238,8 +234,7 @@ function TrialType({trialType, setNextSlide, startTime, setUserOutput}: TrialTyp
                 <ZoomElement setCurrentImageZoom={setCurrentImageZoom} currentImageZoom={currentImageZoom}/>}
             {features.idle && isIdle && <ToastIdle/>}
             <div className={trialTypeCss}>
-                {trialType.children.map((value, index) => renderTrialType(value, index))}
-                {!isSubmit && <Error error={{isError: true, errorMessage: NO_SUBMIT_BUTTON}}/>}
+                {trialType.children.map((uiObject, index) => renderUi(uiObject, index))}
             </div>
         </>
     );

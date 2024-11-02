@@ -1,3 +1,5 @@
+import {Dispatch, SetStateAction} from "react";
+
 enum ExperimentTypes {
     XRAY = "XRay",
     SLG = "SLG",
@@ -45,4 +47,28 @@ export type UiObjects = {
     id?:string
     min?: number,
     max?: number,
+}
+
+
+
+export type LikertOutput = {
+    headline: string,
+    id: string,
+    output: number | null,
+    responseTimeFirstLikert:number|null
+}
+
+export type SliderOutput = {
+    id: string,
+    confidence: number | null,
+    responseTimeFirstJudgment: number | null,
+}
+
+export type PageFlowOutput = {
+    id: string,
+    type:string,
+    output: string | number | null,
+    responseTimeFirst: number | null,
+    accuracy?: number | null, //only for buttons
+    scalePoints?: number | null, //only for likert
 }

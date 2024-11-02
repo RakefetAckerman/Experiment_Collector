@@ -1,7 +1,13 @@
-import {TrialTypeType, UiObjects} from "./types/experimentTypes/experimentsTypes.ts";
+import {
+    LikertOutput,
+    PageFlowOutput,
+    SliderOutput,
+    TrialTypeType,
+    UiObjects
+} from "./types/experimentTypes/experimentsTypes.ts";
 import {
     BUTTONS,
-    JWT_TOKEN,
+    JWT_TOKEN, LIKERT,
     SERVER_ERROR_GENERAL,
     SERVER_NOT_RESPONDING,
     SLIDER,
@@ -12,7 +18,6 @@ import {AxiosError} from "axios";
 import {TokenType} from "./tokenType.ts";
 import Cookies from "universal-cookie";
 import {SerializedUser} from "./types/userTypes/userTypes.ts";
-import {LikertOutput} from "../components/experiment/Likert.tsx";
 
 export function getAnswersNeededBeforeSubmit(trailType: TrialTypeType): string[] {
     const array: string[] = [];
@@ -114,11 +119,49 @@ export function isSubmitButton(trialType: TrialTypeType): boolean {
     return trialType.children.some((e) => e.type === SUBMIT);
 }
 
-export function isAllLikertAnswered(likertsValue: LikertOutput[]) :boolean{
-    for (let i = 0 ;i < likertsValue.length ; i++){
-        if (!likertsValue[i].output){
-            return false;
+export function buildLikertArray(uiObjects: UiObjects[]) {
+    const output:LikertOutput[] = [];
+    uiObjects.forEach((value, _ ) => {
+        if (value.type === LIKERT){
+            const currentLikert:LikertOutput = {
+                responseTimeFirstLikert:null,
+                id:value.id!,
+                headline:value.headline!,
+                output:null
+            };
+            output.push(currentLikert);
+        }
+    })
+    return output;
+}
+
+export function buildSliderArray(uiObjects: UiObjects[]) {
+    const output:SliderOutput[] = [];
+    uiObjects.forEach((value, _ ) => {
+        if (value.type === SLIDER){
+            const currentSlider:SliderOutput = {
+                id:value.id!,
+                confidence:null,
+                responseTimeFirstJudgment:null
+            };
+            output.push(currentSlider);
+        }
+    })
+    return output;
+}
+
+export function getCurrentIndex(pageFlow: PageFlowOutput[], uiObjects: UiObjects): number | null {
+    for (let i = 0; i < pageFlow.length; i++) {
+        if (uiObjects.id === pageFlow[i].id) {
+            return i;
         }
     }
-    return true;
+    return null;
+}
+
+export function getIsSubmitDisabled(pageFlow: PageFlowOutput[], currentIndex: number | null): boolean {
+    if (!currentIndex || currentIndex === 0) {
+        return false;
+    }
+    return !(pageFlow[currentIndex - 1].output);
 }

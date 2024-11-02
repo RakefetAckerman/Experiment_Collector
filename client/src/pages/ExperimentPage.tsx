@@ -1,5 +1,5 @@
 import {NavLink, useParams} from "react-router-dom";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import Spinner from "../components/common/Spinner.tsx";
 import TrialType from "../components/experiment/TrialType.tsx";
 import useExperimentData from "../hooks/experimentFeatures/useExperimentData.ts";
@@ -9,12 +9,6 @@ function ExperimentPage() {
     const {experiment_name} = useParams();
     const [currentTrailType, setCurrentTrailType] = useState(0);
     const {experimentData, loading, error} = useExperimentData(experiment_name);
-    const [userOutput, setUserOutput] = useState<object[]>([]);
-
-    useEffect(() => {
-        if (userOutput.length > 0)
-            console.log(userOutput)
-    } , [userOutput]);
 
     if (loading) {
         return <div className={"w-full h-full flex justify-center items-center"}>
@@ -34,7 +28,7 @@ function ExperimentPage() {
             <h2 className={"font-exo text-center text-3xl"}>{experimentData.name}</h2>
             {experimentData.trailTypes.map((trailType, index) =>
                 index === currentTrailType &&
-                <TrialType setUserOutput={setUserOutput} startTime={Date.now()} setNextSlide={setCurrentTrailType}
+                <TrialType startTime={Date.now()} setNextSlide={setCurrentTrailType}
                            key={`trail-type-${index}`} trialType={trailType}/>
             )}
         </div>
