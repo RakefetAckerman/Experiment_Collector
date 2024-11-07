@@ -163,7 +163,7 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
 
         //Setting the output to fit each ui element criteria
         newOutput = updateOutputFromPageFlow(newOutput, pageFlow);
-        console.log(newOutput)
+        console.log(newOutput , pageFlow)
 
         setOutput(newOutput);
         setNextSlide((prevState) => (prevState + 1));

@@ -55,6 +55,9 @@ export function handleButtonsError({id, buttons , correct}: UiObjects): ErrorTyp
     if (buttons.length === 0) {
         return {isError: true, errorMessage: "Buttons array must include at list one string"};
     }
+    if (buttons.length > 100) {
+        return {isError: true, errorMessage: "Buttons array must be smaller then 100 buttons"};
+    }
     if (!correct) {
         return {isError: true, errorMessage: "No Correct specified for buttons object"};
     }

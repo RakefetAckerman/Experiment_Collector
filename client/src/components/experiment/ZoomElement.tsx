@@ -63,7 +63,7 @@ function ZoomElement({currentImageZoom, setCurrentImageZoom}: ZoomElementType) {
             action: event.deltaY < 0 ? "zoom-in" : "zoom-out",
         }
         const timeDiff = zoomElement.time - currentImageZoom.zoomOutput[currentImageZoom.zoomOutput.length - 1].time
-        if (timeDiff > 300) {
+        if (timeDiff > 30) {
             const array = [...currentImageZoom.zoomOutput];
             array.push(zoomElement)
             setCurrentImageZoom(prevState => (

@@ -74,7 +74,7 @@ function Buttons({uiObject, setPageFlow, pageFlow, startTime}: ButtonsProps) {
 
     return (
         <div id={"buttons_container"}
-             className={`w-full flex gap-4 justify-center flex-row max-tablet:flex-col flex-wrap ${isContainerDisabled ? "opacity-30" : "opacity-100"}`}>
+             className={`w-full flex gap-4 justify-center flex-row flex-wrap ${isContainerDisabled ? "opacity-30" : "opacity-100"}`}>
             {uiObject.buttons!.map((value, index) => {
                 const sizeAndShape = "max-w-[300px] rounded-xl"
                 const marginAndPadding = "p-4 flex-1 "
