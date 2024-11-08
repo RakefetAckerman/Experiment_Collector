@@ -1,4 +1,5 @@
 import {Dispatch, SetStateAction} from "react";
+import {understandingInstructionOutput} from "../../../features/Ui/UnderstandingInstruction/types.ts";
 
 enum ExperimentTypes {
     XRAY = "XRay",
@@ -76,4 +77,5 @@ export type PageFlowOutput = {
     responseTimeFirst: number | null,
     accuracy?: number | null, //only for buttons
     scalePoints?: number | null, //only for likert
+    flowInstruction?: understandingInstructionOutput[] //only for Understanding Instruction
 }

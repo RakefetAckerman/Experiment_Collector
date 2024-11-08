@@ -3,6 +3,7 @@ import {handleUnderstandingInstructionError} from "./errors.ts";
 import Error from "../../../error/Error.tsx";
 import React, {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {getCurrentIndex} from "../../../utils/helperMethods.ts";
+import {understandingInstructionOutput} from "./types.ts";
 
 type understandingInstructionProps = {
     uiObject: UiObjects
@@ -17,16 +18,24 @@ function UnderstandingInstruction({uiObject , startTime , setPageFlow , pageFlow
     const [id, setId] = useState<string>(uiObject.children![0].id!);
     const [isVerifyDisabled, setIsVerifyDisabled] = useState<boolean>(false);
     const currentIndex = getCurrentIndex(pageFlow, uiObject);
-    const [output , setOutput] = useState<string>("");
+    const [output , setOutput] = useState<understandingInstructionOutput[]>([]);
+
     if (error.isError) {
         return <Error error={error}/>;
     }
+
 
     if (!isVerify) {
         const disableCSS = isVerifyDisabled ? "opacity-30" : "active:scale-110 hover:bg-buttons-blue opacity-100";
         return <button
             onClick={() => {
                 setIsVerify(true);
+                const currentOutput:understandingInstructionOutput = {
+                    id:uiObject.id!,
+                    responseTimeFirstInstruction: Date.now() - startTime,
+                    buttonType: "Start instruction",
+                }
+                setOutput(prevState => [...prevState ,currentOutput])
             }}
             disabled={isVerifyDisabled}
             className={`${disableCSS} text-clamping-sm p-4 border border-gray-300 drop-shadow-xl transition-all duration-300 rounded-xl`}>
@@ -36,35 +45,39 @@ function UnderstandingInstruction({uiObject , startTime , setPageFlow , pageFlow
 
     function handleClick(child: UiObjects,value:string){
         const isCorrect = child.correct === value;
+        const currentOutput:understandingInstructionOutput = {
+            id:child.id!,
+            outputEntered:value,
+            responseTimeFirstInstruction: Date.now() - startTime,
+            correct:child.correct!,
+            accuracy: isCorrect ? 100 : 0,
+        }
+
         if (isCorrect && !child.nextIfCorrect){
             setIsVerify(false);
             setIsVerifyDisabled(true);
             setPageFlow(prevState => {
                 let updatedElement: PageFlowOutput = prevState[currentIndex!];
-                if (!updatedElement.responseTimeFirst) {
-                    updatedElement = {...updatedElement, responseTimeFirst: Date.now() - startTime}
-                }
-                updatedElement = {...updatedElement, output:output }
+                updatedElement = {...updatedElement, output:"answered" , flowInstruction:[...output,  currentOutput] }
                 return prevState.map((item, index) =>
                     index === currentIndex ? updatedElement : item
                 );
             })
             return;
         }
+
         if (isCorrect) {
             setId(child.nextIfCorrect);
-            setOutput(prevState => (`${prevState} ${value}`))
+            setOutput(prevState => [...prevState ,currentOutput])
             return;
         }
+
         if (!isCorrect && !child.nextIfWrong){
             setIsVerify(false);
             setIsVerifyDisabled(true);
             setPageFlow(prevState => {
                 let updatedElement: PageFlowOutput = prevState[currentIndex!];
-                if (!updatedElement.responseTimeFirst) {
-                    updatedElement = {...updatedElement, responseTimeFirst: Date.now() - startTime}
-                }
-                updatedElement = {...updatedElement, output:output }
+                updatedElement = {...updatedElement,  output:"answered" , flowInstruction:output  }
                 return prevState.map((item, index) =>
                     index === currentIndex ? updatedElement : item
                 );
@@ -73,7 +86,7 @@ function UnderstandingInstruction({uiObject , startTime , setPageFlow , pageFlow
         }
         if (!isCorrect) {
             setId(child.nextIfWrong);
-            setOutput(prevState => (`${prevState} ${value}`))
+            setOutput(prevState => [...prevState ,currentOutput])
             return;
         }
     }
@@ -100,7 +113,7 @@ function UnderstandingInstruction({uiObject , startTime , setPageFlow , pageFlow
             className={`flex flex-col transition-all duration-1000 items-center p-10 center-absolute w-[85%] h-[85%] rounded-3xl bg-gray-100 overflow-y-scroll z-10 border-4`}>
             {
                 uiObject.children?.map((child, index) => {
-                    return id === child.id! ? <ElementExpended key={`${child.id}-${index}`} child={child}/> : <></>;
+                    return id === child.id! ? <ElementExpended key={`${child.id}-${index}`} child={child}/> : undefined;
                 })
 
             }

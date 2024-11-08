@@ -105,6 +105,13 @@ function updateOutputForLikert(updatedOutput: object, currentElement: PageFlowOu
     }
 }
 
+function updateOutputForVerifyInstruction(updatedOutput: object, currentElement: PageFlowOutput) {
+    return {
+        ...updatedOutput,
+        [`VerifyUnderstanding-${currentElement.id}`]: currentElement.flowInstruction,
+    }
+}
+
 function updateOutputFromPageFlow(output: object, pageFlow: PageFlowOutput[]) {
     let updatedOutput: object = {...output};
     for (let i = 0; i < pageFlow.length; i++) {
@@ -117,6 +124,9 @@ function updateOutputFromPageFlow(output: object, pageFlow: PageFlowOutput[]) {
         }
         if (currentElement.type === LIKERT) {
             updatedOutput = updateOutputForLikert(updatedOutput, currentElement);
+        }
+        if (currentElement.type === UNDERSTANDING_INSTRUCTION){
+            updatedOutput = updateOutputForVerifyInstruction(updatedOutput, currentElement);
         }
     }
     return updatedOutput;
@@ -148,7 +158,7 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
         startTime: startTime
     });
     // For Mouse Tracking feature
-     const {mouseTracking} = useMouseTracking(startTime , 350 );
+    const {mouseTracking} = useMouseTracking(startTime, 350);
 
     // Updating the First Reaction time
     useHandleFirstInteraction(startTime, setOutput);
@@ -163,12 +173,12 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
         const featuresData: FeaturesDataType = {totalIdleTime, unFocusTime, responseTimeLast}
 
         // Updating the output with the necessary features for the current trial type
-        newOutput = updateByFeatures(features, featuresData, newOutput, currentImageZoom.zoomOutput , mouseTracking);
+        newOutput = updateByFeatures(features, featuresData, newOutput, currentImageZoom.zoomOutput, mouseTracking);
         newOutput = updateResponseTimeLast(newOutput, featuresData.responseTimeLast);
 
         //Setting the output to fit each ui element criteria
         newOutput = updateOutputFromPageFlow(newOutput, pageFlow);
-        console.log(newOutput , pageFlow)
+        console.log(newOutput)
 
         setOutput(newOutput);
         setNextSlide((prevState) => (prevState + 1));
@@ -214,8 +224,9 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
             return <Likert key={key} startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow}
                            uiObject={currentObj}/>
         }
-        if (currentObj.type === UNDERSTANDING_INSTRUCTION){
-            return <UnderstandingInstruction startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow} uiObject={currentObj} key={key}/>
+        if (currentObj.type === UNDERSTANDING_INSTRUCTION) {
+            return <UnderstandingInstruction startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow}
+                                             uiObject={currentObj} key={key}/>
         }
         return undefined;
     }
