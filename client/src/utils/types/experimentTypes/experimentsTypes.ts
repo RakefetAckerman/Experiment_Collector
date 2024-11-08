@@ -33,6 +33,7 @@ export type TrialTypeType = {
 
 export type UiObjects = {
     type: string,
+    verifyButtonText?: string,
     urls?: string[],
     objectDetails?: object,
     text?: string,
@@ -43,19 +44,23 @@ export type UiObjects = {
     textRight?: string,
     headline?: string,
     semiHeadlines?: string[],
-    scalePoints?:number,
-    id?:string
+    scalePoints?: number,
+    question?: string
+    id?: string
     min?: number,
     max?: number,
+    children?: UiObjects[],
+    dynamicFlow?: boolean,
+    nextIfCorrect: string,
+    nextIfWrong: string
 }
-
 
 
 export type LikertOutput = {
     headline: string,
     id: string,
     output: number | null,
-    responseTimeFirstLikert:number|null
+    responseTimeFirstLikert: number | null
 }
 
 export type SliderOutput = {
@@ -66,7 +71,7 @@ export type SliderOutput = {
 
 export type PageFlowOutput = {
     id: string,
-    type:string,
+    type: string,
     output: string | number | null,
     responseTimeFirst: number | null,
     accuracy?: number | null, //only for buttons

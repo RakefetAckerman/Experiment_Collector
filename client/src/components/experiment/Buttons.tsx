@@ -1,21 +1,7 @@
-// <div key={key} className={buttonContainerCSS}>
-//     {currentObj.buttons!.map(
-//         (value, buttonIndex) => <Button
-//             disabled={isDisabled}
-//             className={isDisabled ? (value !== answer[answerIndex] ? "opacity-30" : "bg-blue-300") : "bg-white"}
-//             onClick={() => handleAnswerSet({
-//                 answerClicked: value,
-//                 answerIndex: answerIndex,
-//                 object: currentObj
-//             })}
-//             key={`${key}-button-${buttonIndex}`}>{value}</Button>)}
-// </div>
 import {PageFlowOutput, UiObjects} from "../../utils/types/experimentTypes/experimentsTypes.ts";
 import React, {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {handleButtonsError} from "../../error/uiErrorHandling.ts";
 import Error from "../../error/Error.tsx";
-import Button from "./Button.tsx";
-import {number} from "yup";
 import {getCurrentIndex} from "../../utils/helperMethods.ts";
 
 type ButtonsProps = {

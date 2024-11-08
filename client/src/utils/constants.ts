@@ -15,6 +15,7 @@ export const BUTTONS = "buttons";
 export const SUBMIT = "submit";
 export const TEXT = "text";
 export const LIKERT = "likert";
+export const UNDERSTANDING_INSTRUCTION = "understandingInstruction";
 export const MINUTE = 60000;
 export const HALF_MINUTE = 30000;
 export const SLIDER = "slider";

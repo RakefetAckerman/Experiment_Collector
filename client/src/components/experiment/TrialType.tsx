@@ -13,7 +13,7 @@ import {
     IMAGES, LIKERT,
     SLIDER,
     SUBMIT,
-    TEXT
+    TEXT, UNDERSTANDING_INSTRUCTION
 } from "../../utils/constants.ts";
 import {Dispatch, SetStateAction, useState} from "react";
 import {
@@ -31,9 +31,10 @@ import useFocusTime from "../../hooks/experimentFeatures/useHandleFocus.ts";
 import ZoomElement, {ZoomType} from "./ZoomElement.tsx";
 import Error from "../../error/Error.tsx";
 import Likert from "./Likert.tsx";
-import {ToastContainer} from "react-toastify";
 import Buttons from "./Buttons.tsx";
 import {ErrorType} from "../../error/errorType.ts";
+import useMouseTracking from "../../features/MouseTracking/useMouseTracking.ts";
+import UnderstandingInstruction from "../../features/Ui/UnderstandingInstruction/UnderstandingInstruction.tsx";
 
 type TrialTypeProps = {
     trialType: TrialTypeType,
@@ -44,7 +45,8 @@ type TrialTypeProps = {
 function getPageFlowOutput(uiObjects: UiObjects[]): PageFlowOutput[] {
     const output: PageFlowOutput[] = [];
     uiObjects.forEach((value, _) => {
-        if (value.type === SLIDER || value.type === LIKERT || value.type === BUTTONS || value.type === SUBMIT) {
+        if (value.type === SLIDER || value.type === LIKERT || value.type === BUTTONS || value.type === SUBMIT
+            || value.type === UNDERSTANDING_INSTRUCTION) {
             const currentElement: PageFlowOutput = {
                 id: value.id!,
                 type: value.type,
@@ -145,6 +147,9 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
         zoomOutput: [],
         startTime: startTime
     });
+    // For Mouse Tracking feature
+     const {mouseTracking} = useMouseTracking(startTime , 350 );
+
     // Updating the First Reaction time
     useHandleFirstInteraction(startTime, setOutput);
 
@@ -158,7 +163,7 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
         const featuresData: FeaturesDataType = {totalIdleTime, unFocusTime, responseTimeLast}
 
         // Updating the output with the necessary features for the current trial type
-        newOutput = updateByFeatures(features, featuresData, newOutput, currentImageZoom.zoomOutput);
+        newOutput = updateByFeatures(features, featuresData, newOutput, currentImageZoom.zoomOutput , mouseTracking);
         newOutput = updateResponseTimeLast(newOutput, featuresData.responseTimeLast);
 
         //Setting the output to fit each ui element criteria
@@ -209,6 +214,9 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
             return <Likert key={key} startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow}
                            uiObject={currentObj}/>
         }
+        if (currentObj.type === UNDERSTANDING_INSTRUCTION){
+            return <UnderstandingInstruction startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow} uiObject={currentObj} key={key}/>
+        }
         return undefined;
     }
 
@@ -223,7 +231,6 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
 
     return (
         <>
-            <ToastContainer autoClose={3000}/>
             {features.zoom && currentImageZoom.isOpen &&
                 <ZoomElement setCurrentImageZoom={setCurrentImageZoom} currentImageZoom={currentImageZoom}/>}
             {features.idle && isIdle && <ToastIdle/>}

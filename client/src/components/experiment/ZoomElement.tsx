@@ -1,6 +1,5 @@
 import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from 'react';
 import closeIcon from "../../assets/close.svg"
-import imagesContainer from "./ImagesContainer.tsx";
 
 type ZoomElementType = {
     currentImageZoom: ZoomType,

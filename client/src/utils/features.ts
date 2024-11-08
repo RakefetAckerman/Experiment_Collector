@@ -1,10 +1,12 @@
 import {TrialTypeType} from "./types/experimentTypes/experimentsTypes.ts";
-import {ZoomElement, ZoomType} from "../components/experiment/ZoomElement.tsx";
+import {ZoomElement} from "../components/experiment/ZoomElement.tsx";
+import {MouseTrackingObject} from "../features/MouseTracking/types.ts";
 
 export type Features = {
     idle?: boolean,
     zoom?: boolean,
     focus?: boolean,
+    mouseTracking?: boolean,
 }
 
 /**
@@ -16,6 +18,7 @@ function getFeatures(trialType: TrialTypeType): Features {
         zoom: false,
         idle: false,
         focus: false,
+        mouseTracking: false,
     };
 
     if (!('features' in trialType.objectDetails) ||
@@ -70,17 +73,23 @@ export function updateFocus(output :object , responseTimeLast:number , unFocusTi
 export function updateZoom(output :object  , zoomOutput:ZoomElement[]) {
     return {...output, Zoom: zoomOutput};
 }
+
+export function updateMouseTracking(output :object  , mouseTracking:MouseTrackingObject[]) {
+    return {...output, MouseTracking: mouseTracking};
+}
 export type FeaturesDataType = {
     totalIdleTime: number,
     unFocusTime:number,
     responseTimeLast:number,
 
 }
-export function updateByFeatures(features: Features, featuresData: FeaturesDataType, newOutput: object , zoomOutput:ZoomElement[]) :object{
+export function updateByFeatures(features: Features, featuresData: FeaturesDataType, newOutput: object , zoomOutput:ZoomElement[] , mouseTracking:MouseTrackingObject[]) :object{
     if (features.idle){
         newOutput = updateIdle(newOutput , featuresData.totalIdleTime);
     }
-
+    if (features.mouseTracking){
+        newOutput = updateMouseTracking(newOutput,mouseTracking);
+    }
     if(features.focus){
         newOutput = updateFocus(newOutput , featuresData.responseTimeLast , featuresData.unFocusTime)
     }

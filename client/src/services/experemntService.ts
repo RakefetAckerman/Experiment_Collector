@@ -1,5 +1,5 @@
 import mockup from "../assets/mockup.json"
-import testUI from "../assets/testUiObject.json"
+// import testUI from "../assets/testUiObject.json"
 
 import {Experiment} from "../utils/types/experimentTypes/experimentsTypes.ts";
 
@@ -9,7 +9,7 @@ import {Experiment} from "../utils/types/experimentTypes/experimentsTypes.ts";
  * @param experiment_name
  */
 export async function getExperimentData(experiment_name: string | undefined) : Promise<Experiment | undefined> {
-    const data = testUI;
+    const data = mockup;
     if (!experiment_name){
         return undefined;
     }

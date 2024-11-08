@@ -4,7 +4,7 @@ type ErrorProps=  {
     error: ErrorType;
 }
 function Error({error}: ErrorProps) {
-    const css = "text-clamping-mid rounded-xl p-5 bg-red-50 border border-red-200 text-red-700";
+    const css = "text-clamping-mid rounded-xl p-5 bg-red-50 border border-red-200 text-red-700 text-center";
     return (
         <h1 className={css}>{error.errorMessage}</h1>
     );
