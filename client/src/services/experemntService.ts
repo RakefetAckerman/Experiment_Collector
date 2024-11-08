@@ -13,5 +13,7 @@ export async function getExperimentData(experiment_name: string | undefined) : P
     if (!experiment_name){
         return undefined;
     }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     return data;
 }

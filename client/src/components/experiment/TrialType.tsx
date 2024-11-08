@@ -44,7 +44,7 @@ type TrialTypeProps = {
 
 function getPageFlowOutput(uiObjects: UiObjects[]): PageFlowOutput[] {
     const output: PageFlowOutput[] = [];
-    uiObjects.forEach((value, _) => {
+    uiObjects.forEach((value) => {
         if (value.type === SLIDER || value.type === LIKERT || value.type === BUTTONS || value.type === SUBMIT
             || value.type === UNDERSTANDING_INSTRUCTION) {
             const currentElement: PageFlowOutput = {
@@ -59,6 +59,21 @@ function getPageFlowOutput(uiObjects: UiObjects[]): PageFlowOutput[] {
     return output;
 }
 
+function isUiElementsWithTheSameId(children: UiObjects[]) {
+    for(const child of children){
+        let isAlready = false;
+        for (const child2 of children){
+            if (child.id == child2.id && isAlready){
+                return true
+            }
+            if (child.id == child2.id){
+                isAlready = true;
+            }
+        }
+    }
+    return false;
+}
+
 function handleTrialTypeErrors(trialType: TrialTypeType): ErrorType {
     if (!trialType.id) {
         return {isError: true, errorMessage: "No ID specified for Trial type"};
@@ -66,8 +81,12 @@ function handleTrialTypeErrors(trialType: TrialTypeType): ErrorType {
     if (!trialType.children) {
         return {isError: true, errorMessage: "No ui objects are mentioned for the current Trial type"};
     }
+
     if (!isSubmitButton(trialType)) {
         return {isError: true, errorMessage: "No submit button specified for Trial type"};
+    }
+    if(isUiElementsWithTheSameId(trialType.children)){
+        return {isError: true, errorMessage: "Two or more of ui objects in the trail type have the same id"};
     }
 
     return {isError: false, errorMessage: ""}
@@ -135,7 +154,6 @@ function updateOutputFromPageFlow(output: object, pageFlow: PageFlowOutput[]) {
 /**
  * A single TrialTypeElement - A single way to show every trial type.
  * Features to add to page:
- * TODO add pop up
  * @param trialType the current trial type
  * @param setNextSlide state to move between slides
  * @param startTime the time the that the trail type started at.

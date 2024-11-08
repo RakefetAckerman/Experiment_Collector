@@ -46,7 +46,7 @@ function Likert({uiObject, pageFlow, setPageFlow, startTime}: LikertProp) {
             if (!updatedElement.responseTimeFirst) {
                 updatedElement = {...updatedElement, responseTimeFirst: Date.now() - startTime}
             }
-            updatedElement = {...updatedElement, output: value , scalePoints:uiObject.scalePoints}
+            updatedElement = {...updatedElement, output: value, scalePoints: uiObject.scalePoints}
             return prevState.map((item, index) =>
                 index === currentIndex ? updatedElement : item
             );
