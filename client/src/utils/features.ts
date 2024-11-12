@@ -1,6 +1,6 @@
-import {TrialTypeType} from "./types/experimentTypes/experimentsTypes.ts";
-import {ZoomElement} from "../components/experiment/ZoomElement.tsx";
 import {MouseTrackingObject} from "../features/MouseTracking/types.ts";
+import {TrialTypeType} from "../features/TrialType/types.ts";
+import {ZoomElementType} from "../features/Zoom/types.ts";
 
 export type Features = {
     idle?: boolean,
@@ -57,6 +57,13 @@ export function updateResponseTimeLast(output :object , responseTimeLast:number)
     return {...output, ResponseTimeLast: responseTimeLast};
 }
 
+/**
+ * updating the Focus element in an object.
+ * @param output the object.
+ * @param responseTimeLast the response time last.
+ * @param unFocusTime the amount of time the user was not focused
+ * @return a new object with the same data as output but with the Focus element in it.
+ */
 export function updateFocus(output :object , responseTimeLast:number , unFocusTime:number) {
     let outOfFocusPercentage =  0
     if (unFocusTime > 0){
@@ -70,20 +77,40 @@ export function updateFocus(output :object , responseTimeLast:number , unFocusTi
     return {...output, Focus: focus};
 }
 
-export function updateZoom(output :object  , zoomOutput:ZoomElement[]) {
+/**
+ * TODO ADD DOCUMENTATION
+ * @param output
+ * @param zoomOutput
+ */
+export function updateZoom(output :object  , zoomOutput:ZoomElementType[]) {
     return {...output, Zoom: zoomOutput};
 }
 
+/**
+ * TODO ADD DOCUMENTATION
+ * @param output
+ * @param mouseTracking
+ */
 export function updateMouseTracking(output :object  , mouseTracking:MouseTrackingObject[]) {
     return {...output, MouseTracking: mouseTracking};
 }
+
 export type FeaturesDataType = {
     totalIdleTime: number,
     unFocusTime:number,
     responseTimeLast:number,
 
 }
-export function updateByFeatures(features: Features, featuresData: FeaturesDataType, newOutput: object , zoomOutput:ZoomElement[] , mouseTracking:MouseTrackingObject[]) :object{
+
+/**
+ * TODO ADD DOCUMENTATION
+ * @param features
+ * @param featuresData
+ * @param newOutput
+ * @param zoomOutput
+ * @param mouseTracking
+ */
+export function updateByFeatures(features: Features, featuresData: FeaturesDataType, newOutput: object , zoomOutput:ZoomElementType[] , mouseTracking:MouseTrackingObject[]) :object{
     if (features.idle){
         newOutput = updateIdle(newOutput , featuresData.totalIdleTime);
     }

@@ -1,5 +1,5 @@
-import {Dispatch, SetStateAction} from "react";
 import {understandingInstructionOutput} from "../../../features/Ui/UnderstandingInstruction/types.ts";
+import {TrialTypeType} from "../../../features/TrialType/types.ts";
 
 enum ExperimentTypes {
     XRAY = "XRay",
@@ -25,11 +25,6 @@ export type Experiment = {
     name: string,
     objectDetails: object,
     trailTypes: TrialTypeType[]
-}
-export type TrialTypeType = {
-    id: string,
-    objectDetails: object,
-    children: UiObjects[],
 }
 
 export type UiObjects = {

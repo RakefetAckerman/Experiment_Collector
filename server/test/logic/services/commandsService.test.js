@@ -26,7 +26,7 @@ chai.use(chaiHttp);
 chai.should();
 
 const baseCommandsURL = "/auth/commands";
-const baseEntryRegistrationURL = "/entry/register";
+const baseEntryRegistrationURL = "/entry/Register";
 const baseEntryLoginURL = "/entry/login";
 const baseResearchersURL = "/auth/researchers";
 const baseObjectsURL = "/auth/objects";

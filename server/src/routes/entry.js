@@ -6,7 +6,7 @@ const router = express.Router();
 
 /**
  * Route for user registration.
- * @name POST entry/register
+ * @name POST entry/Register
  * @function
  * @param {Object} req - Express request object formed as UserBoundary.
  * @param {Object} res - Express response object.

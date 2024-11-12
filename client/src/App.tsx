@@ -4,11 +4,11 @@ import AppLayout from "./pages/AppLayout.tsx";
 import "./index.css"
 import ExperimentsDashboard from "./pages/ExperimentsDashboard.tsx";
 import ExperimentPage from "./pages/ExperimentPage.tsx";
-import SignupPage from "./components/register/SignupPage.tsx";
-import SignupPageResearcher from "./components/register/SignupPageResearcher.tsx";
-import LoginResearcher from "./components/login/LoginResearcher.tsx";
-import ProtectedRoutes from "./components/utils/ProtectedRoutes.tsx";
-import ProtectedResearcher from "./components/utils/ProtectedResearcher.tsx";
+import SignupPage from "./features/Register/SignupPage.tsx";
+import SignupPageResearcher from "./features/Register/SignupPageResearcher.tsx";
+import LoginResearcher from "./features/login/LoginResearcher.tsx";
+import ProtectedRoutes from "./features/utils/ProtectedRoutes.tsx";
+import ProtectedResearcher from "./features/utils/ProtectedResearcher.tsx";
 
 /**
  * Features to add to page:

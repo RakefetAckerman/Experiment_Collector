@@ -2,11 +2,9 @@ import {
     LikertOutput,
     PageFlowOutput,
     SliderOutput,
-    TrialTypeType,
     UiObjects
 } from "./types/experimentTypes/experimentsTypes.ts";
 import {
-    BUTTONS,
     JWT_TOKEN, LIKERT,
     SERVER_ERROR_GENERAL,
     SERVER_NOT_RESPONDING,
@@ -15,50 +13,10 @@ import {
     USER_KEY
 } from "./constants.ts";
 import {AxiosError} from "axios";
-import {TokenType} from "./tokenType.ts";
+import {TokenType} from "../states/tokenType.ts";
 import Cookies from "universal-cookie";
 import {SerializedUser} from "./types/userTypes/userTypes.ts";
-
-export function getAnswersNeededBeforeSubmit(trailType: TrialTypeType): string[] {
-    const array: string[] = [];
-    for (const obj of trailType.children) {
-        if (obj.type === BUTTONS || obj.type === SLIDER) {
-            array.push("");
-        }
-    }
-    return array;
-}
-
-export function getAnswerIndex(obj: UiObjects, trailType: TrialTypeType): number {
-    let count: number = 0;
-    for (const currObj of trailType.children) {
-        if ((currObj.type === BUTTONS || currObj.type === SLIDER)) {
-            if (currObj.id === obj.id) {
-                return count
-            }
-            count += 1;
-        }
-    }
-    return -1;
-}
-
-export function isConfidenceTrialType(trailType: TrialTypeType): boolean {
-    for (const currObj of trailType.children) {
-        if (currObj.type === SLIDER) {
-            return true;
-        }
-    }
-    return false;
-}
-
-export function getInitialConfidence(trailType: TrialTypeType): number {
-    for (const currObj of trailType.children) {
-        if (currObj.type === SLIDER) {
-            return Math.floor((currObj.max! + currObj.min!) / 2);
-        }
-    }
-    return -1;
-}
+import {TrialTypeType} from "../features/TrialType/types.ts";
 
 interface ErrorResponse {
     error?: string | { toString(): string };

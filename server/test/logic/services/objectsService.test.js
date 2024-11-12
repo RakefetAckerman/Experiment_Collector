@@ -28,7 +28,7 @@ import ObjectBoundary from "../../../src/boundaries/object/ObjectBoundary.js";
 chai.use(chaiHttp);
 chai.should();
 
-const baseEntryRegistrationURL = "/entry/register";
+const baseEntryRegistrationURL = "/entry/Register";
 const baseEntryLoginURL = "/entry/login";
 const baseResearchersURL = "/auth/researchers";
 const baseObjectsURL = "/auth/objects";

@@ -1,7 +1,7 @@
 import {NavLink, useParams} from "react-router-dom";
 import {useState} from "react";
-import Spinner from "../components/common/Spinner.tsx";
-import TrialType from "../components/experiment/TrialType.tsx";
+import Spinner from "../features/Spinner/Spinner.tsx";
+import TrialType from "../features/TrialType/TrialType.tsx";
 import useExperimentData from "../hooks/experimentFeatures/useExperimentData.ts";
 
 

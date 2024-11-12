@@ -1,4 +1,4 @@
-import ExperimentCard from "../components/experiment/ExperimentCard.tsx";
+import ExperimentCard from "../features/ExperimentDashBoard/ExperimentCard.tsx";
 import icon from "../assets/experiment_icon.svg"
 
 const ExperimentsDashboard = () => {

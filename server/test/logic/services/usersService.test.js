@@ -22,7 +22,7 @@ import bcrypt from "bcrypt";
 chai.use(chaiHttp);
 chai.should();
 
-const baseEntryRegistrationURL = "/entry/register";
+const baseEntryRegistrationURL = "/entry/Register";
 const baseUpdateUserURL = "/entry";
 const baseEntryLoginURL = "/entry/login";
 const baseResearchersURL = "/auth/researchers";
@@ -89,11 +89,11 @@ describe("User Service Tests", () => {
   });
 
   /**
-   * Test case to register a new researcher and verify if the registration was successful.
+   * Test case to Register a new researcher and verify if the registration was successful.
    *
    * @param {function} done - The callback function to signal the end of the test.
    */
-  it("should register a new Researcher", (done) => {
+  it("should Register a new Researcher", (done) => {
     /*
         Scenario: Register a new researcher and verify successful registration
             Given a new researcher to be registered
@@ -125,10 +125,10 @@ describe("User Service Tests", () => {
    *
    * @param {function} done - The callback function to signal the end of the test.
    */
-  it("should not register a new Researcher (the body is undefined)", (done) => {
+  it("should not Register a new Researcher (the body is undefined)", (done) => {
     /*
-        Scenario: Attempt to register a new researcher with undefined body
-            Given a request to register a new researcher with undefined body
+        Scenario: Attempt to Register a new researcher with undefined body
+            Given a request to Register a new researcher with undefined body
             When the registration request is made
             Then the system should respond with a bad request status code (400)
         */
@@ -151,8 +151,8 @@ describe("User Service Tests", () => {
    */
   it("should prevent registration of a Researcher because of missing password property in userDetails", (done) => {
     /*
-        Scenario: Attempt to register a researcher without a password
-            Given a request to register a researcher without a password property in userDetails
+        Scenario: Attempt to Register a researcher without a password
+            Given a request to Register a researcher without a password property in userDetails
             When the registration request is made
             Then the system should respond with a bad request status code (400)
     
@@ -190,14 +190,14 @@ describe("User Service Tests", () => {
   });
 
   /**
-   * Test case to register a researcher twice and verify that the second registration assigns a JWT token without recreating the user.
+   * Test case to Register a researcher twice and verify that the second registration assigns a JWT token without recreating the user.
    *
    * @param {function} done - The callback function to signal the end of the test.
    */
-  it("should register a Researcher, and in the second registration it should assign a JWT token to it and not recreate it", (done) => {
+  it("should Register a Researcher, and in the second registration it should assign a JWT token to it and not recreate it", (done) => {
     /*
         Scenario: Register a researcher twice and verify the second registration assigns a JWT token without recreating the user
-            Given a request to register a researcher
+            Given a request to Register a researcher
             When the first registration request is made
             Then the system should respond with a successful status code (201)
             And it should return a JWT token in the response headers
@@ -251,14 +251,14 @@ describe("User Service Tests", () => {
   });
 
   /**
-   * Test case to register a new participant and verify the registration was successful.
+   * Test case to Register a new participant and verify the registration was successful.
    *
    * @param {function} done - The callback function to signal the end of the test.
    */
-  it("should register a new Participant", (done) => {
+  it("should Register a new Participant", (done) => {
     /*
         Scenario: Register a new participant and verify the registration was successful
-            Given a request to register a participant
+            Given a request to Register a participant
             When the registration request is made
             Then the system should respond with a successful status code (201)
             And it should return a response body containing the participant's details
@@ -290,9 +290,9 @@ describe("User Service Tests", () => {
    */
   it("should not recreate a new Participant, should return an existing Participant", (done) => {
     /*
-        Scenario: Attempt to register a participant twice and verify that the app returns an existing participant
+        Scenario: Attempt to Register a participant twice and verify that the app returns an existing participant
             Given a participant is registered
-            When an attempt is made to register the same participant again
+            When an attempt is made to Register the same participant again
             Then the system should return an existing participant
             And it should not create a new participant
             And the number of participants in the system should remain the same
@@ -316,7 +316,7 @@ describe("User Service Tests", () => {
         return res;
       })
       .then((res) => {
-        // Attempt to register the same participant again
+        // Attempt to Register the same participant again
         return chai
           .request(app)
           .post(`${baseEntryRegistrationURL}`)
@@ -357,11 +357,11 @@ describe("User Service Tests", () => {
    *
    * @param {function} done - The callback function to signal the end of the test.
    */
-  it("should not register a user, missing name of platform and email or some of them", (done) => {
+  it("should not Register a user, missing name of platform and email or some of them", (done) => {
     /*
-        Scenario: Attempt to register a user with missing email and platform
+        Scenario: Attempt to Register a user with missing email and platform
             Given a user object with missing email and platform
-            When an attempt is made to register the user
+            When an attempt is made to Register the user
             Then the system should return a 400 error
     
         */
@@ -371,7 +371,7 @@ describe("User Service Tests", () => {
     newUser.email = "";
     newUser.platform = "";
 
-    // Attempt to register the user
+    // Attempt to Register the user
     chai
       .request(app)
       .post(`${baseEntryRegistrationURL}`)
@@ -385,7 +385,7 @@ describe("User Service Tests", () => {
   });
 
   /**
-   * Test case to register a researcher and then attempt to log in, verifying that the password is encrypted.
+   * Test case to Register a researcher and then attempt to log in, verifying that the password is encrypted.
    *
    * @param {function} done - The callback function to signal the end of the test.
    */
@@ -430,7 +430,7 @@ describe("User Service Tests", () => {
   });
 
   /**
-   * Test case to register a researcher and then attempt to log in twice, verifying that the JWT token remains the same.
+   * Test case to Register a researcher and then attempt to log in twice, verifying that the JWT token remains the same.
    *
    * @param {function} done - The callback function to signal the end of the test.
    */
@@ -859,7 +859,7 @@ describe("User Service Tests", () => {
             And the response should contain information for all registered users
         */
 
-    // Define an array of users to register
+    // Define an array of users to Register
     const usersArray = [researcher, participant, admin2];
 
     // Register all users in the system
@@ -914,7 +914,7 @@ describe("User Service Tests", () => {
             Then the request should fail with a 403 Forbidden error
         */
 
-    // Define an array of users to register
+    // Define an array of users to Register
     const usersArray = [researcher, participant, admin2];
 
     // Register all users in the system
@@ -979,7 +979,7 @@ describe("User Service Tests", () => {
             Then the system should delete all users successfully
         */
 
-    // Define an array of users to register
+    // Define an array of users to Register
     const usersArr = [researcher, participant, admin2];
 
     // Register all users in the system
@@ -1062,7 +1062,7 @@ describe("User Service Tests", () => {
             Then the request should fail with a 403 Forbidden error
         */
 
-    // Define an array of users to register
+    // Define an array of users to Register
     const usersArr = [researcher, participant, admin2];
 
     // Register all users in the system
