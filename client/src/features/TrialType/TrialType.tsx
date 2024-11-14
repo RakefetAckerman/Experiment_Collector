@@ -29,7 +29,7 @@ import TextInput from "../Ui/TextInput/TextInput.tsx";
 import HeadLine from "../Ui/HeadLine/HeadLine.tsx";
 import Text from "../Ui/Text/Text";
 import SubmitButton from "../Ui/Submit/SubmitButton.tsx";
-import useHandlePageFlow from "../PageFlow/handlePageFlow.ts";
+import useHandlePageFlow from "../PageFlow/usePageFlow.ts";
 
 type TrialTypeProps = {
     trialType: TrialTypeType,

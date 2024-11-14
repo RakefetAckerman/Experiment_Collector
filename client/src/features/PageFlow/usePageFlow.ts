@@ -1,6 +1,5 @@
-import React, {Dispatch, SetStateAction, useEffect} from "react";
+import {Dispatch, SetStateAction, useEffect} from "react";
 import {PageFlowOutput} from "../../utils/types/experimentTypes/experimentsTypes.ts";
-import {ElementsKeys} from "../../utils/constants.ts";
 
 type hookProps = {
     pageFlow: PageFlowOutput[],
