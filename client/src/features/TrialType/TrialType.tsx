@@ -29,6 +29,7 @@ import TextInput from "../Ui/TextInput/TextInput.tsx";
 import HeadLine from "../Ui/HeadLine/HeadLine.tsx";
 import Text from "../Ui/Text/Text";
 import SubmitButton from "../Ui/Submit/SubmitButton.tsx";
+import useHandlePageFlow from "../PageFlow/handlePageFlow.ts";
 
 type TrialTypeProps = {
     trialType: TrialTypeType,
@@ -60,10 +61,15 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
 
     // Updating the First Reaction time
     useHandleFirstInteraction(startTime, setOutput);
+    useHandlePageFlow({pageFlow, setPageFlow});
 
     const features = getFeatures(trialType);
     const error = handleTrialTypeErrors(trialType);
 
+    /**
+     * The Method update the output and set the next slide to move forward to the next element.
+     * @constructor
+     */
     function UpdateOutputAncContinueToNextTrialType() {
         const responseTimeLast = Date.now() - startTime;
         let newOutput = {...output};
