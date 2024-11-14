@@ -1,11 +1,11 @@
 import {PageFlowOutput, UiObjects} from "../../utils/types/experimentTypes/experimentsTypes.ts";
-import {BUTTONS, LIKERT, SLIDER, SUBMIT, UNDERSTANDING_INSTRUCTION} from "../../utils/constants.ts";
+import {ElementsKeys} from "../../utils/constants.ts";
 
 export function getPageFlowOutput(uiObjects: UiObjects[]): PageFlowOutput[] {
     const output: PageFlowOutput[] = [];
     uiObjects.forEach((value) => {
-        if (value.type === SLIDER || value.type === LIKERT || value.type === BUTTONS || value.type === SUBMIT
-            || value.type === UNDERSTANDING_INSTRUCTION) {
+        if (value.type === ElementsKeys.SLIDER || value.type === ElementsKeys.LIKERT || value.type === ElementsKeys.BUTTONS || value.type === ElementsKeys.SUBMIT
+            || value.type === ElementsKeys.UNDERSTANDING_INSTRUCTION) {
             const currentElement: PageFlowOutput = {
                 id: value.id!,
                 type: value.type,
@@ -62,16 +62,16 @@ export function updateOutputFromPageFlow(output: object, pageFlow: PageFlowOutpu
     let updatedOutput: object = {...output};
     for (let i = 0; i < pageFlow.length; i++) {
         const currentElement: PageFlowOutput = pageFlow[i];
-        if (currentElement.type === BUTTONS) {
+        if (currentElement.type === ElementsKeys.BUTTONS) {
             updatedOutput = updateOutputForButton(updatedOutput, currentElement);
         }
-        if (currentElement.type === SLIDER) {
+        if (currentElement.type === ElementsKeys.SLIDER) {
             updatedOutput = updateOutputForSlider(updatedOutput, currentElement);
         }
-        if (currentElement.type === LIKERT) {
+        if (currentElement.type === ElementsKeys.LIKERT) {
             updatedOutput = updateOutputForLikert(updatedOutput, currentElement);
         }
-        if (currentElement.type === UNDERSTANDING_INSTRUCTION) {
+        if (currentElement.type === ElementsKeys.UNDERSTANDING_INSTRUCTION) {
             updatedOutput = updateOutputForVerifyInstruction(updatedOutput, currentElement);
         }
     }

@@ -5,13 +5,8 @@ import {
 import right_arrow from "../../assets/right_arrow.svg"
 import ButtonIcon from "../../components/ButtonIcon.tsx";
 import {
-    BUTTONS,
+    ElementsKeys,
     HALF_MINUTE,
-    HEADLINE,
-    IMAGES, LIKERT,
-    SLIDER,
-    SUBMIT,
-    TEXT, UNDERSTANDING_INSTRUCTION
 } from "../../utils/constants.ts";
 import {Dispatch, SetStateAction, useState} from "react";
 import {
@@ -92,17 +87,17 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
 
     function renderUi(currentObj: UiObjects, index: number) {
         const key = `${currentObj.id}-${currentObj.type}-${index}`;
-        if (currentObj.type === IMAGES) {
+        if (currentObj.type === ElementsKeys.IMAGES) {
             return <ImagesContainer setCurrentImageZoom={setCurrentImageZoom} images={currentObj} key={index}/>
         }
-        if (currentObj.type === HEADLINE) {
+        if (currentObj.type === ElementsKeys.HEADLINE) {
             return <h2 className={"font-exo text-center text-clamping-mid max-w-[90%]"}
                        key={key}> {currentObj.text!}</h2>
         }
-        if (currentObj.type === TEXT) {
+        if (currentObj.type === ElementsKeys.TEXT) {
             return <h2 className={"font-exo text-clamping-sm max-w-[80%]"} key={key}> {currentObj.text!}</h2>
         }
-        if (currentObj.type === SUBMIT) {
+        if (currentObj.type === ElementsKeys.SUBMIT) {
             const buttonCSSActions = `bg-white transition-all duration-200 hover:bg-buttons-blue`;
             const buttonCSSLocation = `mt-10`;
             const currentIndex = getCurrentIndex(pageFlow, currentObj);
@@ -114,23 +109,26 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
                                key={key}
                                className={`${buttonCSSLocation} ${isDisabled ? "opacity-30" : buttonCSSActions}`}/>
         }
-        if (currentObj.type === BUTTONS) {
+        if (currentObj.type === ElementsKeys.BUTTONS) {
             return <Buttons key={key} startTime={startTime} pageFlow={pageFlow}
                             setPageFlow={setPageFlow} uiObject={currentObj}/>;
         }
-        if (currentObj.type === SLIDER) {
+        if (currentObj.type === ElementsKeys.SLIDER) {
             return (
                 <Slider key={key} startTime={startTime} pageFlow={pageFlow}
                         setPageFlow={setPageFlow} uiObject={currentObj}/>
             );
         }
-        if (currentObj.type === LIKERT) {
+        if (currentObj.type === ElementsKeys.LIKERT) {
             return <Likert key={key} startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow}
                            uiObject={currentObj}/>
         }
-        if (currentObj.type === UNDERSTANDING_INSTRUCTION) {
+        if (currentObj.type === ElementsKeys.UNDERSTANDING_INSTRUCTION) {
             return <UnderstandingInstruction startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow}
                                              uiObject={currentObj} key={key}/>
+        }
+        if (currentObj.type === ElementsKeys.TEXT_INPUT){
+            console.log("fggg")
         }
         return undefined;
     }

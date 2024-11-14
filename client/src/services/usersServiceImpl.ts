@@ -56,7 +56,7 @@ const usersService: UsersService = {
    * @param platform The platform of the user.
    * @param userToUpdate The updated user data.
    */
-  setUser: async function (
+  updateUser: async function (
     email: string,
     platform: string,
     userToUpdate: UserBoundary

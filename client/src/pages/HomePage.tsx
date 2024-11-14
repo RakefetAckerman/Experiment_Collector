@@ -1,5 +1,5 @@
 import {EXAMPLE_TITLE_ANSWERED, EXAMPLE_TITLE_PARTIALLY_ANSWERED, LIST_TEMPLATE_TEXT} from "../utils/constants.ts";
-import CardHomeScreen from "../features/homepage/CardHomeScreen.tsx";
+import CardHomeScreen from "../features/Homepage/CardHomeScreen.tsx";
 
 
 /**

@@ -5,11 +5,10 @@ import {
     UiObjects
 } from "./types/experimentTypes/experimentsTypes.ts";
 import {
-    JWT_TOKEN, LIKERT,
+    ElementsKeys,
+    JWT_TOKEN,
     SERVER_ERROR_GENERAL,
     SERVER_NOT_RESPONDING,
-    SLIDER,
-    SUBMIT,
     USER_KEY
 } from "./constants.ts";
 import {AxiosError} from "axios";
@@ -74,13 +73,13 @@ export function fetchUserFromSessionStorage(): SerializedUser | undefined {
 
 
 export function isSubmitButton(trialType: TrialTypeType): boolean {
-    return trialType.children.some((e) => e.type === SUBMIT);
+    return trialType.children.some((e) => e.type === ElementsKeys.SUBMIT);
 }
 
 export function buildLikertArray(uiObjects: UiObjects[]) {
     const output:LikertOutput[] = [];
     uiObjects.forEach((value, _ ) => {
-        if (value.type === LIKERT){
+        if (value.type === ElementsKeys.LIKERT){
             const currentLikert:LikertOutput = {
                 responseTimeFirstLikert:null,
                 id:value.id!,
@@ -96,7 +95,7 @@ export function buildLikertArray(uiObjects: UiObjects[]) {
 export function buildSliderArray(uiObjects: UiObjects[]) {
     const output:SliderOutput[] = [];
     uiObjects.forEach((value, _ ) => {
-        if (value.type === SLIDER){
+        if (value.type === ElementsKeys.SLIDER){
             const currentSlider:SliderOutput = {
                 id:value.id!,
                 confidence:null,

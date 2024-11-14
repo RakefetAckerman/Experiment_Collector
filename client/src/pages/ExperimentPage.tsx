@@ -9,7 +9,6 @@ function ExperimentPage() {
     const {experiment_name} = useParams();
     const [currentTrailType, setCurrentTrailType] = useState(0);
     const {experimentData, loading, error} = useExperimentData(experiment_name);
-
     if (loading) {
         return <div className={"w-full h-full flex justify-center items-center"}>
             <Spinner/>
