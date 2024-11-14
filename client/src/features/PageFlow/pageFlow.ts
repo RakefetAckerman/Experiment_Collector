@@ -5,7 +5,7 @@ export function getPageFlowOutput(uiObjects: UiObjects[]): PageFlowOutput[] {
     const output: PageFlowOutput[] = [];
     uiObjects.forEach((value) => {
         if (value.type === ElementsKeys.SLIDER || value.type === ElementsKeys.LIKERT || value.type === ElementsKeys.BUTTONS || value.type === ElementsKeys.SUBMIT
-            || value.type === ElementsKeys.UNDERSTANDING_INSTRUCTION) {
+            || value.type === ElementsKeys.UNDERSTANDING_INSTRUCTION || value.type === ElementsKeys.TEXT_INPUT) {
             const currentElement: PageFlowOutput = {
                 id: value.id!,
                 type: value.type,

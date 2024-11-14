@@ -2,17 +2,11 @@ import ImagesContainer from "../Ui/Images/ImagesContainer.tsx";
 import {
     UiObjects
 } from "../../utils/types/experimentTypes/experimentsTypes.ts";
-import right_arrow from "../../assets/right_arrow.svg"
-import ButtonIcon from "../../components/ButtonIcon.tsx";
 import {
     ElementsKeys,
     HALF_MINUTE,
 } from "../../utils/constants.ts";
 import {Dispatch, SetStateAction, useState} from "react";
-import {
-    getCurrentIndex,
-    getIsSubmitDisabled
-} from "../../utils/helperMethods.ts";
 import useHandleFirstInteraction from "../../hooks/experimentFeatures/useHandleFirstInteraction.ts";
 import useIdleTimer from "../Idle/hooks/useHandleIdle.ts";
 import ToastIdle from "../Idle/components/ToastIdle.tsx";
@@ -31,6 +25,10 @@ import {getPageFlowOutput, updateOutputFromPageFlow} from "../PageFlow/pageFlow.
 import {TrialTypeType} from "./types.ts";
 import {ZoomType} from "../Zoom/types.ts";
 import {getInitialZoom} from "../Zoom/helpers.ts";
+import TextInput from "../Ui/TextInput/TextInput.tsx";
+import HeadLine from "../Ui/HeadLine/HeadLine.tsx";
+import Text from "../Ui/Text/Text";
+import SubmitButton from "../Ui/Submit/SubmitButton.tsx";
 
 type TrialTypeProps = {
     trialType: TrialTypeType,
@@ -87,49 +85,34 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
 
     function renderUi(currentObj: UiObjects, index: number) {
         const key = `${currentObj.id}-${currentObj.type}-${index}`;
-        if (currentObj.type === ElementsKeys.IMAGES) {
-            return <ImagesContainer setCurrentImageZoom={setCurrentImageZoom} images={currentObj} key={index}/>
+        switch (currentObj.type) {
+            case ElementsKeys.IMAGES:
+                return <ImagesContainer setCurrentImageZoom={setCurrentImageZoom} images={currentObj} key={index}/>
+            case ElementsKeys.HEADLINE:
+                return <HeadLine key={key} currentObj={currentObj}/>
+            case ElementsKeys.TEXT:
+                return <Text key={key} currentObj={currentObj}/>
+            case ElementsKeys.BUTTONS:
+                return <Buttons key={key} startTime={startTime} pageFlow={pageFlow}
+                                setPageFlow={setPageFlow} uiObject={currentObj}/>;
+            case ElementsKeys.SLIDER:
+                return (
+                    <Slider key={key} startTime={startTime} pageFlow={pageFlow}
+                            setPageFlow={setPageFlow} uiObject={currentObj}/>
+                );
+            case ElementsKeys.LIKERT:
+                return <Likert key={key} startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow}
+                               uiObject={currentObj}/>
+            case ElementsKeys.UNDERSTANDING_INSTRUCTION:
+                return <UnderstandingInstruction startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow}
+                                                 uiObject={currentObj} key={key}/>
+            case ElementsKeys.TEXT_INPUT:
+                return <TextInput key={key} startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow}
+                                  uiObject={currentObj}/>
+            case ElementsKeys.SUBMIT:
+                return <SubmitButton  key={key} currentObj={currentObj} pageFlow={pageFlow} onClickMethod={UpdateOutputAncContinueToNextTrialType}/>
         }
-        if (currentObj.type === ElementsKeys.HEADLINE) {
-            return <h2 className={"font-exo text-center text-clamping-mid max-w-[90%]"}
-                       key={key}> {currentObj.text!}</h2>
-        }
-        if (currentObj.type === ElementsKeys.TEXT) {
-            return <h2 className={"font-exo text-clamping-sm max-w-[80%]"} key={key}> {currentObj.text!}</h2>
-        }
-        if (currentObj.type === ElementsKeys.SUBMIT) {
-            const buttonCSSActions = `bg-white transition-all duration-200 hover:bg-buttons-blue`;
-            const buttonCSSLocation = `mt-10`;
-            const currentIndex = getCurrentIndex(pageFlow, currentObj);
-            const isDisabled = getIsSubmitDisabled(pageFlow, currentIndex);
 
-            return <ButtonIcon text={currentObj.text} onClick={UpdateOutputAncContinueToNextTrialType}
-                               icon={right_arrow}
-                               disabled={isDisabled}
-                               key={key}
-                               className={`${buttonCSSLocation} ${isDisabled ? "opacity-30" : buttonCSSActions}`}/>
-        }
-        if (currentObj.type === ElementsKeys.BUTTONS) {
-            return <Buttons key={key} startTime={startTime} pageFlow={pageFlow}
-                            setPageFlow={setPageFlow} uiObject={currentObj}/>;
-        }
-        if (currentObj.type === ElementsKeys.SLIDER) {
-            return (
-                <Slider key={key} startTime={startTime} pageFlow={pageFlow}
-                        setPageFlow={setPageFlow} uiObject={currentObj}/>
-            );
-        }
-        if (currentObj.type === ElementsKeys.LIKERT) {
-            return <Likert key={key} startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow}
-                           uiObject={currentObj}/>
-        }
-        if (currentObj.type === ElementsKeys.UNDERSTANDING_INSTRUCTION) {
-            return <UnderstandingInstruction startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow}
-                                             uiObject={currentObj} key={key}/>
-        }
-        if (currentObj.type === ElementsKeys.TEXT_INPUT){
-            console.log("fggg")
-        }
         return undefined;
     }
 

@@ -45,6 +45,7 @@ export type UiObjects = {
     id?: string
     min?: number,
     max?: number,
+    hint?: string,
     children?: UiObjects[],
     dynamicFlow?: boolean,
     nextIfCorrect: string,
