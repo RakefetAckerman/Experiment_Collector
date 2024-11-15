@@ -45,6 +45,11 @@ router.post("/verify", async (req, res) => {
   entryController.veirfyUser(req, res);
 });
 
+
+router.post("/login/token" , async (req, res) => {
+
+})
+
 /**
  * Route for updating researcher information.
  * @name PUT entry/:email/:platform
@@ -57,5 +62,6 @@ router.post("/verify", async (req, res) => {
 router.put("/:email/:platform", async (req, res) => {
   entryController.updateUser(req, res);
 });
+
 
 export default router;

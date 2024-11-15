@@ -102,10 +102,8 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
                 return <Buttons key={key} startTime={startTime} pageFlow={pageFlow}
                                 setPageFlow={setPageFlow} uiObject={currentObj}/>;
             case ElementsKeys.SLIDER:
-                return (
-                    <Slider key={key} startTime={startTime} pageFlow={pageFlow}
-                            setPageFlow={setPageFlow} uiObject={currentObj}/>
-                );
+                return <Slider key={key} startTime={startTime} pageFlow={pageFlow}
+                               setPageFlow={setPageFlow} uiObject={currentObj}/>
             case ElementsKeys.LIKERT:
                 return <Likert key={key} startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow}
                                uiObject={currentObj}/>
@@ -116,7 +114,8 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
                 return <TextInput key={key} startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow}
                                   uiObject={currentObj}/>
             case ElementsKeys.SUBMIT:
-                return <SubmitButton  key={key} currentObj={currentObj} pageFlow={pageFlow} onClickMethod={UpdateOutputAncContinueToNextTrialType}/>
+                return <SubmitButton key={key} currentObj={currentObj} pageFlow={pageFlow}
+                                     onClickMethod={UpdateOutputAncContinueToNextTrialType}/>
         }
 
         return undefined;

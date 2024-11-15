@@ -38,7 +38,6 @@ const entryController = {
       res.status(error.status || 500).json({ error: errorMessage });
     }
   },
-
   /**
    * Controller function for user login.
    * @param {Object} req - Express request object formed as UserBoundary.
