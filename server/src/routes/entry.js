@@ -46,10 +46,6 @@ router.post("/verify", async (req, res) => {
 });
 
 
-router.post("/login/token" , async (req, res) => {
-
-})
-
 /**
  * Route for updating researcher information.
  * @name PUT entry/:email/:platform
