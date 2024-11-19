@@ -25,10 +25,10 @@ function ExperimentPage() {
     return (
         <div className={`relative gap 3px flex-col w-full h-full flex items-center p-5`}>
             <h2 className={"font-exo text-center text-3xl"}>{experimentData.name}</h2>
-            {experimentData.trailTypes.map((trailType, index) =>
+            {experimentData.trialTypes.map((trialType, index) =>
                 index === currentTrailType &&
                 <TrialType startTime={Date.now()} setNextSlide={setCurrentTrailType}
-                           key={`trail-type-${index}`} trialType={trailType}/>
+                           key={`trail-type-${index}`} trialType={trialType}/>
             )}
         </div>
     );

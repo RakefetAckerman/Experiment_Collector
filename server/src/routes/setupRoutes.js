@@ -12,4 +12,5 @@ export function mountRoutes(app) {
   app.use("/auth", authRoutes);
   app.use("/entry", entryRoutes);
   app.use("/participants", participantRoutes);
+
 }

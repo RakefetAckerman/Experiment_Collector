@@ -10,6 +10,10 @@ services:  # Defines the services that make up your application
     ports:
       - "3000:3000"
     command: npm run dev_docker  # Command to run when the container starts
+    volumes:
+      - .:/app  # Maps the current directory to /app in the container
+      - /app/node_modules  # This prevents the container's node_modules from being overwritten
+
     depends_on:  # Specifies that this service depends on the mongo-db service
       - mongo-db
 
