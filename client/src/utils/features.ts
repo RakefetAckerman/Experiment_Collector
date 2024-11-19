@@ -13,14 +13,17 @@ export type Features = {
  * Test which features are true and which are false and returns it;
  * @param trialType the current trial type
  */
-function getFeatures(trialType: TrialTypeType): Features {
+function getFeatures(trialType: TrialTypeType | undefined): Features {
+
     const features: Features = {
         zoom: false,
         idle: false,
         focus: false,
         mouseTracking: false,
     };
-
+    if (!trialType) {
+        return features;
+    }
     if (!('features' in trialType.objectDetails) ||
         typeof trialType.objectDetails.features !== 'object' ||
         trialType.objectDetails.features === null) {

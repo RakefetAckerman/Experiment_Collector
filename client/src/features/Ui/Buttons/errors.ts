@@ -1,9 +1,12 @@
 import {UiObjects} from "../../../utils/types/experimentTypes/experimentsTypes.ts";
 import {ErrorType} from "../../../error/errorType.ts";
 
-export function handleButtonsError({id, buttons , correct}: UiObjects): ErrorType {
+export function handleButtonsError({id, buttons , correct} : UiObjects , currentIndex:number|null): ErrorType {
     if (!id) {
         return {isError: true, errorMessage: "No ID specified for buttons object"};
+    }
+    if (!currentIndex && currentIndex !== 0) {
+        return {isError: true, errorMessage: "No ID specified for buttons those not fit in the page flow"};
     }
     if (!buttons) {
         return {isError: true, errorMessage: "No Buttons array specified for buttons object"};

@@ -3,7 +3,10 @@ import {isSubmitButton} from "../../utils/helperMethods.ts";
 import {isUiElementsWithTheSameId} from "./helperMethods.ts";
 import {TrialTypeType} from "./types.ts";
 
-export function handleTrialTypeErrors(trialType: TrialTypeType): ErrorType {
+export function handleTrialTypeErrors(trialType: TrialTypeType| undefined): ErrorType {
+    if (!trialType){
+        return {isError: false, errorMessage: ""}
+    }
     if (!trialType.id) {
         return {isError: true, errorMessage: "No ID specified for Trial type"};
     }

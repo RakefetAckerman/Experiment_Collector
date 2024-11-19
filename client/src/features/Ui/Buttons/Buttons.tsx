@@ -17,7 +17,7 @@ function Buttons({uiObject, setPageFlow, pageFlow, startTime}: ButtonsProps) {
     const [elementOutput, setElementOutput] = useState<{ value: string, index: number } | null>(null);
     const currentIndex = getCurrentIndex(pageFlow, uiObject);
     const [isContainerDisabled, setIsContainerDisabled] = useState<boolean>(getIsButtonDisabled(pageFlow, currentIndex));
-    const error = handleButtonsError(uiObject);
+    const error = handleButtonsError(uiObject, currentIndex);
 
     // Updating the Disable state if the value of the other confidence in the page changed.
     useEffect(() => {
@@ -26,12 +26,10 @@ function Buttons({uiObject, setPageFlow, pageFlow, startTime}: ButtonsProps) {
         }
         setIsContainerDisabled(getIsButtonDisabled(pageFlow, currentIndex));
     }, [pageFlow])
-
     //Showing error if needed
     if (error.isError) {
         return <Error error={error}/>;
     }
-
     function handleClick(index: number, value: string) {
         setElementOutput({index, value});
         setIsDisabled(true);

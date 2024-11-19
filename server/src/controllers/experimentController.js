@@ -4,14 +4,16 @@ import experimentService from "../logic/serivces/ExperimentService.js";
 
 const experimentController = {
     getExperimentByName: async (req, res) => {
-        const email = req.body.email;
-        const platform = req.body.platform;
+        const email = req.query.email;
+        const platform = req.query.platform;
         const experimentName = req.params.experimentName;
         if (!email || !platform) {
             res.status(400).send({error: "User Email and Platform is required"});
+            return;
         }
         if (!experimentName) {
             res.status(400).send({error: "experiment name is required"});
+            return;
         }
         let experimentObject = {
             name: experimentName,
@@ -20,7 +22,6 @@ const experimentController = {
             const element = await objectsService.getSpecificObjectByTypeAndName("experiment", experimentName, email, platform);
             const childrenArray = await objectsService.getChildrenArray(element.objectId.internalObjectId, email, platform);
             experimentObject = {...experimentObject, trialTypes: childrenArray};
-            console.log(childrenArray);
             res.status(200).send(experimentObject);
             return experimentObject;
 
@@ -37,8 +38,8 @@ const experimentController = {
      * @returns {Promise<void>}
      */
     createExperimentFromEditor: async (req, res) => {
-        const email = req.body.email;
-        const platform = req.body.platform;
+        const email = req.query.email;
+        const platform = req.query.platform;
         const data = req.body.data;
         if (!platform || !email) {
             res.status(400).send({error: "User Email and Platform is required"});
@@ -55,8 +56,8 @@ const experimentController = {
     },
 
     getTrialType: async function (req, res) {
-        const email = req.body.email;
-        const platform = req.body.platform;
+        const email = req.query.email;
+        const platform = req.query.platform;
         const trialTypeInternalId = req.params.trialType;
         if (!platform || !email) {
             res.status(400).send({error: "User Email and Platform is required"});

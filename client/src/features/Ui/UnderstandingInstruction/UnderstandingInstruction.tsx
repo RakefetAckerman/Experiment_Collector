@@ -15,7 +15,7 @@ type understandingInstructionProps = {
 
 function UnderstandingInstruction({uiObject, startTime, setPageFlow, pageFlow}: understandingInstructionProps) {
     const error = handleUnderstandingInstructionError(uiObject);
-    const [id, setId] = useState<string>(uiObject.children![0].id!);
+    const [id, setId] = useState<string>(uiObject.children ? uiObject.children[0].id! : "");
     const currentIndex = getCurrentIndex(pageFlow, uiObject);
     const [isVerify, setIsVerify] = useState<boolean>(false);
     const [isVerifyDisabled, setIsVerifyDisabled] = useState<boolean>(getIsVerifyDisabled(pageFlow,currentIndex!));

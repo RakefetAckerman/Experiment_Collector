@@ -6,7 +6,7 @@ import {
     ElementsKeys,
     HALF_MINUTE,
 } from "../../utils/constants.ts";
-import {Dispatch, SetStateAction, useState} from "react";
+import {Dispatch, SetStateAction, useEffect, useState} from "react";
 import useHandleFirstInteraction from "../../hooks/experimentFeatures/useHandleFirstInteraction.ts";
 import useIdleTimer from "../Idle/hooks/useHandleIdle.ts";
 import ToastIdle from "../Idle/components/ToastIdle.tsx";
@@ -22,7 +22,6 @@ import useMouseTracking from "../MouseTracking/useMouseTracking.ts";
 import UnderstandingInstruction from "../Ui/UnderstandingInstruction/UnderstandingInstruction.tsx";
 import {handleTrialTypeErrors} from "./errors.ts";
 import {getPageFlowOutput, updateOutputFromPageFlow} from "../PageFlow/pageFlow.ts";
-import {TrialTypeType} from "./types.ts";
 import {ZoomType} from "../Zoom/types.ts";
 import {getInitialZoom} from "../Zoom/helpers.ts";
 import TextInput from "../Ui/TextInput/TextInput.tsx";
@@ -30,24 +29,26 @@ import HeadLine from "../Ui/HeadLine/HeadLine.tsx";
 import Text from "../Ui/Text/Text";
 import SubmitButton from "../Ui/Submit/SubmitButton.tsx";
 import useHandlePageFlow from "../PageFlow/usePageFlow.ts";
+import useTrialType from "./useTrialTypeData.ts";
+import Spinner from "../Spinner/Spinner.tsx";
 
 type TrialTypeProps = {
-    trialType: TrialTypeType,
     setNextSlide: Dispatch<SetStateAction<number>>,
+    trailTypeId: string;
     startTime: number,
 }
 
 /**
  * A single TrialTypeElement - A single way to render every trial type.
  * Features to add to page:
- * @param trialType the current trial type
  * @param setNextSlide state to move between slides
  * @param startTime the time the that the trail type started at.
- * @param setUserOutput the output from the user.
+ * @param trailTypeId
  */
-function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
-    // Page Flow (Output for each Ui element):
-    const [pageFlow, setPageFlow] = useState(getPageFlowOutput(trialType.children));
+function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
+    const {error, loading, trialType} = useTrialType(trailTypeId)
+    // // Page Flow (Output for each Ui element):
+    const [pageFlow, setPageFlow] = useState(getPageFlowOutput(trialType?.children));
     // Trial Type Final Output:
     const [output, setOutput] = useState<object>({});
     // For Idle
@@ -59,12 +60,19 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
     // For Mouse Tracking feature
     const {mouseTracking} = useMouseTracking(startTime, 350);
 
+
+    useEffect(() => {
+        if (!trialType){
+            return;
+        }
+        setPageFlow(getPageFlowOutput(trialType?.children))
+    }, [trialType]);
     // Updating the First Reaction time
     useHandleFirstInteraction(startTime, setOutput);
     useHandlePageFlow({pageFlow, setPageFlow});
 
     const features = getFeatures(trialType);
-    const error = handleTrialTypeErrors(trialType);
+    const errorUI = handleTrialTypeErrors(trialType);
 
     /**
      * The Method update the output and set the next slide to move forward to the next element.
@@ -88,7 +96,6 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
         setNextSlide((prevState) => (prevState + 1));
 
     }
-
     function renderUi(currentObj: UiObjects, index: number) {
         const key = `${currentObj.id}-${currentObj.type}-${index}`;
         switch (currentObj.type) {
@@ -123,10 +130,22 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
 
     const trialTypeCss = "min-w-[90%] flex flex-auto flex-col items-center justify-start gap-8 h-full m-5 p-10 pt-16 bg-white drop-shadow-xl rounded-3xl overflow-x-hidden relative"
 
+
+    if (loading || !trialType) {
+        return <div className={`${trialTypeCss} justify-center` }>
+            <Spinner/>
+        </div>
+    }
     //Rendering error if needed
-    if (error.isError) {
+    if (error) {
         return <div className={trialTypeCss}>
-            <Error error={error}/>
+            <h1 className={"font-exo text-clamping-lg text-xl border border-red-400 p-5"}>Error retrieving data</h1>
+        </div>
+    }
+
+    if (errorUI.isError) {
+        return <div className={trialTypeCss}>
+        <Error error={errorUI}/>
         </div>
     }
 
@@ -136,7 +155,7 @@ function TrialType({trialType, setNextSlide, startTime}: TrialTypeProps) {
                 <ZoomElement setCurrentImageZoom={setCurrentImageZoom} currentImageZoom={currentImageZoom}/>}
             {features.idle && isIdle && <ToastIdle/>}
             <div className={trialTypeCss}>
-                {trialType.children.map((uiObject, index) => renderUi(uiObject, index))}
+                {trialType!.children.map((uiObject, index) => renderUi(uiObject, index))}
             </div>
         </>
     );

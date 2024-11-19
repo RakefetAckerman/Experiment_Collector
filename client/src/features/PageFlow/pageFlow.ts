@@ -1,8 +1,11 @@
 import {PageFlowOutput, UiObjects} from "../../utils/types/experimentTypes/experimentsTypes.ts";
 import {ElementsKeys} from "../../utils/constants.ts";
 
-export function getPageFlowOutput(uiObjects: UiObjects[]): PageFlowOutput[] {
+export function getPageFlowOutput(uiObjects: UiObjects[] | undefined): PageFlowOutput[] {
     const output: PageFlowOutput[] = [];
+    if (!uiObjects){
+        return [];
+    }
     uiObjects.forEach((value) => {
         if (value.type === ElementsKeys.SLIDER || value.type === ElementsKeys.LIKERT || value.type === ElementsKeys.BUTTONS || value.type === ElementsKeys.SUBMIT
             || value.type === ElementsKeys.UNDERSTANDING_INSTRUCTION || value.type === ElementsKeys.TEXT_INPUT) {

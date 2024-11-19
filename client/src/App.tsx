@@ -28,7 +28,7 @@ function App() {
                         {/*Protecting against users that don't have a researcher role */}
                         <Route element={<ProtectedResearcher/>}>
                             <Route path="/" element={<HomePage/>}/>
-                            {/*<Route path="/editor" element={<EditorPage/>}/>*/}
+                            <Route path="/editor" element={<></>}/>
                             <Route path="/experiment" element={<ExperimentsDashboard/>}/>
                         </Route>
                     </Route>

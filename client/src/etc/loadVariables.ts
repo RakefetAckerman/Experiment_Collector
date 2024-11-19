@@ -26,6 +26,11 @@ const getEnvVariables = () => {
 
   const authUsersURL = authURL + "/users";
 
+  const participantsExperimentsURL = backendURL + "/experiment";
+
+  const authExperimentsURL = authURL + "/experiment";
+
+
   const commandsURL = authURL + "/commands";
 
   return {
@@ -35,6 +40,8 @@ const getEnvVariables = () => {
     baseParticipantsURL,
     entryURL,
     authObjRoute,
+    participantsExperimentsURL,
+    authExperimentsURL,
     authUsersURL,
     commandsURL,
   };

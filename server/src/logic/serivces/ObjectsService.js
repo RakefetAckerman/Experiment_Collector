@@ -963,9 +963,9 @@ const objectsService = {
 
         let object;
         if (existingUser.role === Roles.PARTICIPANT) {
-            object = await ObjectModel.findOne({type: targetType, active: true, objectDetails: {name: objectName}});
+            object = await ObjectModel.findOne({type: targetType, active: true, "objectDetails.name": objectName});
         } else {
-            object = await ObjectModel.findOne({type: targetType, objectDetails: {name: objectName}});
+            object = await ObjectModel.findOne({type: targetType, "objectDetails.name": objectName});
         }
         if (!object) {
             logger.error(`No object found for type: ${targetType}`);
