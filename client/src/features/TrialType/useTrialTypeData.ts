@@ -8,6 +8,7 @@ const useTrialType = (trailTypeId: string | undefined) => {
     const [trialType, setTrialType] = useState<TrialTypeType | undefined>(undefined);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+
     const user = useSelector((state: RootState) => (state.user.user))
 
     useEffect(() => {
@@ -25,9 +26,9 @@ const useTrialType = (trailTypeId: string | undefined) => {
                     setLoading(false);
                     return;
                 }
-                // Add a second delay before setting the trialType
                 setTrialType(data);
                 setLoading(false);
+
             } catch (error) {
                 console.log(error)
                 setError(true);

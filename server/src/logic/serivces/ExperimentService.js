@@ -50,7 +50,6 @@ async function createElementsToDB(uiObject, createdBy, childIdArray, userPlatfor
         objectDetails = {...objectDetails, [key]: value};
     }
     const objectBoundary = new ObjectBoundary(objectId, type, "-", true, null, null, location, createdBy, objectDetails);
-
     const objectModel = await objectsService.createObject(objectBoundary);
     const elementInternalId = objectModel.objectId.internalObjectId;
     for (const childId of childIdArray) {

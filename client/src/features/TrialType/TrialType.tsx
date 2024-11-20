@@ -62,7 +62,7 @@ function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
 
 
     useEffect(() => {
-        if (!trialType){
+        if (!trialType) {
             return;
         }
         setPageFlow(getPageFlowOutput(trialType?.children))
@@ -96,6 +96,7 @@ function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
         setNextSlide((prevState) => (prevState + 1));
 
     }
+
     function renderUi(currentObj: UiObjects, index: number) {
         const key = `${currentObj.id}-${currentObj.type}-${index}`;
         switch (currentObj.type) {
@@ -128,11 +129,11 @@ function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
         return undefined;
     }
 
-    const trialTypeCss = "min-w-[90%] flex flex-auto flex-col items-center justify-start gap-8 h-full m-5 p-10 pt-16 bg-white drop-shadow-xl rounded-3xl overflow-x-hidden relative"
+    const trialTypeCss = "flex flex-auto flex-col items-center justify-start gap-8 w-full h-full overflow-x-hidden relative m-2"
 
 
-    if (loading || !trialType) {
-        return <div className={`${trialTypeCss} justify-center` }>
+    if (loading && !trialType) {
+        return <div className={`${trialTypeCss} justify-center bg-white rounded-3xl m-5 p-10 pt-16  drop-shadow-xl`}>
             <Spinner/>
         </div>
     }
@@ -145,7 +146,7 @@ function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
 
     if (errorUI.isError) {
         return <div className={trialTypeCss}>
-        <Error error={errorUI}/>
+            <Error error={errorUI}/>
         </div>
     }
 
@@ -154,9 +155,19 @@ function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
             {features.zoom && currentImageZoom.isOpen &&
                 <ZoomElement setCurrentImageZoom={setCurrentImageZoom} currentImageZoom={currentImageZoom}/>}
             {features.idle && isIdle && <ToastIdle/>}
-            <div className={trialTypeCss}>
-                {trialType!.children.map((uiObject, index) => renderUi(uiObject, index))}
+            <div className={`w-full h-full bg-white rounded-3xl m-5 p-10 pt-16  drop-shadow-xl overflow-y-hidden overflow-x-hidden`}>
+
+                {loading &&
+                    <div className={"center-absolute z-10"}>
+                        <Spinner/>
+                    </div>
+                }
+                <div
+                    className={`${trialTypeCss} pb-5 duration-200 transition-all ease-in ${loading ? "opacity-10" : "opacity-100"}`}>
+                    {trialType!.children.map((uiObject, index) => renderUi(uiObject, index))}
+                </div>
             </div>
+
         </>
     );
 }

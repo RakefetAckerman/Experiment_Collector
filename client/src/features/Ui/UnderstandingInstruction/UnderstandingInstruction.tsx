@@ -15,7 +15,7 @@ type understandingInstructionProps = {
 
 function UnderstandingInstruction({uiObject, startTime, setPageFlow, pageFlow}: understandingInstructionProps) {
     const error = handleUnderstandingInstructionError(uiObject);
-    const [id, setId] = useState<string>(uiObject.children ? uiObject.children[0].id! : "");
+    const [id, setId] = useState<string>(uiObject.understandingInstructionChildes ? uiObject.understandingInstructionChildes[0].id! : "");
     const currentIndex = getCurrentIndex(pageFlow, uiObject);
     const [isVerify, setIsVerify] = useState<boolean>(false);
     const [isVerifyDisabled, setIsVerifyDisabled] = useState<boolean>(getIsVerifyDisabled(pageFlow,currentIndex!));
@@ -123,7 +123,7 @@ function UnderstandingInstruction({uiObject, startTime, setPageFlow, pageFlow}: 
             <div
                 className={`flex flex-col transition-all duration-1000 items-center p-10 center-absolute w-[85%] h-[95%] rounded-3xl bg-gray-100 overflow-y-scroll z-10 border-4`}>
                 {
-                    uiObject.children?.map((child, index) => {
+                    uiObject.understandingInstructionChildes?.map((child, index) => {
                         return id === child.id! ?
                             <ElementExpended key={`${child.id}-${index}`} child={child}/> : undefined;
                     })

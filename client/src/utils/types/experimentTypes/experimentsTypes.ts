@@ -30,6 +30,7 @@ export type Experiment = {
 export type UiObjects = {
     type: string,
     verifyButtonText?: string,
+    understandingInstructionChildes?:UiObjects[];
     urls?: string[],
     objectDetails?: object,
     text?: string,

@@ -2,6 +2,9 @@
 import entryRoutes from "./entry.js";
 import authRoutes from "./auth.js";
 import participantRoutes from "./participants.js";
+import {verifyToken} from "../logic/middleware/auth.js";
+import experimentRoutes from "./experiment.js";
+import router from "./auth.js";
 
 /**
  * Mounts routes to the Express application.
@@ -12,5 +15,7 @@ export function mountRoutes(app) {
   app.use("/auth", authRoutes);
   app.use("/entry", entryRoutes);
   app.use("/participants", participantRoutes);
+  app.use("/experiment" ,experimentRoutes);
+
 
 }

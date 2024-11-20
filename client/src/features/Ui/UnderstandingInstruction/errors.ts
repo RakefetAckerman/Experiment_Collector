@@ -1,30 +1,30 @@
 import {UiObjects} from "../../../utils/types/experimentTypes/experimentsTypes.ts";
 import {ErrorType} from "../../../error/errorType.ts";
 
-export function handleUnderstandingInstructionError({id, verifyButtonText,children,dynamicFlow }: UiObjects): ErrorType {
+export function handleUnderstandingInstructionError({id, verifyButtonText,understandingInstructionChildes,dynamicFlow }: UiObjects): ErrorType {
     if (!id) {
         return {isError: true, errorMessage: "No ID specified for Understanding Instruction object"};
     }
-    if (!children) {
+    if (!understandingInstructionChildes) {
         return {isError: true, errorMessage: "No questions specified for Understanding Instruction object"};
     }
     if (!dynamicFlow) {
         return {isError: true, errorMessage: "No dynamicFlow specified for Understanding Instruction object"};
     }
-    if (children.length === 0) {
+    if (understandingInstructionChildes.length === 0) {
         return {isError: true, errorMessage: "Children must include at list 1 element for Understanding Instruction object"};
     }
     if (!verifyButtonText){
         return {isError: true, errorMessage: "No verifyButtonText array specified for Understanding Instruction object"};
     }
-    for (const child of children) {
+    for (const child of understandingInstructionChildes) {
         if (!child.id) {
             return {isError: true, errorMessage: "Children element of Understanding Instruction object must include id "};
         }
         if (child.type !== "understandingInstructionQuestion") {
             return {isError: true, errorMessage: "Children element of Understanding Instruction object must be of type understanding Instruction Question"};
         }
-        if (!idIsOnlySpecifiedOnce(children , child.id)){
+        if (!idIsOnlySpecifiedOnce(understandingInstructionChildes , child.id)){
             return {isError: true, errorMessage: `Understanding Instruction: Children elements with the same ids`};
         }
         if (!child.correct) {
@@ -39,13 +39,13 @@ export function handleUnderstandingInstructionError({id, verifyButtonText,childr
         if (child.nextIfCorrect !== "" && !child.nextIfCorrect) {
             return {isError: true, errorMessage: "Children element of Understanding Instruction object must include nextIfCorrect"};
         }
-        if (!haveChildrenWithId(children , child.nextIfCorrect)){
+        if (!haveChildrenWithId(understandingInstructionChildes , child.nextIfCorrect)){
             return {isError: true, errorMessage: `Children element [id:${child.id}]: id specified in nextIfCorrect is not the id of any child element`};
         }
         if (child.nextIfWrong !== "" && !child.nextIfWrong) {
             return {isError: true, errorMessage: "Children element of Understanding Instruction object must include nextIfWrong"};
         }
-        if (!haveChildrenWithId(children , child.nextIfWrong)){
+        if (!haveChildrenWithId(understandingInstructionChildes , child.nextIfWrong)){
             return {isError: true, errorMessage: `Children element [id:${child.id}]: id specified in nextIfWrong is not the id of any child element`};
         }
 
