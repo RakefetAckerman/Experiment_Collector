@@ -28,6 +28,20 @@ const experimentService = {
             }
         });
         return res.data;
+    },
+
+    setUserOutput: async (output:object , trialTypeId:string ,user :SerializedUser)=>{
+        if (!trialTypeId || !output) {
+            throw new Error("Trial type ID and output object required.");
+        }
+        const res = await api.post(`/experiment/setUserOutput`, {data:output}, {
+            params: {
+                email: user.userId.email,
+                platform: user.userId.platform,
+                trialTypeId:trialTypeId
+            }
+        });
+        return res.data;
     }
 
 }

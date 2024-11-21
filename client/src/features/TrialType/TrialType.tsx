@@ -31,6 +31,10 @@ import SubmitButton from "../Ui/Submit/SubmitButton.tsx";
 import useHandlePageFlow from "../PageFlow/usePageFlow.ts";
 import useTrialType from "./useTrialTypeData.ts";
 import Spinner from "../Spinner/Spinner.tsx";
+import experimentService from "../../services/experimentService.ts";
+import {toast, ToastContainer} from "react-toastify";
+import {useSelector} from "react-redux";
+import {RootState} from "../../states/store.ts";
 
 type TrialTypeProps = {
     setNextSlide: Dispatch<SetStateAction<number>>,
@@ -46,7 +50,8 @@ type TrialTypeProps = {
  * @param trailTypeId
  */
 function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
-    const {error, loading, trialType} = useTrialType(trailTypeId)
+    const user = useSelector((state: RootState) => (state.user.user))
+    const {error, loading, trialType} = useTrialType(trailTypeId, user!)
     // // Page Flow (Output for each Ui element):
     const [pageFlow, setPageFlow] = useState(getPageFlowOutput(trialType?.children));
     // Trial Type Final Output:
@@ -59,7 +64,8 @@ function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
     const [currentImageZoom, setCurrentImageZoom] = useState<ZoomType>(getInitialZoom(startTime));
     // For Mouse Tracking feature
     const {mouseTracking} = useMouseTracking(startTime, 350);
-
+    // For the submit animation
+    const [submitButtonLoading, setSubmitButtonLoading] = useState<boolean>(false);
 
     useEffect(() => {
         if (!trialType) {
@@ -78,7 +84,8 @@ function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
      * The Method update the output and set the next slide to move forward to the next element.
      * @constructor
      */
-    function UpdateOutputAncContinueToNextTrialType() {
+    async function UpdateOutputAncContinueToNextTrialType() {
+        setSubmitButtonLoading(true);
         const responseTimeLast = Date.now() - startTime;
         let newOutput = {...output};
 
@@ -91,9 +98,16 @@ function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
         //Setting the output to fit each ui element criteria
         newOutput = updateOutputFromPageFlow(newOutput, pageFlow);
         console.log(newOutput)
-
-        setOutput(newOutput);
-        setNextSlide((prevState) => (prevState + 1));
+        try {
+            await experimentService.setUserOutput(newOutput, trailTypeId, user!);
+            setSubmitButtonLoading(false);
+            setOutput(newOutput);
+            setNextSlide((prevState) => (prevState + 1));
+        } catch (error) {
+            setSubmitButtonLoading(false);
+            toast.error("Error occurred while data was sent please try again");
+            console.error(error);
+        }
 
     }
 
@@ -122,8 +136,12 @@ function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
                 return <TextInput key={key} startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow}
                                   uiObject={currentObj}/>
             case ElementsKeys.SUBMIT:
-                return <SubmitButton key={key} currentObj={currentObj} pageFlow={pageFlow}
-                                     onClickMethod={UpdateOutputAncContinueToNextTrialType}/>
+                return <>
+                    <SubmitButton key={key} currentObj={currentObj} pageFlow={pageFlow}
+                                  onClickMethod={UpdateOutputAncContinueToNextTrialType}
+                                  loadingSubmitButton={submitButtonLoading}
+                    />
+                </>
         }
 
         return undefined;
@@ -131,14 +149,13 @@ function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
 
     const trialTypeCss = "flex flex-auto flex-col items-center justify-start gap-8 w-full h-full overflow-x-hidden relative m-2"
 
-
     if (loading && !trialType) {
         return <div className={`${trialTypeCss} justify-center bg-white rounded-3xl m-5 p-10 pt-16  drop-shadow-xl`}>
             <Spinner/>
         </div>
     }
     //Rendering error if needed
-    if (error) {
+    if (error || !user) {
         return <div className={trialTypeCss}>
             <h1 className={"font-exo text-clamping-lg text-xl border border-red-400 p-5"}>Error retrieving data</h1>
         </div>
@@ -155,7 +172,9 @@ function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
             {features.zoom && currentImageZoom.isOpen &&
                 <ZoomElement setCurrentImageZoom={setCurrentImageZoom} currentImageZoom={currentImageZoom}/>}
             {features.idle && isIdle && <ToastIdle/>}
-            <div className={`w-full h-full bg-white rounded-3xl m-5 p-10 pt-16  drop-shadow-xl overflow-y-hidden overflow-x-hidden`}>
+            <div
+                className={`w-full h-full bg-white rounded-3xl m-5 p-10 pt-16  drop-shadow-xl overflow-y-hidden overflow-x-hidden`}>
+                <ToastContainer autoClose={3000}/>
 
                 {loading &&
                     <div className={"center-absolute z-10"}>

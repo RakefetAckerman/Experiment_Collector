@@ -15,4 +15,8 @@ router.get("/trailType/:trialType", async (req, res) => {
     await experimentController.getTrialType(req, res);
 })
 
+router.post("/setUserOutput", async (req, res) => {
+    await experimentController.addUserOutputObject(req, res);
+})
+
 export default router;

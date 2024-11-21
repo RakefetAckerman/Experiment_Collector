@@ -5,11 +5,13 @@ import right_arrow from "../../../assets/right_arrow.svg";
 import {PageFlowOutput, UiObjects} from "../../../utils/types/experimentTypes/experimentsTypes.ts";
 
 type SubmitButtonProps = {
-    currentObj:UiObjects;
+    currentObj: UiObjects;
     pageFlow: PageFlowOutput[];
-    onClickMethod:()=>void;
+    onClickMethod: () => void;
+    loadingSubmitButton: boolean;
 }
-function SubmitButton({currentObj ,pageFlow ,onClickMethod}:SubmitButtonProps) {
+
+function SubmitButton({currentObj, pageFlow, onClickMethod, loadingSubmitButton}: SubmitButtonProps) {
     const buttonCSSActions = `bg-white transition-all duration-200 hover:bg-buttons-blue`;
     const buttonCSSLocation = `mt-10`;
     const currentIndex = getCurrentIndex(pageFlow, currentObj);
@@ -17,8 +19,8 @@ function SubmitButton({currentObj ,pageFlow ,onClickMethod}:SubmitButtonProps) {
 
     return <ButtonIcon text={currentObj.text} onClick={onClickMethod}
                        icon={right_arrow}
-                       disabled={isDisabled}
-                       className={`${buttonCSSLocation} ${isDisabled ? "opacity-30" : buttonCSSActions}`}/>
+                       disabled={isDisabled || loadingSubmitButton}
+                       className={`${buttonCSSLocation} ${isDisabled || loadingSubmitButton ? "opacity-30" : buttonCSSActions}`}/>
 }
 
 export default SubmitButton;

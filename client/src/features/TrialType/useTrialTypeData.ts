@@ -1,15 +1,13 @@
 import {useEffect, useState} from "react";
-import {useSelector} from "react-redux";
-import {RootState} from "../../states/store.ts";
 import experimentService from "../../services/experimentService.ts";
 import {TrialTypeType} from "./types.ts";
+import {SerializedUser} from "../../utils/types/userTypes/userTypes.ts";
 
-const useTrialType = (trailTypeId: string | undefined) => {
+const useTrialType = (trailTypeId: string | undefined , user:SerializedUser) => {
     const [trialType, setTrialType] = useState<TrialTypeType | undefined>(undefined);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
-    const user = useSelector((state: RootState) => (state.user.user))
 
     useEffect(() => {
         const fetchData = async () => {
