@@ -1,6 +1,5 @@
 import express from "express";
 import researchersController from "../controllers/researchersController.js";
-import UserBoundary from "../boundaries/user/UserBoundary.js";
 
 const router = express.Router();
 
@@ -14,7 +13,7 @@ const router = express.Router();
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.get("/:email/:platform", async (req, res) => {
-  researchersController.getAllUsers(req, res);
+    researchersController.getAllUsers(req, res);
 });
 
 /**
@@ -27,7 +26,20 @@ router.get("/:email/:platform", async (req, res) => {
  * @throws {import("http-errors").HttpError} JSON response containing Http error message.
  */
 router.delete("/:email/:platform", async (req, res) => {
-  researchersController.deleteAllUsers(req, res);
+    researchersController.deleteAllUsers(req, res);
+});
+
+/**
+ *  Route for creating new experiment from the Ui format.
+ * @name POST /experiment/editor
+ * @function
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Object} JSON response containing deletion status.
+ * @throws {import("http-errors").HttpError} JSON response containing Http error message.*
+ */
+router.post("/experiment/editor", async (req, res) => {
+    await researchersController.createExperimentFromEditor(req, res);
 });
 
 export default router;

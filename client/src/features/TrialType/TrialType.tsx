@@ -90,18 +90,20 @@ function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
         let newOutput = {...output};
 
         const featuresData: FeaturesDataType = {totalIdleTime, unFocusTime, responseTimeLast}
+        if (!("ResponseTimeLast" in newOutput)) {
+            // Updating the output with the necessary features for the current trial type
+            newOutput = updateByFeatures(features, featuresData, newOutput, currentImageZoom.zoomOutput, mouseTracking);
+            newOutput = updateResponseTimeLast(newOutput, featuresData.responseTimeLast);
 
-        // Updating the output with the necessary features for the current trial type
-        newOutput = updateByFeatures(features, featuresData, newOutput, currentImageZoom.zoomOutput, mouseTracking);
-        newOutput = updateResponseTimeLast(newOutput, featuresData.responseTimeLast);
+            //Setting the output to fit each ui element criteria
+            newOutput = updateOutputFromPageFlow(newOutput, pageFlow);
+            setOutput(newOutput);
+        }
 
-        //Setting the output to fit each ui element criteria
-        newOutput = updateOutputFromPageFlow(newOutput, pageFlow);
         console.log(newOutput)
         try {
             await experimentService.setUserOutput(newOutput, trailTypeId, user!);
             setSubmitButtonLoading(false);
-            setOutput(newOutput);
             setNextSlide((prevState) => (prevState + 1));
         } catch (error) {
             setSubmitButtonLoading(false);
@@ -136,12 +138,10 @@ function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
                 return <TextInput key={key} startTime={startTime} pageFlow={pageFlow} setPageFlow={setPageFlow}
                                   uiObject={currentObj}/>
             case ElementsKeys.SUBMIT:
-                return <>
-                    <SubmitButton key={key} currentObj={currentObj} pageFlow={pageFlow}
-                                  onClickMethod={UpdateOutputAncContinueToNextTrialType}
-                                  loadingSubmitButton={submitButtonLoading}
-                    />
-                </>
+                return <SubmitButton key={key} currentObj={currentObj} pageFlow={pageFlow}
+                                     onClickMethod={UpdateOutputAncContinueToNextTrialType}
+                                     loadingSubmitButton={submitButtonLoading}/>
+
         }
 
         return undefined;

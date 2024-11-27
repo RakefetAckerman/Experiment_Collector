@@ -1,6 +1,7 @@
 import userService from "../logic/serivces/UsersService.js";
 import UserBoundary from "../boundaries/user/UserBoundary.js";
 import { setCookieIfNeeded } from "../logic/middleware/auth.js";
+import experimentService from "../logic/serivces/ExperimentService.js";
 
 const researchersController = {
   /**
@@ -38,13 +39,40 @@ const researchersController = {
         userEmail,
         userPlatform
       );
-      res.status(200).json(DBResponse);
+      return res.status(200).json(DBResponse);
+
     } catch (error) {
       const errorMessage =
         process.env.NODE_ENV !== "prod"
           ? error.message
           : "An error occurred during user deletion.";
-      res.status(error.status || 500).json({ error: errorMessage });
+      return res.status(error.status || 500).json({ error: errorMessage });
+    }
+  },
+
+  /**
+   *
+   * @param req
+   * @param res
+   * @returns {Promise<void>}
+   */
+  createExperimentFromEditor: async (req, res) => {
+    const email = req.query.email;
+    const platform = req.query.platform;
+    const data = req.body.data;
+    if (!platform || !email) {
+      res.status(400).send({error: "User Email and Platform is required"});
+      return;
+    }
+    if (!data) {
+      res.status(400).send({error: "No experiment received"});
+      return;
+    }
+    try {
+      await experimentService.createExperimentFromEditor(data, email, platform);
+      res.status(200).send("output");
+    } catch (err) {
+      res.status(500).send(err);
     }
   },
 };

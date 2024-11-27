@@ -1,8 +1,7 @@
 import React from 'react';
 import {getCurrentIndex, getIsSubmitDisabled} from "../../../utils/helperMethods.ts";
-import ButtonIcon from "../../../components/ButtonIcon.tsx";
-import right_arrow from "../../../assets/right_arrow.svg";
 import {PageFlowOutput, UiObjects} from "../../../utils/types/experimentTypes/experimentsTypes.ts";
+import LoadingSpinner from "../../Loding/LoadingSpinner.tsx";
 
 type SubmitButtonProps = {
     currentObj: UiObjects;
@@ -12,15 +11,24 @@ type SubmitButtonProps = {
 }
 
 function SubmitButton({currentObj, pageFlow, onClickMethod, loadingSubmitButton}: SubmitButtonProps) {
-    const buttonCSSActions = `bg-white transition-all duration-200 hover:bg-buttons-blue`;
+    const buttonCSSActions = `bg-white transition-all duration-500 hover:bg-buttons-blue`;
     const buttonCSSLocation = `mt-10`;
     const currentIndex = getCurrentIndex(pageFlow, currentObj);
     const isDisabled = getIsSubmitDisabled(pageFlow, currentIndex);
+    const Shape = "border border-gray-200 p-5 drop-shadow-xl rounded-3xl  "
 
-    return <ButtonIcon text={currentObj.text} onClick={onClickMethod}
-                       icon={right_arrow}
-                       disabled={isDisabled || loadingSubmitButton}
-                       className={`${buttonCSSLocation} ${isDisabled || loadingSubmitButton ? "opacity-30" : buttonCSSActions}`}/>
+    return (
+        <button onClick={onClickMethod} disabled={isDisabled || loadingSubmitButton}
+                className={`flex items-center gap-0 justify-center 
+                ${buttonCSSLocation} 
+                ${isDisabled || loadingSubmitButton ? "opacity-30" : buttonCSSActions} 
+                ${Shape} w-[40%] text-wrap max-laptop:w-full`}>
+            {loadingSubmitButton ? <LoadingSpinner/> : <h2 className={`font-exo text-xl`}>{currentObj.text}</h2>
+            }
+        </button>
+    )
+        ;
+
 }
 
 export default SubmitButton;

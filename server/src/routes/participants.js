@@ -128,4 +128,6 @@ router.get("/objects/type/:targetType", async (req, res) => {
 router.get("/objects/type/distinct/:targetType", async (req, res) => {
   participantsController.getSpecificObjectByType(req, res);
 });
+
+
 export default router;

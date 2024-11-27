@@ -39,31 +39,6 @@ const experimentController = {
         }
 
     },
-    /**
-     *
-     * @param req
-     * @param res
-     * @returns {Promise<void>}
-     */
-    createExperimentFromEditor: async (req, res) => {
-        const email = req.query.email;
-        const platform = req.query.platform;
-        const data = req.body.data;
-        if (!platform || !email) {
-            res.status(400).send({error: "User Email and Platform is required"});
-            return;
-        }
-        if (!data) {
-            res.status(400).send({error: "No experiment received"});
-            return;
-        }
-        try {
-            await experimentService.createExperimentFromEditor(data, email, platform);
-            res.status(200).send("output");
-        } catch (err) {
-            res.status(500).send(err);
-        }
-    },
 
     getTrialType: async function (req, res) {
         const email = req.query.email;
@@ -134,7 +109,7 @@ const experimentController = {
             const location = new Location(0, 0);
             const type = `output`;
             let objectDetails = {output: data, trailType: trialTypeId};
-            const objectBoundary = new ObjectBoundary(objectId, type, "-", false, null, null, location, createdBy, objectDetails);
+            const objectBoundary = new ObjectBoundary(objectId, type, "-", true, null, null, location, createdBy, objectDetails);
             await objectsService.createObject(objectBoundary);
             return res.status(200).send("Added successfully");
         } catch (err) {
@@ -161,19 +136,19 @@ function getUiDetailsFromObject(objectToAdd, objectDetails) {
 }
 
 function randomizeExperimentTrialType(trailTypeArray, experiment) {
-    if (!experiment || !experiment.objectDetails.objectDetails ||!experiment.objectDetails.objectDetails.random) {
+    if (!experiment || !experiment.objectDetails.objectDetails || !experiment.objectDetails.objectDetails.random) {
         return trailTypeArray;
     }
     const randomArray = experiment.objectDetails.objectDetails.random;
     let outputArray = [...trailTypeArray];
     for (const random of randomArray) {
-        outputArray = randomizeArray(trailTypeArray ,random.start , random.end);
+        outputArray = randomizeArray(trailTypeArray, random.start, random.end);
     }
     return outputArray;
 }
 
 function randomizeArray(arr, startIndex, endIndex) {
-    if (!arr){
+    if (!arr) {
         throw new Error("Expected an array of objects");
     }
     // Create a copy of the original array to avoid modifying the input directly
