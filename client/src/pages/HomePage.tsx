@@ -1,5 +1,11 @@
-import {EXAMPLE_TITLE_ANSWERED, EXAMPLE_TITLE_PARTIALLY_ANSWERED, LIST_TEMPLATE_TEXT} from "../utils/constants.ts";
+import {
+    EXAMPLE_TITLE_ANSWERED,
+    EXAMPLE_TITLE_PARTIALLY_ANSWERED,
+    EXPERIMENTS_CREATED,
+    LIST_TEMPLATE_TEXT
+} from "../utils/constants.ts";
 import CardHomeScreen from "../features/Homepage/CardHomeScreen.tsx";
+import CardExperimentCreated from "../features/HomeScreenCards/CardExperimentCreated.tsx";
 
 
 /**
@@ -17,8 +23,7 @@ function HomePage() {
         <div className={`w-full h-full flex  laptop:items-center justify-center overflow-x-hidden overflow-y-scroll`}>
             <div className={"max-laptop:flex max-laptop:mt-10 max-laptop:flex-col laptop:grid laptop:grid-rows-2 items-center grid-flow-col gap-10"}>
 
-                <CardHomeScreen className={"max-h-[45dvh]"} title={EXAMPLE_TITLE_ANSWERED}
-                                experimentsNamesAndDates={LIST_TEMPLATE_TEXT}/>
+                <CardExperimentCreated className={"max-h-[45dvh]"} title={EXPERIMENTS_CREATED}/>
                 <CardHomeScreen className={"max-h-[45dvh]"} title={EXAMPLE_TITLE_PARTIALLY_ANSWERED}
                                 experimentsNamesAndDates={LIST_TEMPLATE_TEXT}/>
                 <CardHomeScreen className={"row-span-2 h-full"} title={"INFORMATION"}

@@ -100,15 +100,26 @@ const experimentController = {
                 return;
             }
             const trialType = await objectsService.getObject(trialTypeId, email, platform);
-            if (!trialType) {
+            if (!trialType || trialType.type !== "trialType") {
                 res.status(500).send("Trail Type ID received is invalid");
+                return;
+            }
+            const parentArray =  await objectsService.getParentArray(trialTypeId, email, platform);
+            if (!parentArray || parentArray.length !== 1){
+                res.status(500).send("Trail Type have no Parent Experiment");
+                return;
+            }
+            const parent = await objectsService.getObject(parentArray[0], email, platform);
+            if(!parent || parent.type !== "experiment") {
+                res.status(500).send("Trail Type have no Parent Experiment");
+                return;
             }
             const userIdBoundary = new UserIdBoundary(platform, email);
             const createdBy = new UserIdInvoker(userIdBoundary);
             const objectId = new ObjectIdBoundary("website", "");
             const location = new Location(0, 0);
             const type = `output`;
-            let objectDetails = {output: data, trailType: trialTypeId};
+            let objectDetails = {output: data, trailType: trialTypeId , experiment:parent.objectId.internalObjectId};
             const objectBoundary = new ObjectBoundary(objectId, type, "-", true, null, null, location, createdBy, objectDetails);
             await objectsService.createObject(objectBoundary);
             return res.status(200).send("Added successfully");

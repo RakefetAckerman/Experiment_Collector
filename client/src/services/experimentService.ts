@@ -42,7 +42,7 @@ const experimentService = {
             }
         });
         return res.data;
-    }
+    },
 
 }
 

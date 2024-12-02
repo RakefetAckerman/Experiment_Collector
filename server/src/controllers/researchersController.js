@@ -2,6 +2,8 @@ import userService from "../logic/serivces/UsersService.js";
 import UserBoundary from "../boundaries/user/UserBoundary.js";
 import { setCookieIfNeeded } from "../logic/middleware/auth.js";
 import experimentService from "../logic/serivces/ExperimentService.js";
+import objectsController from "./objectsController.js";
+import objectsService from "../logic/serivces/ObjectsService.js";
 
 const researchersController = {
   /**
@@ -50,8 +52,22 @@ const researchersController = {
     }
   },
 
+  getExperimentCreatedByResearcher: async (req, res) => {
+    const userEmail = req.params.email;
+    const userPlatform = req.params.platform;
+    try {
+      const experiments  = await objectsService.getExperimentCreatedByResearcher(userEmail, userPlatform);
+      return res.status(200).json(experiments);
+    }catch (error) {
+      const errorMessage =
+          process.env.NODE_ENV !== "prod"
+              ? error.message
+              : "An error occurred during user retrieval.";
+      return res.status(error.status || 500).json({ error: errorMessage });
+    }
+  },
   /**
-   *
+   * create the objects for the database from the ui experiment element.
    * @param req
    * @param res
    * @returns {Promise<void>}

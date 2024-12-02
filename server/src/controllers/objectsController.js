@@ -3,6 +3,8 @@ import objectsService from "../logic/serivces/ObjectsService.js";
 import ObjectIdBoundary from "../boundaries/object/ObjectIdBoundary.js";
 
 const objectsController = {
+
+
   /**
    * Controller function for creating a new object
    * @param {Object} req - Express request object formed as UserBoundary.

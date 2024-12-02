@@ -358,6 +358,44 @@ const objectsService = {
         }
     },
     /**
+     *
+     * @param userEmail
+     * @param userPlatform
+     * @returns {Promise<objects[]>}
+     */
+    getExperimentCreatedByResearcher: async (userEmail, userPlatform) => {
+        const existingUser = await UserModel.findOne({
+            userId: userEmail + "$" + userPlatform,
+        });
+
+        if (!existingUser) {
+            logger.error(
+                `User with userId ${userEmail + "$" + userPlatform} does not exists`
+            );
+            throw new createHttpError.NotFound("User not found");
+        }
+
+        const experimentCreatedByResearcher = await ObjectModel.find(
+            {
+                createdBy: existingUser._id,
+                type: "experiment"
+            });
+
+        const DataArray = [];
+        for (const object of experimentCreatedByResearcher) {
+            const currentObj =
+                {
+                    objectId: object._id,
+                    name: object.objectDetails.name,
+                    trialTypeAmount: object.children.length,
+                };
+            DataArray.push(currentObj);
+
+        }
+
+        return DataArray;
+    },
+    /**
      * Deletes all objects (only accessible to Admins).
      * @async
      * @function
@@ -398,7 +436,7 @@ const objectsService = {
      * @param userEmail {string}
      * @param userPlatform {string}
      * @param internalObjectId {string}
-     * @returns {Promise<void>}
+     * @returns {Promise<string[]>}
      */
     getChildrenArray: async (internalObjectId, userEmail, userPlatform) => {
         const existingUser = await UserModel.findOne({
@@ -421,6 +459,37 @@ const objectsService = {
             throw new createHttpError.NotFound("Object does not exists");
         }
         return existingObject.children;
+
+    },
+    /**
+     * retrieve the parent array of an object.
+     * @param userEmail {string}
+     * @param userPlatform {string}
+     * @param internalObjectId {string}
+     * @returns {Promise<string[]>}
+     */
+    getParentArray: async (internalObjectId, userEmail, userPlatform) => {
+        const existingUser = await UserModel.findOne({
+            userId: userEmail + "$" + userPlatform,
+        });
+
+        if (!existingUser) {
+            logger.error(
+                `User with userId ${userEmail + "$" + userPlatform} does not exists`
+            );
+            throw new createHttpError.NotFound("User not found");
+        }
+
+        const existingObject = await ObjectModel.findOne({_id: internalObjectId});
+
+        if (!existingObject) {
+            logger.error(
+                `Object does not exists with internalObjectId:${internalObjectId}`
+            );
+            throw new createHttpError.NotFound("Object does not exists");
+        }
+        console.log(existingObject);
+        return existingObject.parents;
 
     },
     /**
