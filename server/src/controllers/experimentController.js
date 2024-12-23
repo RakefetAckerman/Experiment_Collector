@@ -1,10 +1,12 @@
 import objectsService from "../logic/serivces/ObjectsService.js";
-import experimentService from "../logic/serivces/ExperimentService.js";
 import UserIdBoundary from "../boundaries/user/UserIdBoundary.js";
 import UserIdInvoker from "../utils/Invokers/UserIdInvoker.js";
 import ObjectIdBoundary from "../boundaries/object/ObjectIdBoundary.js";
 import Location from "../utils/Location.js";
 import ObjectBoundary from "../boundaries/object/ObjectBoundary.js";
+import userService from "../logic/serivces/UsersService.js";
+import Roles from "../utils/UserRole.js";
+import logger from "../config/logger.js";
 
 
 const experimentController = {
@@ -104,13 +106,13 @@ const experimentController = {
                 res.status(500).send("Trail Type ID received is invalid");
                 return;
             }
-            const parentArray =  await objectsService.getParentArray(trialTypeId, email, platform);
-            if (!parentArray || parentArray.length !== 1){
+            const parentArray = await objectsService.getParentArray(trialTypeId, email, platform);
+            if (!parentArray || parentArray.length !== 1) {
                 res.status(500).send("Trail Type have no Parent Experiment");
                 return;
             }
             const parent = await objectsService.getObject(parentArray[0], email, platform);
-            if(!parent || parent.type !== "experiment") {
+            if (!parent || parent.type !== "experiment") {
                 res.status(500).send("Trail Type have no Parent Experiment");
                 return;
             }
@@ -119,7 +121,7 @@ const experimentController = {
             const objectId = new ObjectIdBoundary("website", "");
             const location = new Location(0, 0);
             const type = `output`;
-            let objectDetails = {output: data, trailType: trialTypeId , experiment:parent.objectId.internalObjectId};
+            let objectDetails = {output: data, trailType: trialTypeId, experiment: parent.objectId.internalObjectId};
             const objectBoundary = new ObjectBoundary(objectId, type, "-", true, null, null, location, createdBy, objectDetails);
             await objectsService.createObject(objectBoundary);
             return res.status(200).send("Added successfully");
@@ -127,6 +129,52 @@ const experimentController = {
             return res.status(500).send(err);
         }
 
+
+    },
+
+    getUsersOutput: async (req, res) => {
+        try {
+            const email = req.params.email;
+            const experimentId = req.params.experimentId;
+            const platform = req.params.platform;
+
+            if (!platform || !email) {
+                return res.status(400).send({error: "User Email and Platform is required"});
+            }
+            if (!experimentId) {
+                return res.status(400).send({error: "Experiment ID is required"});
+            }
+
+            const experiment = await objectsService.getObject(experimentId, email, platform);
+            const userRole = await userService.getUserRole(email, platform);
+
+            if (!experiment) {
+                return res.status(404).send({error: "Experiment Not Found"});
+            }
+            const isAuthorized = experiment.createdBy.userId.email === email && experiment.createdBy.userId.platform === platform;
+            if (userRole !== Roles.ADMIN && !isAuthorized) {
+                logger.error(`User with userId ${userEmail + "$" + userPlatform} does not authorized`);
+                return res.status(404).send({error: "Not authorized to receive experiment data"});
+            }
+            const outputData = await objectsService.getAllObjectsByType("output", email, platform);
+            const formatedData = [];
+            for (const output of outputData) {
+                const isCurrentExperiment = output.objectDetails.experiment.toString() === experiment.objectId.internalObjectId.toString();
+                if (!isCurrentExperiment) {
+                    continue;
+                }
+                formatedData.push({
+                    output: output.objectDetails.output,
+                    trialType: output.objectDetails.trailType,
+                    user: output.createdBy.userId.email,
+                    experimentName: experiment.objectDetails.name,
+                });
+            }
+            console.log(formatedData);
+            return res.status(200).send(formatedData);
+        } catch (err) {
+            return res.status(500).send(err);
+        }
 
     }
 }

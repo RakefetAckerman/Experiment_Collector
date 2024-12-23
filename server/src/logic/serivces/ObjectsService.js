@@ -1058,7 +1058,6 @@ const objectsService = {
             throw new createHttpError.BadRequest(error);
         }
     },
-
 };
 
 /**

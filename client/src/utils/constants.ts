@@ -1,10 +1,7 @@
 import {ExperimentsDate} from "./types/ExperimentsDate.ts";
 
 export const USERNAME_TEXT = "USERNAME_TEXT"
-export const LIST_TEMPLATE_TEXT: ExperimentsDate[] = [{name: "Xray", date: "20/04/05"}, {
-    name: "Xray",
-    date: "20/04/05"
-}, {name: "Xray", date: "20/04/05"}, {name: "Xray", date: "20/04/05"}, {name: "Xray", date: "20/04/05"}]
+export const LIST_TEMPLATE_TEXT: ExperimentsDate[] = [{name: "Xray", date: "20/04/05"}]
 
 export const EXAMPLE_TITLE_ANSWERED = "EXPERIMENTS ANSWERED"
 export const EXPERIMENTS_CREATED = "EXPERIMENTS CREATED"

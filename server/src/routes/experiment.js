@@ -41,4 +41,8 @@ router.post("/setUserOutput", async (req, res) => {
     await experimentController.addUserOutputObject(req, res);
 });
 
+router.get("/getUsersOutput/:experimentId/:email/:platform", async (req, res) => {
+    await experimentController.getUsersOutput(req, res);
+});
+
 export default router;

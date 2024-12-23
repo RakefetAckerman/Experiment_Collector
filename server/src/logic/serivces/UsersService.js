@@ -343,6 +343,24 @@ const userService = {
             );
         }
     },
+    /**
+     * get the user role to know if he is admin, participant or researcher.
+     * @param userEmail {string} the user email.
+     * @param userPlatform {string} the user platform.
+     * @returns {Promise<string>}
+     */
+    getUserRole: async (userEmail, userPlatform) => {
+        const user = await UserModel.findOne({
+            userId: userEmail + "$" + userPlatform,
+        });
+        if (!user) {
+            logger.error(
+                `User with userId ${userEmail + "$" + userPlatform} does not exists`
+            );
+            throw new createHttpError.NotFound("User not found");
+        }
+        return user.role;
+    }
 };
 
 /**

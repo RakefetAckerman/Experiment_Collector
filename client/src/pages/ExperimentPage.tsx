@@ -18,8 +18,7 @@ function ExperimentPage() {
             <Spinner/>
         </div>
     }
-
-    if (error || !experimentData || !experimentData.trialTypes[currentTrailType]) {
+    if (error || !experimentData) {
         return <div className={"w-full h-full flex justify-center items-center flex-col gap-0 "}>
             <div className={"bg-white p-10 rounded-3xl drop-shadow-lg border gap-3 border-red-400 flex justify-center items-center flex-col"}>
                 <h2 className={"text-clamping-mid font-exo text-center"}>Error occurred while getting Data</h2>
@@ -27,9 +26,27 @@ function ExperimentPage() {
             </div>
         </div>
     }
+    if (experimentData && !experimentData!.trialTypes[currentTrailType]){
+        return <div className={"w-full h-full flex justify-center items-center flex-col gap-0 "}>
+            <div
+                className="p-10 rounded-3xl drop-shadow-lg border gap-3 border-gray-400 flex justify-center items-center flex-col
+  bg-gradient-to-r from-red-400 via-blue-400 to-green-400 bg-[length:200%_200%]"
+            >
+                <h2 className="text-white text-clamping-mid font-exo text-center">Thank You for participating in the experiment</h2>
+                <NavLink
+                    to="/"
+                    className="text-white text-clamping-sm text-center hover:opacity-100 opacity-30 duration-200 transition-all"
+                >
+                    Return Home
+                </NavLink>
+            </div>
+        </div>
+    }
+
 
     return (
-        <div className={`relative gap 3px flex-col w-full h-full flex items-center p-5 transition-all duration-1000 ease-in-out`}>
+        <div
+            className={`relative gap 3px flex-col w-full h-full flex items-center p-5 transition-all duration-1000 ease-in-out`}>
             <h2 className={"font-exo text-center text-3xl uppercase"}>{experimentData.name}</h2>
             <TrialType setNextSlide={setCurrentTrailType} startTime={Date.now()}
                        trailTypeId={experimentData.trialTypes[currentTrailType]}/>

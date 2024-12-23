@@ -43,7 +43,18 @@ const experimentService = {
         });
         return res.data;
     },
-
+    /**
+     * send a request to get the users output the user.
+     * @param experimentId the id of the experiment
+     * @param user the SerializedUser from session storage
+     */
+    getUsersOutput: async (experimentId: string ,user:SerializedUser)=>{
+        if (!experimentId || !user) {
+            throw new Error("");
+        }
+        const res = await api.get(`/experiment/getUsersOutput/${experimentId}/${user.userId.email}/${user.userId.platform}`);
+        return res.data;
+    }
 }
 
 
