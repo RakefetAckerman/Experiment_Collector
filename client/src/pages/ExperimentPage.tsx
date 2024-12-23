@@ -43,13 +43,13 @@ function ExperimentPage() {
         </div>
     }
 
-
+    const nextTrialId = currentTrailType >= experimentData.trialTypes.length ? null : experimentData.trialTypes[currentTrailType + 1];
     return (
         <div
             className={`relative gap 3px flex-col w-full h-full flex items-center p-5 transition-all duration-1000 ease-in-out`}>
             <h2 className={"font-exo text-center text-3xl uppercase"}>{experimentData.name}</h2>
             <TrialType setNextSlide={setCurrentTrailType} startTime={Date.now()}
-                       trailTypeId={experimentData.trialTypes[currentTrailType]}/>
+                       trialTypeId={experimentData.trialTypes[currentTrailType]} nextTrialTypeId={nextTrialId}/>
         </div>
     );
 }

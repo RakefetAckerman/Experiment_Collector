@@ -38,7 +38,8 @@ import {RootState} from "../../states/store.ts";
 
 type TrialTypeProps = {
     setNextSlide: Dispatch<SetStateAction<number>>,
-    trailTypeId: string;
+    trialTypeId: string;
+    nextTrialTypeId: string |null;
     startTime: number,
 }
 
@@ -46,12 +47,13 @@ type TrialTypeProps = {
  * A single TrialTypeElement - A single way to render every trial type.
  * Features to add to page:
  * @param setNextSlide state to move between slides
- * @param startTime the time the that the trail type started at.
- * @param trailTypeId
+ * @param startTime the time the that the trial type started at.
+ * @param trialTypeId
+ * @param nextTrialTypeId
  */
-function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
+function TrialType({setNextSlide, startTime, trialTypeId , nextTrialTypeId}: TrialTypeProps) {
     const user = useSelector((state: RootState) => (state.user.user))
-    const {error, loading, trialType} = useTrialType(trailTypeId, user!)
+    const {error, loading, trialType} = useTrialType(trialTypeId, user! , nextTrialTypeId);
     // // Page Flow (Output for each Ui element):
     const [pageFlow, setPageFlow] = useState(getPageFlowOutput(trialType?.children));
     // Trial Type Final Output:
@@ -102,7 +104,7 @@ function TrialType({setNextSlide, startTime, trailTypeId}: TrialTypeProps) {
 
         console.log(newOutput)
         try {
-            await experimentService.setUserOutput(newOutput, trailTypeId, user!);
+            await experimentService.setUserOutput(newOutput, trialTypeId, user!);
             setSubmitButtonLoading(false);
             setNextSlide((prevState) => (prevState + 1));
         } catch (error) {

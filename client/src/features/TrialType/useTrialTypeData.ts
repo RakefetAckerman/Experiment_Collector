@@ -3,22 +3,33 @@ import experimentService from "../../services/experimentService.ts";
 import {TrialTypeType} from "./types.ts";
 import {SerializedUser} from "../../utils/types/userTypes/userTypes.ts";
 
-const useTrialType = (trailTypeId: string | undefined , user:SerializedUser) => {
+const useTrialType = (trialTypeId: string, user: SerializedUser, nextTrialTypeId: string | null) => {
     const [trialType, setTrialType] = useState<TrialTypeType | undefined>(undefined);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
-
+    const [nextTrialType, setNextTrialType] = useState<TrialTypeType | undefined>(undefined);
 
     useEffect(() => {
         const fetchData = async () => {
+            console.log({trialType , trialTypeId ,nextTrialType ,nextTrialTypeId} );
+            if (nextTrialType) {
+                setTrialType(nextTrialType);
+                if (nextTrialTypeId) {
+                    experimentService.getTrialType(nextTrialTypeId, user!).then((data) => {
+                        console.log(data , "next");
+                        setNextTrialType(data);
+                    });
+                }
+                return;
+            }
             setLoading(true);
-            if (!trailTypeId) {
+            if (!trialTypeId) {
                 setError(true);
                 setLoading(false);
                 return;
             }
             try {
-                const data = await experimentService.getTrialType(trailTypeId, user!);
+                const data = await experimentService.getTrialType(trialTypeId, user!);
                 if (!data) {
                     setError(true);
                     setLoading(false);
@@ -26,6 +37,12 @@ const useTrialType = (trailTypeId: string | undefined , user:SerializedUser) => 
                 }
                 setTrialType(data);
                 setLoading(false);
+                if (nextTrialTypeId) {
+                    experimentService.getTrialType(nextTrialTypeId, user!).then((data) => {
+                        console.log(data , "next");
+                        setNextTrialType(data);
+                    });
+                }
 
             } catch (error) {
                 console.log(error)
@@ -37,7 +54,7 @@ const useTrialType = (trailTypeId: string | undefined , user:SerializedUser) => 
         };
 
         fetchData();
-    }, [trailTypeId]);
+    }, [trialTypeId]);
 
     return {trialType, loading, error};
 };
