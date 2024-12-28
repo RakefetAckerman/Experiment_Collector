@@ -33,7 +33,7 @@ function CardExperimentCreated({title, className}: CardExperimentCreatedProps) {
     return (
         <>
             <div
-                className={`${className} flex gap-4 flex-col min-w-[25dvw] bg-white drop-shadow-2xl p-10 rounded-[50px] min-h-[40dvh] w-max`}>
+                className={`${className} flex gap-4 flex-col min-w-[35dvw] bg-white drop-shadow-2xl p-10 rounded-[50px] min-h-[40dvh] w-max`}>
                 <h2 className={"text-lg font-light font-exo text-black-half uppercase "}>{title}</h2>
                 <div
                     className={" gap-4 flex items-center justify-start flex-col  overflow-x-hidden max-h-[90%] w-[80]%"}>
@@ -42,11 +42,11 @@ function CardExperimentCreated({title, className}: CardExperimentCreatedProps) {
                                 setIsPopOverOpen(prev => !prev)
                                 setExperimentId(value.objectId)
                             }}
-                                 className={`p-4 hover:cursor-pointer hover:bg-gray-200 active:bg-gray-500 transition-all duration-300 rounded-2xl flex flex-wrap justify-center gap-5 items-center bg-button-light-blue min-h-[60px]`}>
+                                 className={`p-4 w-full hover:cursor-pointer hover:bg-gray-200 active:bg-gray-500 transition-all duration-300 rounded-2xl flex flex-wrap justify-between gap-5 items-center bg-button-light-blue min-h-[60px]`}>
                                 <h2 className={"text-clamping-mid font-light font-exo"}><span
                                     className={"opacity-30"}>Name: </span>{value.name}</h2>
                                 <h2 className={"text-clamping-sm font-light font-exo mr-3"}><span
-                                    className={"opacity-30"}>Trial Type: </span>{value.trialTypeAmount}
+                                    className={"opacity-30"}>Trial Types: </span>{value.trialTypeAmount}
                                 </h2>
                             </div>
                     ))}

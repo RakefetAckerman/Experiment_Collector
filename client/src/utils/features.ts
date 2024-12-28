@@ -1,6 +1,8 @@
 import {MouseTrackingObject} from "../features/MouseTracking/types.ts";
 import {TrialTypeType} from "../features/TrialType/types.ts";
 import {ZoomElementType} from "../features/Zoom/types.ts";
+import {UiObjects} from "./types/experimentTypes/experimentsTypes.ts";
+import {ElementsKeys} from "./constants.ts";
 
 export type Features = {
     idle?: boolean,
@@ -59,7 +61,33 @@ export function updateIdle(output :object , totalTimeIdle:number) {
 export function updateResponseTimeLast(output :object , responseTimeLast:number) {
     return {...output, ResponseTimeLast: responseTimeLast};
 }
+/**
+ * updating the responseTimeFirst
+ * @param output the output object. Insure it isn't a state object!
+ * @param responseTimeFirst the first time the user interacted with the trail
+ */
+export function updateResponseTimeFirst(output :object , responseTimeFirst:number|null) {
+    return {...output, ResponseTimeFirst: responseTimeFirst};
+}
 
+
+/**
+ * updating the responseTimeLast
+ * @param output the output object. Insure it isn't a state object!
+ * @param UiElements the trialTypeObjects
+ */
+export function updateImages(output :object , UiElements:UiObjects[]) {
+    const images:string[] = [];
+    for (const uiObject of UiElements) {
+        if (uiObject.type === ElementsKeys.IMAGES){
+            uiObject.urls!.forEach((url) => {images.push(url)})
+        }
+    }
+    if (images.length > 0) {
+        return {...output,images:images }
+    }
+    return {...output };
+}
 /**
  * updating the Focus element in an object.
  * @param output the object.
@@ -102,7 +130,6 @@ export type FeaturesDataType = {
     totalIdleTime: number,
     unFocusTime:number,
     responseTimeLast:number,
-
 }
 
 /**
@@ -125,7 +152,6 @@ export function updateByFeatures(features: Features, featuresData: FeaturesDataT
     }
     if (features.zoom){
         newOutput = updateZoom(newOutput ,zoomOutput)
-
     }
     return newOutput;
 }

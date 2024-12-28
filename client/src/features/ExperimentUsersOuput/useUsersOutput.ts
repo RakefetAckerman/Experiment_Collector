@@ -24,7 +24,7 @@ const useUsersOutput = (experimentId: string | undefined, user: SerializedUser) 
                     setLoading(false);
                     return;
                 }
-                console.log(data)
+                // console.log(data);
                 setUsersOutput(reformatData(data, experimentId));
                 setLoading(false);
 
@@ -54,12 +54,16 @@ function reformatData(data: object[], experimentId: string): UsersOutput {
 function createCSVOfArray(data: object[], headers: string[], array: string[][]): void {
     for (const obj of data) {
         // Create a row initialized with empty strings
-        const row = Array(headers.length).fill('-');
+        const row = Array(headers.length).fill('');
 
         // Function to map nested values based on headers
         const setRowValue = (value: unknown, fullKey: string): void => {
             const index = headers.indexOf(fullKey);
             if (index !== -1) {
+                if (Array.isArray(value)) {
+                    row[index] = JSON.stringify(value).replace(/,/g, '|');
+                    return;
+                }
                 row[index] = value !== null && value !== undefined ? String(value) : '';
             }
         };

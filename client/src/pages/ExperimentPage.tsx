@@ -42,7 +42,7 @@ function ExperimentPage() {
             </div>
         </div>
     }
-
+    console.log(experimentData.trialTypes);
     const nextTrialId = currentTrailType >= experimentData.trialTypes.length ? null : experimentData.trialTypes[currentTrailType + 1];
     return (
         <div

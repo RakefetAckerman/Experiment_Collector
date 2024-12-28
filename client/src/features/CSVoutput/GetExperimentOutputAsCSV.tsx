@@ -30,7 +30,7 @@ function GetExperimentOutputAsCsv({experimentID}: GetExperimentOutputAsCsvProps)
         <div className={"w-full h-full flex items-center justify-center flex-col gap-5"}>
             <h2>Would you like to download experiment data?</h2>
             <div className={"bg-button-light-blue p-5 text-center font-exo rounded-3xl"}>
-                <CSVLink filename={`output-${experimentID}`} data={usersOutput!.experimentData!}>Download
+                <CSVLink filename={`output-${experimentID}-${Date.now().toString()}`} data={usersOutput!.experimentData!}>Download
                     Experiment</CSVLink>
             </div>
         </div>

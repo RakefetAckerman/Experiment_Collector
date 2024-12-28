@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
+import {TrialTypeType} from "../../features/TrialType/types.ts";
 
-const useHandleFirstInteraction = (startTime:number , setOutput : React.Dispatch<React.SetStateAction<object>> ) => {
-    const [hasInteracted, setHasInteracted] = useState(false);
+const useHandleFirstInteraction = (startTime: number, trailType: TrialTypeType) => {
+
+    const [responseTimeFirst, setResponseTimeFirst] = useState<number | null>(null);
+
     useEffect(() => {
         const handleInteraction = () => {
-            if (!hasInteracted) {
-                setOutput((prev) => {return {...prev, ResponseTimeFirst: Date.now() - startTime }});
-            }
-            setHasInteracted(true);
+            setResponseTimeFirst(Date.now() - startTime);
             // Remove both event listeners after the first interaction
             document.removeEventListener('click', handleInteraction);
             document.removeEventListener('mousemove', handleInteraction);
@@ -22,7 +22,8 @@ const useHandleFirstInteraction = (startTime:number , setOutput : React.Dispatch
             document.removeEventListener('click', handleInteraction);
             document.removeEventListener('mousemove', handleInteraction);
         };
-    }, []); // Empty dependency array means this effect runs once on mount
+    }, [trailType]);
+    return {responseTimeFirst}
 };
 
 export default useHandleFirstInteraction;

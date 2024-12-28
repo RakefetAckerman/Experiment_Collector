@@ -12,7 +12,12 @@ import useIdleTimer from "../Idle/hooks/useHandleIdle.ts";
 import ToastIdle from "../Idle/components/ToastIdle.tsx";
 import Slider from "../Ui/Slider/Slider.tsx";
 import 'react-toastify/dist/ReactToastify.css';
-import getFeatures, {FeaturesDataType, updateByFeatures, updateResponseTimeLast} from "../../utils/features.ts";
+import getFeatures, {
+    FeaturesDataType,
+    updateByFeatures,
+    updateImages, updateResponseTimeFirst,
+    updateResponseTimeLast
+} from "../../utils/features.ts";
 import useFocusTime from "../../hooks/experimentFeatures/useHandleFocus.ts";
 import ZoomElement from "../Zoom/componennts/ZoomElement.tsx";
 import Error from "../../error/Error.tsx";
@@ -39,7 +44,7 @@ import {RootState} from "../../states/store.ts";
 type TrialTypeProps = {
     setNextSlide: Dispatch<SetStateAction<number>>,
     trialTypeId: string;
-    nextTrialTypeId: string |null;
+    nextTrialTypeId: string | null;
     startTime: number,
 }
 
@@ -48,16 +53,14 @@ type TrialTypeProps = {
  * Features to add to page:
  * @param setNextSlide state to move between slides
  * @param startTime the time the that the trial type started at.
- * @param trialTypeId
- * @param nextTrialTypeId
+ * @param trialTypeId the current trial type
+ * @param nextTrialTypeId the next trail type for prefetching
  */
-function TrialType({setNextSlide, startTime, trialTypeId , nextTrialTypeId}: TrialTypeProps) {
+function TrialType({setNextSlide, startTime, trialTypeId, nextTrialTypeId}: TrialTypeProps) {
     const user = useSelector((state: RootState) => (state.user.user))
-    const {error, loading, trialType} = useTrialType(trialTypeId, user! , nextTrialTypeId);
+    const {error, loading, trialType} = useTrialType(trialTypeId, user!, nextTrialTypeId);
     // // Page Flow (Output for each Ui element):
     const [pageFlow, setPageFlow] = useState(getPageFlowOutput(trialType?.children));
-    // Trial Type Final Output:
-    const [output, setOutput] = useState<object>({});
     // For Idle
     const {isIdle, totalIdleTime} = useIdleTimer(HALF_MINUTE);
     // For Focus
@@ -76,9 +79,8 @@ function TrialType({setNextSlide, startTime, trialTypeId , nextTrialTypeId}: Tri
         setPageFlow(getPageFlowOutput(trialType?.children))
     }, [trialType]);
     // Updating the First Reaction time
-    useHandleFirstInteraction(startTime, setOutput);
+    const {responseTimeFirst} = useHandleFirstInteraction(startTime , trialType!);
     useHandlePageFlow({pageFlow, setPageFlow});
-
     const features = getFeatures(trialType);
     const errorUI = handleTrialTypeErrors(trialType);
 
@@ -89,20 +91,17 @@ function TrialType({setNextSlide, startTime, trialTypeId , nextTrialTypeId}: Tri
     async function UpdateOutputAncContinueToNextTrialType() {
         setSubmitButtonLoading(true);
         const responseTimeLast = Date.now() - startTime;
-        let newOutput = {...output};
-
+        let newOutput = {};
         const featuresData: FeaturesDataType = {totalIdleTime, unFocusTime, responseTimeLast}
         if (!("ResponseTimeLast" in newOutput)) {
             // Updating the output with the necessary features for the current trial type
             newOutput = updateByFeatures(features, featuresData, newOutput, currentImageZoom.zoomOutput, mouseTracking);
+            newOutput = updateResponseTimeFirst(newOutput, responseTimeFirst);
             newOutput = updateResponseTimeLast(newOutput, featuresData.responseTimeLast);
-
+            newOutput = updateImages(newOutput, trialType!.children);
             //Setting the output to fit each ui element criteria
             newOutput = updateOutputFromPageFlow(newOutput, pageFlow);
-            setOutput(newOutput);
         }
-
-        console.log(newOutput)
         try {
             await experimentService.setUserOutput(newOutput, trialTypeId, user!);
             setSubmitButtonLoading(false);

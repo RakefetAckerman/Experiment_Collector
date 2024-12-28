@@ -7,16 +7,13 @@ const useTrialType = (trialTypeId: string, user: SerializedUser, nextTrialTypeId
     const [trialType, setTrialType] = useState<TrialTypeType | undefined>(undefined);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
-    const [nextTrialType, setNextTrialType] = useState<TrialTypeType | undefined>(undefined);
-
+    const [nextTrialType, setNextTrialType] = useState<TrialTypeType | null>(null);
     useEffect(() => {
         const fetchData = async () => {
-            console.log({trialType , trialTypeId ,nextTrialType ,nextTrialTypeId} );
-            if (nextTrialType) {
+            if (nextTrialType && trialTypeId === nextTrialType.id) {
                 setTrialType(nextTrialType);
                 if (nextTrialTypeId) {
                     experimentService.getTrialType(nextTrialTypeId, user!).then((data) => {
-                        console.log(data , "next");
                         setNextTrialType(data);
                     });
                 }
@@ -38,9 +35,8 @@ const useTrialType = (trialTypeId: string, user: SerializedUser, nextTrialTypeId
                 setTrialType(data);
                 setLoading(false);
                 if (nextTrialTypeId) {
-                    experimentService.getTrialType(nextTrialTypeId, user!).then((data) => {
-                        console.log(data , "next");
-                        setNextTrialType(data);
+                    experimentService.getTrialType(nextTrialTypeId, user!).then((data2) => {
+                        setNextTrialType(data2);
                     });
                 }
 
