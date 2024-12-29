@@ -9,7 +9,7 @@ import LogoNavBar from "./LogoNavBar.tsx";
 import CardNavBar from "./CardNavBar.tsx";
 
 function SideBar() {
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true);
 
     function collapseSideBar() {
         setIsCollapsed(!isCollapsed);

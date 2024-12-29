@@ -6,7 +6,7 @@ import {
     ElementsKeys,
     HALF_MINUTE,
 } from "../../utils/constants.ts";
-import {Dispatch, SetStateAction, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import useHandleFirstInteraction from "../../hooks/experimentFeatures/useHandleFirstInteraction.ts";
 import useIdleTimer from "../Idle/hooks/useHandleIdle.ts";
 import ToastIdle from "../Idle/components/ToastIdle.tsx";
@@ -25,40 +25,36 @@ import Likert from "../Ui/Likert/Likert.tsx";
 import Buttons from "../Ui/Buttons/Buttons.tsx";
 import useMouseTracking from "../MouseTracking/useMouseTracking.ts";
 import UnderstandingInstruction from "../Ui/UnderstandingInstruction/UnderstandingInstruction.tsx";
-import {handleTrialTypeErrors} from "./errors.ts";
+import {handleTrialTypeErrors} from "../TrialType/errors.ts";
 import {getPageFlowOutput, updateOutputFromPageFlow} from "../PageFlow/pageFlow.ts";
 import {ZoomType} from "../Zoom/types.ts";
 import {getInitialZoom} from "../Zoom/helpers.ts";
 import TextInput from "../Ui/TextInput/TextInput.tsx";
 import HeadLine from "../Ui/HeadLine/HeadLine.tsx";
-import Text from "../Ui/Text/Text";
+import Text from "../Ui/Text/Text.tsx";
 import SubmitButton from "../Ui/Submit/SubmitButton.tsx";
 import useHandlePageFlow from "../PageFlow/usePageFlow.ts";
-import useTrialType from "./useTrialTypeData.ts";
-import Spinner from "../Spinner/Spinner.tsx";
-import experimentService from "../../services/experimentService.ts";
 import {toast, ToastContainer} from "react-toastify";
-import {useSelector} from "react-redux";
-import {RootState} from "../../states/globalStore.ts";
+import {useDispatch, useSelector} from "react-redux";
+import {EditorState} from "../../states/editor/editorStore.ts";
+import {setCurrentTrialType} from "../../states/editor/editorSlice.ts";
+import {TrialTypeType} from "../TrialType/types.ts";
 
 type TrialTypeProps = {
-    setNextSlide: Dispatch<SetStateAction<number>>,
-    trialTypeId: string;
-    nextTrialTypeId: string | null;
     startTime: number,
+    trialType: TrialTypeType;
 }
 
 /**
  * A single TrialTypeElement - A single way to render every trial type.
  * Features to add to page:
- * @param setNextSlide state to move between slides
  * @param startTime the time the that the trial type started at.
- * @param trialTypeId the current trial type
- * @param nextTrialTypeId the next trail type for prefetching
+ * @param trialType the trial type to render and interact with
  */
-function TrialType({setNextSlide, startTime, trialTypeId, nextTrialTypeId}: TrialTypeProps) {
-    const user = useSelector((state: RootState) => (state.user.user))
-    const {error, loading, trialType} = useTrialType(trialTypeId, user!, nextTrialTypeId);
+function EditorTrialType({startTime, trialType}: TrialTypeProps) {
+    const experimentData = useSelector((state: EditorState) => (state.editor.editorPreview));
+    const dispatch = useDispatch();
+
     // // Page Flow (Output for each Ui element):
     const [pageFlow, setPageFlow] = useState(getPageFlowOutput(trialType?.children));
     // For Idle
@@ -71,15 +67,16 @@ function TrialType({setNextSlide, startTime, trialTypeId, nextTrialTypeId}: Tria
     const {mouseTracking} = useMouseTracking(startTime, 350);
     // For the submit animation
     const [submitButtonLoading, setSubmitButtonLoading] = useState<boolean>(false);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
 
     useEffect(() => {
         if (!trialType) {
             return;
         }
-        setPageFlow(getPageFlowOutput(trialType?.children))
+        setPageFlow(getPageFlowOutput(trialType?.children));
     }, [trialType]);
     // Updating the First Reaction time
-    const {responseTimeFirst} = useHandleFirstInteraction(startTime , trialType!);
+    const {responseTimeFirst} = useHandleFirstInteraction(startTime, trialType!);
     useHandlePageFlow({pageFlow, setPageFlow});
     const features = getFeatures(trialType);
     const errorUI = handleTrialTypeErrors(trialType);
@@ -89,28 +86,32 @@ function TrialType({setNextSlide, startTime, trialTypeId, nextTrialTypeId}: Tria
      * @constructor
      */
     async function UpdateOutputAncContinueToNextTrialType() {
-        setSubmitButtonLoading(true);
         const responseTimeLast = Date.now() - startTime;
         let newOutput = {};
         const featuresData: FeaturesDataType = {totalIdleTime, unFocusTime, responseTimeLast}
-        if (!("ResponseTimeLast" in newOutput)) {
-            // Updating the output with the necessary features for the current trial type
-            newOutput = updateByFeatures(features, featuresData, newOutput, currentImageZoom.zoomOutput, mouseTracking);
-            newOutput = updateResponseTimeFirst(newOutput, responseTimeFirst);
-            newOutput = updateResponseTimeLast(newOutput, featuresData.responseTimeLast);
-            newOutput = updateImages(newOutput, trialType!.children);
-            //Setting the output to fit each ui element criteria
-            newOutput = updateOutputFromPageFlow(newOutput, pageFlow);
+        // Updating the output with the necessary features for the current trial type
+        newOutput = updateByFeatures(features, featuresData, newOutput, currentImageZoom.zoomOutput, mouseTracking);
+        newOutput = updateResponseTimeFirst(newOutput, responseTimeFirst);
+        newOutput = updateResponseTimeLast(newOutput, featuresData.responseTimeLast);
+        newOutput = updateImages(newOutput, trialType!.children);
+        //Setting the output to fit each ui element criteria
+        newOutput = updateOutputFromPageFlow(newOutput, pageFlow);
+
+        toast(JSON.stringify(newOutput));
+        moveToNextTrialType();
+    }
+
+    function moveToNextTrialType() {
+        if (!experimentData || !trialType) {
+            return;
         }
-        try {
-            await experimentService.setUserOutput(newOutput, trialTypeId, user!);
-            setSubmitButtonLoading(false);
-            setNextSlide((prevState) => (prevState + 1));
-        } catch (error) {
-            setSubmitButtonLoading(false);
-            toast.error("Error occurred while data was sent please try again");
-            console.error(error);
+        for (let i: number = 0; i < experimentData.trialTypes.length; i++) {
+            const currentTrialType = experimentData.trialTypes[i];
+            if (currentTrialType.id === trialType.id) {
+                dispatch(setCurrentTrialType(experimentData.trialTypes[i + 1]));
+            }
         }
+
     }
 
     function renderUi(currentObj: UiObjects, index: number) {
@@ -149,17 +150,6 @@ function TrialType({setNextSlide, startTime, trialTypeId, nextTrialTypeId}: Tria
 
     const trialTypeCss = "flex flex-auto flex-col items-center justify-start gap-8 w-full h-full overflow-x-hidden relative m-2"
 
-    if (loading && !trialType) {
-        return <div className={`${trialTypeCss} justify-center bg-white rounded-3xl m-5 p-10 pt-16  drop-shadow-xl`}>
-            <Spinner/>
-        </div>
-    }
-    //Rendering error if needed
-    if (error || !user) {
-        return <div className={trialTypeCss}>
-            <h1 className={"font-exo text-clamping-lg text-xl border border-red-400 p-5"}>Error retrieving data</h1>
-        </div>
-    }
 
     if (errorUI.isError) {
         return <div className={trialTypeCss}>
@@ -175,14 +165,8 @@ function TrialType({setNextSlide, startTime, trialTypeId, nextTrialTypeId}: Tria
             <div
                 className={`w-full h-full bg-white rounded-3xl m-5 p-10 pt-16  drop-shadow-xl overflow-y-hidden overflow-x-hidden`}>
                 <ToastContainer autoClose={3000}/>
-
-                {loading &&
-                    <div className={"center-absolute z-10"}>
-                        <Spinner/>
-                    </div>
-                }
                 <div
-                    className={`${trialTypeCss} pb-5 duration-200 transition-all ease-in ${loading ? "opacity-10" : "opacity-100"}`}>
+                    className={`${trialTypeCss} pb-5 duration-200 transition-all ease-in`}>
                     {trialType!.children.map((uiObject, index) => renderUi(uiObject, index))}
                 </div>
             </div>
@@ -191,4 +175,4 @@ function TrialType({setNextSlide, startTime, trialTypeId, nextTrialTypeId}: Tria
     );
 }
 
-export default TrialType;
+export default EditorTrialType;

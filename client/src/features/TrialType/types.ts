@@ -4,4 +4,5 @@ export type TrialTypeType = {
     id: string,
     objectDetails: object,
     children: UiObjects[],
+    name: string | undefined,
 }

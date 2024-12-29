@@ -1,6 +1,6 @@
 import React from 'react';
 import {useSelector} from "react-redux";
-import {RootState} from "../../states/store.ts";
+import {RootState} from "../../states/globalStore.ts";
 import {Navigate, Outlet, useLocation} from "react-router-dom";
 import UserRoles from "../../utils/UserRoles.ts";
 

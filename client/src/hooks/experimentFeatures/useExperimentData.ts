@@ -2,7 +2,7 @@ import {useState, useEffect} from 'react';
 import {Experiment} from '../../utils/types/experimentTypes/experimentsTypes.ts';
 import experimentService from "../../services/experimentService.ts";
 import {useSelector} from "react-redux";
-import {RootState} from "../../states/store.ts";
+import {RootState} from "../../states/globalStore.ts";
 
 const useExperimentData = (experimentName: string | undefined) => {
     const [experimentData, setExperimentData] = useState<Experiment | undefined>(undefined);

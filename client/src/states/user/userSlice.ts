@@ -1,7 +1,7 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {TokenType} from "../tokenType.ts";
 import {SerializedUser} from "../../utils/types/userTypes/userTypes.ts";
-import {fetchUserFromSessionStorage, fetchUserUsingToken, getTokenFromBrowser} from "../../utils/helperMethods.ts";
+import {fetchUserFromSessionStorage, getTokenFromBrowser} from "../../utils/helperMethods.ts";
 import {USER_KEY} from "../../utils/constants.ts";
 
 

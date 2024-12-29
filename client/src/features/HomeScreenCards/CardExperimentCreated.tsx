@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import useExperimentCreatedByResearcher from "./useExperimentCreatedByResearcher.ts";
 import {useSelector} from "react-redux";
-import {RootState} from "../../states/store.ts";
+import {RootState} from "../../states/globalStore.ts";
 import LoadingSpinner from "../Loding/LoadingSpinner.tsx";
 import GetExperimentOutputAsCsv from "../CSVoutput/GetExperimentOutputAsCSV.tsx";
 import PopOver from "../PopOver/PopOver.tsx";

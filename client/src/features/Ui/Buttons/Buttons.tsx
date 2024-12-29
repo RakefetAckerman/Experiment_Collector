@@ -25,7 +25,13 @@ function Buttons({uiObject, setPageFlow, pageFlow, startTime}: ButtonsProps) {
             return;
         }
         setIsContainerDisabled(getIsButtonDisabled(pageFlow, currentIndex));
+
     }, [pageFlow])
+    useEffect(() => {
+        setIsContainerDisabled(getIsButtonDisabled(pageFlow, currentIndex));
+        setElementOutput(null);
+        setIsDisabled(false);
+    }, [uiObject]);
     //Showing error if needed
     if (error.isError) {
         return <Error error={error}/>;

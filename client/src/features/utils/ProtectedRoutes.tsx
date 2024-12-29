@@ -1,5 +1,5 @@
 import {useSelector} from "react-redux";
-import {RootState} from "../../states/store.ts";
+import {RootState} from "../../states/globalStore.ts";
 import {matchPath, Navigate, Outlet, useLocation} from "react-router-dom";
 
 function ProtectedRoutes() {

@@ -1,5 +1,5 @@
 import {useSelector} from "react-redux";
-import {RootState} from "../../states/store.ts";
+import {RootState} from "../../states/globalStore.ts";
 
 type LogoProps = {
     className?: string,

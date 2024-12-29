@@ -4,7 +4,7 @@ import useViewportWidth from "../hooks/useViewWidth.ts";
 import {LAPTOP_SIZE} from "../utils/constants.ts";
 import NavBarPhone from "../features/SideBar/NavBarPhone.tsx";
 import {useSelector} from "react-redux";
-import {RootState} from "../states/store.ts";
+import {RootState} from "../states/globalStore.ts";
 import UserRoles from "../utils/UserRoles.ts";
 
 function AppLayout() {

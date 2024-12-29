@@ -1,7 +1,7 @@
 import React from 'react';
 import {CSVLink} from "react-csv";
 import {useSelector} from "react-redux";
-import {RootState} from "../../states/store.ts";
+import {RootState} from "../../states/globalStore.ts";
 import useUsersOutput from "../ExperimentUsersOuput/useUsersOutput.ts";
 import LoadingSpinner from "../Loding/LoadingSpinner.tsx";
 

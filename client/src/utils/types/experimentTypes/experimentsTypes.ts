@@ -26,6 +26,11 @@ export type Experiment = {
     objectDetails: object,
     trialTypes: string[]
 }
+export type ExperimentEditor = {
+    name: string,
+    objectDetails: object,
+    trialTypes: TrialTypeType[]
+}
 
 export type UiObjects = {
     type: string,

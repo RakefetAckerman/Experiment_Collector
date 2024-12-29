@@ -9,6 +9,7 @@ import SignupPageResearcher from "./features/Register/SignupPageResearcher.tsx";
 import LoginResearcher from "./features/login/LoginResearcher.tsx";
 import ProtectedRoutes from "./features/utils/ProtectedRoutes.tsx";
 import ProtectedResearcher from "./features/utils/ProtectedResearcher.tsx";
+import Editor from "./pages/Editor.tsx";
 
 /**
  * Features to add to page:
@@ -28,7 +29,7 @@ function App() {
                         {/*Protecting against users that don't have a researcher role */}
                         <Route element={<ProtectedResearcher/>}>
                             <Route path="/" element={<HomePage/>}/>
-                            <Route path="/editor" element={<></>}/>
+                            <Route path="/editor" element={<Editor/>}/>
                             <Route path="/experiment" element={<ExperimentsDashboard/>}/>
                         </Route>
                     </Route>

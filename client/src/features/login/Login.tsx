@@ -13,7 +13,7 @@ import {AxiosError} from "axios";
 import {getErrorData} from "../../utils/helperMethods.ts";
 import {useDispatch, useSelector} from "react-redux";
 import {setUser} from "../../states/user/userSlice.ts";
-import {RootState} from "../../states/store.ts";
+import {RootState} from "../../states/globalStore.ts";
 import {handleLoginInputError} from "./errors.ts";
 
 function Login() {
