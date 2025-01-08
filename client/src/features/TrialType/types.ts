@@ -5,4 +5,5 @@ export type TrialTypeType = {
     objectDetails: object,
     children: UiObjects[],
     name: string | undefined,
+    type?: "trialType",
 }

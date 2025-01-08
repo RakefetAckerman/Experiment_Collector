@@ -12,6 +12,11 @@ const { port } = envVariables;
 export default defineConfig({
   plugins: [react()],
   server: {
+    watch: {
+      usePolling: true,
+    },
+    host: true,
+    strictPort: true,
     port, // Use the PORT environment variable
   },
   define: { "process.env": process.env },

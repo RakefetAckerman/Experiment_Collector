@@ -10,7 +10,7 @@ function Text({currentObj}: TextProps) {
     if (error.isError) {
         return <Error error={error}/>;
     }
-    return <h2 className={"font-exo text-clamping-sm max-w-[80%]"} > {currentObj.text!}</h2>
+    return <h2 className={"font-exo text-clamping-sm max-w-[80%] h-full"} > {currentObj.text!}</h2>
 }
 
 export default Text;

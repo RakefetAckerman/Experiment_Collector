@@ -9,7 +9,7 @@ type Props = {
 
 function BoxExperimentName({experimentName , isCollapsed}: Props) {
     return (
-        <div className={"w-full bg-background-grey border border-gray-100 shadow-md rounded-xl p-3"}>
+        <div className={"w-full bg-background-grey border border-gray-100 shadow-md rounded-xl p-3 "}>
             <div
                 className={`${isCollapsed ? "opacity-0 h-0" : "opacity-100 "} w-full relative flex flex-row justify-between items-center`}>
                 <img src={testIcon} alt="editor icon" className={"w-6 h-6 opacity-55"}/>

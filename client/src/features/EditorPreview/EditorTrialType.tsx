@@ -53,6 +53,7 @@ type TrialTypeProps = {
  */
 function EditorTrialType({startTime, trialType}: TrialTypeProps) {
     const experimentData = useSelector((state: EditorState) => (state.editor.editorPreview));
+    const currentUiObject = useSelector((state: EditorState) => (state.editor.currentUiObject));
     const dispatch = useDispatch();
 
     // // Page Flow (Output for each Ui element):
@@ -67,7 +68,6 @@ function EditorTrialType({startTime, trialType}: TrialTypeProps) {
     const {mouseTracking} = useMouseTracking(startTime, 350);
     // For the submit animation
     const [submitButtonLoading, setSubmitButtonLoading] = useState<boolean>(false);
-    const [isOpen, setIsOpen] = useState<boolean>(false);
 
     useEffect(() => {
         if (!trialType) {
@@ -167,7 +167,8 @@ function EditorTrialType({startTime, trialType}: TrialTypeProps) {
                 <ToastContainer autoClose={3000}/>
                 <div
                     className={`${trialTypeCss} pb-5 duration-200 transition-all ease-in`}>
-                    {trialType!.children.map((uiObject, index) => renderUi(uiObject, index))}
+                    {trialType!.children.map((uiObject, index) => <div key={`${uiObject.id}-${uiObject.type}-${index}`}
+                        className={`w-full h-max flex justify-center items-start rounded-xl p-2 ${currentUiObject && currentUiObject.id === uiObject.id ? "border border-red-600" : "border-none"}`}>{renderUi(uiObject, index)}</div>)}
                 </div>
             </div>
 

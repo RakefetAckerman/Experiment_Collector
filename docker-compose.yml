@@ -1,0 +1,82 @@
+version: '3'
+
+# This docker-compose file combines both client and server services
+# along with a MongoDB database for a full-stack application
+
+services:
+  # === SERVER SERVICES ===
+
+  # Development environment for the server
+  server-dev:
+    build:
+      context: ./server  # Points to the server directory
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"  # Maps host port 3000 to container port 3000
+    command: npm run dev_docker  # Runs the development script
+    volumes:
+      - ./server:/app  # Mounts server code for live reloading
+      - /app/node_modules  # Prevents overwriting container's node_modules
+    depends_on:
+      - mongo-db  # Ensures MongoDB starts first
+
+  # Testing environment for the server
+  server-test:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    command: npm run test_docker  # Runs the test script
+    depends_on:
+      - mongo-db
+
+  # Production environment for the server
+  server-prod:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    command: npm run prod_docker  # Runs the production script
+    ports:
+      - "3000"  # Dynamically assigns host port
+    depends_on:
+      - mongo-db
+
+  # === CLIENT SERVICES ===
+
+  # Development environment for the client
+  client-dev:
+    build:
+      context: ./client  # Points to the client directory
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"  # Maps host port 3001 to container port 3001
+    command: nodemon --exec "npm run dev" -e js,jsx,ts,tsx  # Runs development with host networking
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+
+  # Production environment for the client
+  client-prod:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "8080"  # Dynamically assigns host port
+    command: npm run prod -- --host  # Runs production with host networking
+
+  # === DATABASE SERVICE ===
+
+  # MongoDB database service
+  mongo-db:
+    image: mongo:latest  # Uses latest MongoDB image
+    ports:
+      - "27017:27017"  # Standard MongoDB port
+    restart: always  # Ensures database container always restarts
+    volumes:
+      - mongodb_data:/data/db  # Persists database data
+
+# === VOLUME DEFINITIONS ===
+volumes:
+  mongodb_data:  # Named volume for MongoDB data persistence
+    driver: local

@@ -67,10 +67,10 @@ function Slider({uiObject, setPageFlow, pageFlow, startTime}: SliderProps) {
     }
 
     return (
-        <>
-            <h2 className={`${isDisabled ? "opacity-30" : "opacity-100"} mb-3 font-exo text-clamping-sm max-w-[80%] mt-[40px] text-center`}> {uiObject.textCenter!}</h2>
+        <div className={"w-[80%] h-full relative"}>
+            <h2 className={`${isDisabled ? "opacity-30" : "opacity-100"} mb-3 font-exo text-clamping-sm max-w-[100%%] mt-[40px] text-center`}> {uiObject.textCenter!}</h2>
             <div
-                className={`${isDisabled ? "opacity-30" : "opacity-100"} gap-8 flex-col items-center justify-center w-[80%] relative mb-[80px]`}>
+                className={`${isDisabled ? "opacity-30" : "opacity-100"} gap-8 flex-col items-center justify-center w-[100%] relative mb-[80px]`}>
                 <input
                     type="range"
                     min={min}
@@ -94,7 +94,7 @@ function Slider({uiObject, setPageFlow, pageFlow, startTime}: SliderProps) {
                 <h2 className={"absolute -top-[150%] left-0 font-exo text-clamping-sm max-w-[80%] opacity-50"}> {uiObject.textLeft!}</h2>
                 <h2 className={"absolute -top-[150%] right-0 font-exo text-clamping-sm max-w-[80%] opacity-50"}> {uiObject.textRight!}</h2>
             </div>
-        </>
+        </div>
     );
 }
 

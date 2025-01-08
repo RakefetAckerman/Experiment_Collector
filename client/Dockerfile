@@ -9,6 +9,7 @@ COPY package*.json ./
 
 # Install build dependencies and tools
 RUN npm install && \
+    npm install -g nodemon && \
     npm cache clean --force  # Cleanup after installation
 
 # Copy application code

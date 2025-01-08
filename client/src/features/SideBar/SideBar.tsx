@@ -1,5 +1,5 @@
 import {useState} from "react";
-
+import "../../index.css"
 import home_icon from "../../assets/home_icon.svg"
 import experiment_icon from "../../assets/experiment_icon.svg"
 import editor_icon from "../../assets/editor_icon.svg"
@@ -17,7 +17,7 @@ function SideBar() {
 
 
     return (
-        <aside className={`border-gray-300 gap-4 border-solid border transition-all duration-500 flex justify-between items-center flex-col pt-4 bg-white h-dvh overflow-y-scroll  ${isCollapsed ? "w-32" : "w-96"} relative`}>
+        <aside className={`z-index-max border-gray-300 gap-4 border-solid border transition-all duration-500 flex justify-between items-center flex-col pt-4 bg-white h-dvh overflow-y-scroll  ${isCollapsed ? "w-32" : "w-96"} relative`}>
             <div className={`flex justify-center items-center flex-col w-full gap-4`}>
                 <LogoNavBar isCollapsed={isCollapsed} className={""} />
                 <CardNavBar to={"/"} title="Home" img={home_icon} isCollapsed={isCollapsed}/>

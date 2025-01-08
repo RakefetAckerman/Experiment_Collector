@@ -60,3 +60,6 @@
     background-color: var(--background-grey);
     border-radius: 100px;
 }
+.z-index-max{
+    z-index: 10000;
+}

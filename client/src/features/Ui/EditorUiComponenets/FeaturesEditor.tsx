@@ -1,18 +1,26 @@
 import React, {Dispatch, SetStateAction, useState} from 'react';
 import back_icon from "../../../assets/back_icon.svg";
-import getFeatures from "../../../utils/features.ts";
+import {Features} from "../../../utils/features.ts";
 import ToggleSwitch from "../../TogleSwitchEditor/ToggleSwitch.tsx";
-import {TrialTypeType} from "../../TrialType/types.ts";
+
 type Props = {
-    trialType: TrialTypeType;
+    features: Features;
+    setFeatures: Dispatch<SetStateAction<Features>>;
 }
-
-
-function FeaturesEditor({trialType }:Props) {
+function FeaturesEditor({ features, setFeatures }: Props) {
     const [isCollapsed, setIsCollapsed] = useState(true);
 
-    function onClickToggleSwitch(state:boolean , element:string) {
-        console.log({state , element});
+    function isFeatureKey(key: string): key is keyof Features {
+        return key in features;
+    }
+
+    function onClickToggleSwitch(state: boolean, element: string) {
+        if (!isFeatureKey(element)) {
+            return;
+        }
+        const newFeatures:Features = {...features};
+        newFeatures[element] = state;
+        setFeatures(newFeatures);
     }
 
     return (
@@ -26,7 +34,7 @@ function FeaturesEditor({trialType }:Props) {
             </div>
             <div
                 className={`w-full  flex flex-col gap-3 mt-3 ${isCollapsed ? "h-0 " : "h-36 overflow-y-scroll"} overflow-hidden transition-all duration-500`}>
-                {Object.entries(getFeatures(trialType)).map(([key, value]) => (
+                {Object.entries(features).map(([key, value]) => (
                     <div className={"w-full flex flex-row justify-between"} key={key}>
                         <h2 className={"font-extralight text-clamping-sm font-exo "}>{key}</h2>
                         <ToggleSwitch key={`${key}!!!`} initialState={value} element={key}
