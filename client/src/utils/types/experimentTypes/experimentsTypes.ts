@@ -54,8 +54,8 @@ export type UiObjects = {
     hint?: string,
     children?: UiObjects[],
     dynamicFlow?: boolean,
-    nextIfCorrect: string,
-    nextIfWrong: string
+    nextIfCorrect?: string,
+    nextIfWrong?: string
 }
 
 

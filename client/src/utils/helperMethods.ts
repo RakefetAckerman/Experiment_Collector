@@ -1,4 +1,5 @@
 import {
+    ExperimentEditor,
     LikertOutput,
     PageFlowOutput,
     SliderOutput,
@@ -122,3 +123,33 @@ export function getIsSubmitDisabled(pageFlow: PageFlowOutput[], currentIndex: nu
     }
     return !(pageFlow[currentIndex - 1].output);
 }
+
+
+export function newExperimentUpdateTrialType(trialType: TrialTypeType, experiment: ExperimentEditor): ExperimentEditor {
+    return {
+        ...experiment,
+        trialTypes: experiment.trialTypes.map(currentType =>
+            currentType.id === trialType.id ? trialType : currentType
+        )
+    };
+}
+
+export function removeUiObjectTrialType(trialType: TrialTypeType, uiObject: UiObjects): TrialTypeType {
+    return {
+        ...trialType,
+        children: trialType.children.filter(currentUiObject =>
+            currentUiObject.id !== uiObject.id
+        )
+    };
+}
+
+export function UpdateUiObjectTrialType(trialType: TrialTypeType, uiObject: UiObjects): TrialTypeType {
+    return {
+        ...trialType,
+        children: trialType.children.map(currentUiObject =>
+            currentUiObject.id === uiObject.id ? uiObject : currentUiObject
+        )
+    };
+}
+
+

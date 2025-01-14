@@ -20,7 +20,7 @@ function BoxCurrentUiElements({isCollapsed}: Props) {
             <h2 className={`font-exo truncate font-bold text-clamping-sm transition-all duration-500 ${!isCollapsed ? "opacity-0 h-0" : "opacity-100 -mb-10"}`}>{trialType?.children.length}</h2>
             <div
                 className={`${isCollapsed ? "opacity-0 h-0" : "opacity-100 "} w-full relative flex flex-row justify-between items-center`}>
-                <h3 className={"text-clamping-sm text-center w-full font-exo font-light opacity-55 truncate"}>Trial Type
+                <h3 className={"text-clamping-sm text-center w-full font-exo font-light opacity-55 truncate"}>Current Item
                     Ui Elements</h3>
             </div>
             <div

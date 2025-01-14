@@ -11,6 +11,7 @@ import {
     setCurrentUiObject,
     updateEditorExperiment
 } from "../../states/editor/editorSlice.ts";
+import {removeUiObjectTrialType} from "../../utils/helperMethods.ts";
 
 type Props = {
     uiObject: UiObjects;
@@ -46,8 +47,8 @@ function CurrentUiElementContainer({uiObject}: Props) {
             >
                 <h1 className={"font-exo truncate"}>{uiObject.id}</h1>
                 <div className={"flex flex-row items-center gap-4"}>
-                    <h1 className={"truncate font-exo font-light"}><span
-                        className={"opacity-30"}>Type: </span>{uiObject.type}</h1>
+                    <h1 className={"truncate font-exo font-light capitalize"}><span
+                        className={"opacity-30 "}>Type: </span>{uiObject.type}</h1>
                     <img src={penIcon} alt="pen/edit icon" onClick={() => {
                         if (!currentUiObject) {
                             dispatch(setCurrentUiObject(uiObject));
@@ -70,13 +71,5 @@ function updateExperimentTrialType(updatedTrialType: TrialTypeType, experiment: 
     };
 }
 
-function removeUiObjectTrialType(trialType: TrialTypeType, uiObject: UiObjects): TrialTypeType {
-    return {
-        ...trialType,
-        children: trialType.children.filter(currentUiObject =>
-            currentUiObject.id !== uiObject.id
-        )
-    };
-}
 
 export default CurrentUiElementContainer;

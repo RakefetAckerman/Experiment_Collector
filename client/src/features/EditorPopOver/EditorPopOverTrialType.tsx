@@ -11,9 +11,9 @@ import {
 import InputEditor from "../Ui/EditorUiComponenets/InputEditor.tsx";
 import FeaturesEditor from "../Ui/EditorUiComponenets/FeaturesEditor.tsx";
 import getFeatures, {Features} from "../../utils/features.ts";
-import {ToastContainer} from "react-toastify";
 import {TrialTypeType} from "../TrialType/types.ts";
-import {ExperimentEditor} from "../../utils/types/experimentTypes/experimentsTypes.ts";
+import {ExperimentEditor, UiObjects} from "../../utils/types/experimentTypes/experimentsTypes.ts";
+import {newExperimentUpdateTrialType} from "../../utils/helperMethods.ts";
 
 function EditorPopOverTrialType() {
     const trialType = useSelector((state: EditorState) => (state.editor.currentTrialType));
@@ -76,13 +76,6 @@ function EditorPopOverTrialType() {
     );
 }
 
-function newExperimentUpdateTrialType(trialType: TrialTypeType, experiment: ExperimentEditor): ExperimentEditor {
-    return {
-        ...experiment,
-        trialTypes: experiment.trialTypes.map(currentType =>
-            currentType.id === trialType.id ? trialType : currentType
-        )
-    };
-}
+
 
 export default EditorPopOverTrialType;

@@ -31,7 +31,6 @@ function TrialTypeContainer({trialType}: Props) {
              transition-all duration-300 items-center relative h-20 border-gray-200 drop-shadow-sm p-4 rounded-xl`}
                 onClick={() => {
                     dispatch(setCurrentTrialType(trialType));
-                    dispatch(setCurrentUiObject(undefined));
                 }}>
                 <h1 className={"font-exo truncate max-w-32"}>{name}</h1>
                 <h1 className={"truncate font-exo font-light"}><span

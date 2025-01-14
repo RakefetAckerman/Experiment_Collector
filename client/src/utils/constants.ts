@@ -28,3 +28,13 @@ export const ElementsKeys = {
     SLIDER: "slider",
     TEXT_INPUT: "textInput"
 }
+
+export const ElementTypeArray = ["images",
+    "headline",
+    "buttons",
+    "submit",
+    "text",
+    "likert",
+    "understandingInstruction",
+    "slider",
+    "textInput"]

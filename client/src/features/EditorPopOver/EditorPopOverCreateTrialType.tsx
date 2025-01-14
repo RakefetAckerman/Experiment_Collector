@@ -11,6 +11,7 @@ import {Features} from "../../utils/features.ts";
 import {toast} from "react-toastify";
 import {TrialTypeType} from "../TrialType/types.ts";
 import {ExperimentEditor} from "../../utils/types/experimentTypes/experimentsTypes.ts";
+import {newExperimentUpdateTrialType} from "../../utils/helperMethods.ts";
 
 function EditorPopOverCreateTrialType() {
     const experiment = useSelector((state: EditorState) => (state.editor.editorPreview));
@@ -100,11 +101,5 @@ function generateUniqueId(existingIds: string[]): string {
     return newId;
 }
 
-function newExperimentUpdateTrialType(trialType: TrialTypeType, experiment: ExperimentEditor): ExperimentEditor {
-    const newTrialType = [...experiment.trialTypes, trialType];
-    return {
-        ...experiment, trialTypes: newTrialType
-    };
-}
 
 export default EditorPopOverCreateTrialType;
