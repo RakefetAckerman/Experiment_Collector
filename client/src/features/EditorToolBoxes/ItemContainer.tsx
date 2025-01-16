@@ -2,7 +2,7 @@ import React from 'react';
 import {TrialTypeType} from "../TrialType/types.ts";
 import {useDispatch, useSelector} from "react-redux";
 import {EditorState} from "../../states/editor/editorStore.ts";
-import {setCurrentTrialType, setCurrentUiObject, updateEditorExperiment} from "../../states/editor/editorSlice.ts";
+import {setCurrentItem, setCurrentUiObject, updateEditorExperiment} from "../../states/editor/editorSlice.ts";
 import deleteIcon from "../../assets/trash_bin_icon.svg"
 import {ExperimentEditor} from "../../utils/types/experimentTypes/experimentsTypes.ts";
 
@@ -10,7 +10,7 @@ type Props = {
     trialType: TrialTypeType;
 }
 
-function TrialTypeContainer({trialType}: Props) {
+function ItemContainer({trialType}: Props) {
     const name = trialType.name ? `${trialType.name}` : `ID: ${trialType.id}`;
     const currentTrialType = useSelector((state: EditorState) => (state.editor.currentTrialType))
     const experiment = useSelector((state: EditorState) => (state.editor.editorPreview))
@@ -30,7 +30,7 @@ function TrialTypeContainer({trialType}: Props) {
                 className={`w-full h-16 cursor-pointer flex justify-between ${trialTypeId === trialType.id ? "bg-gray-400" : "bg-gray-200 hover:bg-gray-300"}
              transition-all duration-300 items-center relative h-20 border-gray-200 drop-shadow-sm p-4 rounded-xl`}
                 onClick={() => {
-                    dispatch(setCurrentTrialType(trialType));
+                    dispatch(setCurrentItem(trialType));
                 }}>
                 <h1 className={"font-exo truncate max-w-32"}>{name}</h1>
                 <h1 className={"truncate font-exo font-light"}><span
@@ -43,7 +43,7 @@ function TrialTypeContainer({trialType}: Props) {
 function removeTrialType(trialType: TrialTypeType, experiment: ExperimentEditor): ExperimentEditor {
     return {
         ...experiment,
-        trialTypes: experiment.trialTypes.filter(currentType =>
+        items: experiment.items.filter(currentType =>
             currentType.id !== trialType.id
         )
     };

@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {EditorState} from "../../states/editor/editorStore.ts";
 import closeIcon from "../../assets/close.svg";
 import {
-    closePopOverTrialTypeCreator, setCurrentTrialType, updateEditorExperiment,
+    closePopOverCreateItem, setCurrentItem, updateEditorExperiment,
 } from "../../states/editor/editorSlice.ts";
 import InputEditor from "../Ui/EditorUiComponenets/InputEditor.tsx";
 import FeaturesEditor from "../Ui/EditorUiComponenets/FeaturesEditor.tsx";
@@ -15,7 +15,7 @@ import {newExperimentUpdateTrialType} from "../../utils/helperMethods.ts";
 
 function EditorPopOverCreateTrialType() {
     const experiment = useSelector((state: EditorState) => (state.editor.editorPreview));
-    const popOver = useSelector((state: EditorState) => (state.editor.popOverCreateTrialType));
+    const popOver = useSelector((state: EditorState) => (state.editor.popOverCreateItem));
 
     const dispatch = useDispatch();
     const [name, setName] = useState<string>("");
@@ -47,9 +47,9 @@ function EditorPopOverCreateTrialType() {
         }
         const newExperiment = newExperimentUpdateTrialType(newTrialType, experiment!);
         setName("");
-        dispatch(setCurrentTrialType(newTrialType));
+        dispatch(setCurrentItem(newTrialType));
         dispatch(updateEditorExperiment(newExperiment));
-        dispatch(closePopOverTrialTypeCreator());
+        dispatch(closePopOverCreateItem());
     }
 
     return (
@@ -70,14 +70,14 @@ function EditorPopOverCreateTrialType() {
                  id={"close_button"}
                  src={closeIcon}
                  className={"transition-all duration-300 absolute w-8 aspect-square top-4 right-4 opacity-50 hover:opacity-100 active:scale-110 z-10"}
-                 onClick={() => (dispatch(closePopOverTrialTypeCreator()))}/>
+                 onClick={() => (dispatch(closePopOverCreateItem()))}/>
         </div>
     );
 }
 
 function getIds(experiment: ExperimentEditor) {
     const array = [];
-    for (const trialType of experiment.trialTypes) {
+    for (const trialType of experiment.items) {
         array.push(trialType.id);
     }
     return array;

@@ -37,27 +37,27 @@ import useHandlePageFlow from "../PageFlow/usePageFlow.ts";
 import {toast, ToastContainer} from "react-toastify";
 import {useDispatch, useSelector} from "react-redux";
 import {EditorState} from "../../states/editor/editorStore.ts";
-import {setCurrentTrialType} from "../../states/editor/editorSlice.ts";
-import {TrialTypeType} from "../TrialType/types.ts";
+import {setCurrentItem} from "../../states/editor/editorSlice.ts";
+import {ItemTypeEditor} from "../TrialType/types.ts";
 
-type TrialTypeProps = {
+type ItemProps = {
     startTime: number,
-    trialType: TrialTypeType;
+    Item: ItemTypeEditor;
 }
 
 /**
  * A single TrialTypeElement - A single way to render every trial type.
  * Features to add to page:
  * @param startTime the time the that the trial type started at.
- * @param trialType the trial type to render and interact with
+ * @param item the trial type to render and interact with
  */
-function EditorTrialType({startTime, trialType}: TrialTypeProps) {
+function EditorItems({startTime, item}: ItemProps) {
     const experimentData = useSelector((state: EditorState) => (state.editor.editorPreview));
     const currentUiObject = useSelector((state: EditorState) => (state.editor.currentUiObject));
     const dispatch = useDispatch();
 
     // // Page Flow (Output for each Ui element):
-    const [pageFlow, setPageFlow] = useState(getPageFlowOutput(trialType?.children));
+    const [pageFlow, setPageFlow] = useState(getPageFlowOutput(item?.children));
     // For Idle
     const {isIdle, totalIdleTime} = useIdleTimer(HALF_MINUTE);
     // For Focus
@@ -66,20 +66,18 @@ function EditorTrialType({startTime, trialType}: TrialTypeProps) {
     const [currentImageZoom, setCurrentImageZoom] = useState<ZoomType>(getInitialZoom(startTime));
     // For Mouse Tracking feature
     const {mouseTracking} = useMouseTracking(startTime, 350);
-    // For the submit animation
-    const [submitButtonLoading, setSubmitButtonLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        if (!trialType) {
+        if (!item) {
             return;
         }
-        setPageFlow(getPageFlowOutput(trialType?.children));
-    }, [trialType]);
+        setPageFlow(getPageFlowOutput(item?.children));
+    }, [item]);
     // Updating the First Reaction time
-    const {responseTimeFirst} = useHandleFirstInteraction(startTime, trialType!);
+    const {responseTimeFirst} = useHandleFirstInteraction(startTime, item!);
     useHandlePageFlow({pageFlow, setPageFlow});
-    const features = getFeatures(trialType);
-    const errorUI = handleTrialTypeErrors(trialType);
+    const features = getFeatures(item);
+    const errorUI = handleTrialTypeErrors(item);
 
     /**
      * The Method update the output and set the next slide to move forward to the next element.
@@ -93,7 +91,7 @@ function EditorTrialType({startTime, trialType}: TrialTypeProps) {
         newOutput = updateByFeatures(features, featuresData, newOutput, currentImageZoom.zoomOutput, mouseTracking);
         newOutput = updateResponseTimeFirst(newOutput, responseTimeFirst);
         newOutput = updateResponseTimeLast(newOutput, featuresData.responseTimeLast);
-        newOutput = updateImages(newOutput, trialType!.children);
+        newOutput = updateImages(newOutput, item!.children);
         //Setting the output to fit each ui element criteria
         newOutput = updateOutputFromPageFlow(newOutput, pageFlow);
 
@@ -102,13 +100,13 @@ function EditorTrialType({startTime, trialType}: TrialTypeProps) {
     }
 
     function moveToNextTrialType() {
-        if (!experimentData || !trialType) {
+        if (!experimentData || !item) {
             return;
         }
-        for (let i: number = 0; i < experimentData.trialTypes.length; i++) {
-            const currentTrialType = experimentData.trialTypes[i];
-            if (currentTrialType.id === trialType.id) {
-                dispatch(setCurrentTrialType(experimentData.trialTypes[i + 1]));
+        for (let i: number = 0; i < experimentData.items.length; i++) {
+            const currentTrialType = experimentData.items[i];
+            if (currentTrialType.id === item.id) {
+                dispatch(setCurrentItem(experimentData.items[i + 1]));
             }
         }
 
@@ -141,7 +139,7 @@ function EditorTrialType({startTime, trialType}: TrialTypeProps) {
             case ElementsKeys.SUBMIT:
                 return <SubmitButton key={key} currentObj={currentObj} pageFlow={pageFlow}
                                      onClickMethod={UpdateOutputAncContinueToNextTrialType}
-                                     loadingSubmitButton={submitButtonLoading}/>
+                                     loadingSubmitButton={false}/>
 
         }
 
@@ -167,8 +165,8 @@ function EditorTrialType({startTime, trialType}: TrialTypeProps) {
                 <ToastContainer autoClose={3000}/>
                 <div
                     className={`${trialTypeCss} pb-5 duration-200 transition-all ease-in`}>
-                    {trialType!.children.map((uiObject, index) => <div key={`${uiObject.id}-${uiObject.type}-${index}`}
-                        className={`w-full h-max flex justify-center items-start rounded-xl p-2 ${currentUiObject && currentUiObject.id === uiObject.id ? "border border-red-600" : "border-none"}`}>{renderUi(uiObject, index)}</div>)}
+                    {item!.children.map((uiObject, index) => <div key={`${uiObject.id}-${uiObject.type}-${index}`}
+                                                                  className={`w-full h-max flex justify-center items-start rounded-xl p-2 ${currentUiObject && currentUiObject.id === uiObject.id ? "border border-red-600" : "border-none"}`}>{renderUi(uiObject, index)}</div>)}
                 </div>
             </div>
 
@@ -176,4 +174,4 @@ function EditorTrialType({startTime, trialType}: TrialTypeProps) {
     );
 }
 
-export default EditorTrialType;
+export default EditorItems;

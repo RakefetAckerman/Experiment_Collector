@@ -4,7 +4,7 @@ import {EditorState} from "../../states/editor/editorStore.ts";
 import closeIcon from "../../assets/close.svg";
 import {
     closePopOverTrialTypeEditor,
-    setCurrentTrialType,
+    setCurrentItem,
     setPopOverTrialTypeEditor,
     updateEditorExperiment
 } from "../../states/editor/editorSlice.ts";
@@ -12,7 +12,6 @@ import InputEditor from "../Ui/EditorUiComponenets/InputEditor.tsx";
 import FeaturesEditor from "../Ui/EditorUiComponenets/FeaturesEditor.tsx";
 import getFeatures, {Features} from "../../utils/features.ts";
 import {TrialTypeType} from "../TrialType/types.ts";
-import {ExperimentEditor, UiObjects} from "../../utils/types/experimentTypes/experimentsTypes.ts";
 import {newExperimentUpdateTrialType} from "../../utils/helperMethods.ts";
 
 function EditorPopOverTrialType() {
@@ -47,7 +46,7 @@ function EditorPopOverTrialType() {
         const newObjectDetails = {...trialType!.objectDetails, features: features};
         const newTrialType: TrialTypeType = {...trialType, objectDetails: newObjectDetails, name: newName};
         const newExperiment = newExperimentUpdateTrialType(newTrialType, experiment!);
-        dispatch(setCurrentTrialType(newTrialType));
+        dispatch(setCurrentItem(newTrialType));
         dispatch(updateEditorExperiment(newExperiment))
         dispatch(closePopOverTrialTypeEditor());
     }
