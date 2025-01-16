@@ -28,14 +28,14 @@ function BoxItems({experimentData, isCollapsed}: Props) {
                 <img src={penIcon} alt="pen/edit icon" onClick={() => dispatch(openPopOverEditItem())}
                      className={"w-6 h-6 drop-shadow-md opacity-50 hover:opacity-100 transition-all duration-200 active:scale-125 "}/>
             </div>
-            <div
+            { !isCollapsed && <div
                 className={`p-5 w-[95%] flex flex-col overflow-y-scroll mb-5 justify-start items-center gap-3 ${isCollapsed ? "opacity-0 h-0" : "opacity-100 "}`}>
                 {experimentData.items.map((item) =>
                     <ItemContainer key={`${item.id}$trialType`} item={item}/>
                 )}
                 <img src={plusIcon} onClick={() => dispatch(openPopOverCreateItem())}
                      className={`${isCollapsed ? "opacity-0" : "opacity-55 hover:opacity-100 active:scale-125"} w-12 aspect-square duration-200 transition-all`}/>
-            </div>
+            </div> }
         </div>
 
     );

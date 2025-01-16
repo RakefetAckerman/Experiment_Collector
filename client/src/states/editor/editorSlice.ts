@@ -11,6 +11,8 @@ interface State {
     popOverCreateItem: boolean;
     popOverCreateUiObject: boolean;
     popOverEditUiObject: boolean;
+    popOverCreateTrialType: boolean;
+
 }
 
 function getExperimentEditor(): ExperimentEditor {
@@ -21,11 +23,12 @@ function getExperimentEditor(): ExperimentEditor {
 const initialState: State = {
     editorPreview: getExperimentEditor(),
     currentItem: undefined,
-    currentUiObject:undefined,
+    currentUiObject: undefined,
     popOverEditItem: false,
     popOverCreateItem: false,
-    popOverCreateUiObject:false,
+    popOverCreateUiObject: false,
     popOverEditUiObject: false,
+    popOverCreateTrialType: false,
 };
 
 const editorSlice = createSlice({
@@ -64,6 +67,12 @@ const editorSlice = createSlice({
         },
         closePopOverEditUiObject: (state) => {
             state.popOverEditUiObject = false;
+        },
+        closePopOverCreateTrialType: (state) => {
+            state.popOverCreateTrialType = false;
+        },
+        openPopOverCreateTrialType: (state) => {
+            state.popOverCreateTrialType = true;
         }
     }
 })
@@ -77,7 +86,9 @@ export const {
     closePopOverCreateItem,
     openPopOverCreateUiObject,
     openPopOverEditUiObject,
+    openPopOverCreateTrialType,
     closePopOverCreateUiObject,
+    closePopOverCreateTrialType,
     closePopOverEditUiObject,
     setCurrentUiObject
 } = editorSlice.actions;

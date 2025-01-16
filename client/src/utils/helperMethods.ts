@@ -169,3 +169,12 @@ export function updateExperimentItem(newItem: ItemTypeEditor, experiment: Experi
         )
     };
 }
+
+export function removeItem(item: ItemTypeEditor, experiment: ExperimentEditor): ExperimentEditor {
+    return {
+        ...experiment,
+        items: experiment.items.filter(currentType =>
+            currentType.id !== item.id
+        )
+    };
+}

@@ -2,9 +2,10 @@ import React from 'react';
 import {ItemTypeEditor} from "../TrialType/types.ts";
 import {useDispatch, useSelector} from "react-redux";
 import {EditorState} from "../../states/editor/editorStore.ts";
-import {setCurrentItem, updateEditorExperiment} from "../../states/editor/editorSlice.ts";
+import {setCurrentItem, setCurrentUiObject, updateEditorExperiment} from "../../states/editor/editorSlice.ts";
 import deleteIcon from "../../assets/trash_bin_icon.svg"
 import {ExperimentEditor} from "../../utils/types/experimentTypes/experimentsTypes.ts";
+import {removeItem} from "../../utils/helperMethods.ts";
 
 type Props = {
     item: ItemTypeEditor;
@@ -28,8 +29,9 @@ function ItemContainer({item}: Props) {
                  alt={"remove item button"}/>
             <div
                 className={`w-full h-16 cursor-pointer flex justify-between ${trialTypeId === item.id ? "bg-gray-400" : "bg-gray-200 hover:bg-gray-300"}
-             transition-all duration-300 items-center relative h-20 border-gray-200 drop-shadow-sm p-4 rounded-xl`}
+             transition-all duration-300 items-center relative border-gray-200 drop-shadow-sm p-4 rounded-xl`}
                 onClick={() => {
+                    dispatch(setCurrentUiObject(undefined));
                     dispatch(setCurrentItem(item));
                 }}>
                 <h1 className={"font-exo truncate max-w-32"}>{name}</h1>
@@ -40,13 +42,6 @@ function ItemContainer({item}: Props) {
     );
 }
 
-function removeItem(item: ItemTypeEditor, experiment: ExperimentEditor): ExperimentEditor {
-    return {
-        ...experiment,
-        items: experiment.items.filter(currentType =>
-            currentType.id !== item.id
-        )
-    };
-}
+
 
 export default ItemContainer;
