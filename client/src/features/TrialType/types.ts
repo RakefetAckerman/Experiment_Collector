@@ -6,4 +6,13 @@ export type TrialTypeType = {
     children: UiObjects[],
     name: string | undefined,
     type?: "trialType",
+
+}
+export type ItemTypeEditor = {
+    id: string,
+    objectDetails: object,
+    children: UiObjects[],
+    name: string | undefined,
+    type?: "item",
+    trialType: string | undefined,
 }

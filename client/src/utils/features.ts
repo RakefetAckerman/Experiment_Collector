@@ -1,5 +1,5 @@
 import {MouseTrackingObject} from "../features/MouseTracking/types.ts";
-import {TrialTypeType} from "../features/TrialType/types.ts";
+import {ItemTypeEditor, TrialTypeType} from "../features/TrialType/types.ts";
 import {ZoomElementType} from "../features/Zoom/types.ts";
 import {UiObjects} from "./types/experimentTypes/experimentsTypes.ts";
 import {ElementsKeys} from "./constants.ts";
@@ -15,7 +15,7 @@ export type Features = {
  * Test which features are true and which are false and returns it;
  * @param trialType the current trial type
  */
-function getFeatures(trialType: TrialTypeType | undefined): Features {
+function getFeatures(trialType: TrialTypeType | undefined | ItemTypeEditor): Features {
 
     const features: Features = {
         zoom: false,

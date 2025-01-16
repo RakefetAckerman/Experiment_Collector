@@ -1,9 +1,9 @@
 import {ErrorType} from "../../error/errorType.ts";
 import {isSubmitButton} from "../../utils/helperMethods.ts";
 import {isUiElementsWithTheSameId} from "./helperMethods.ts";
-import {TrialTypeType} from "./types.ts";
+import {ItemTypeEditor, TrialTypeType} from "./types.ts";
 
-export function handleTrialTypeErrors(trialType: TrialTypeType| undefined): ErrorType {
+export function handleTrialTypeErrors(trialType: TrialTypeType| undefined | ItemTypeEditor): ErrorType {
     if (!trialType){
         return {isError: false, errorMessage: ""}
     }

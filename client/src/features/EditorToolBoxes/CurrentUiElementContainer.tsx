@@ -1,17 +1,16 @@
 import React from 'react';
-import {ExperimentEditor, UiObjects} from "../../utils/types/experimentTypes/experimentsTypes.ts";
+import {UiObjects} from "../../utils/types/experimentTypes/experimentsTypes.ts";
 import penIcon from "../../assets/pen_icon.svg";
 import deleteIcon from "../../assets/trash_bin_icon.svg";
 import {useDispatch, useSelector} from "react-redux";
-import {TrialTypeType} from "../TrialType/types.ts";
 import {EditorState} from "../../states/editor/editorStore.ts";
 import {
-    openPopOverTrialTypeCreator, openPopOverUpdateUiObject,
-    setCurrentTrialType,
+    openPopOverEditUiObject,
+    setCurrentItem,
     setCurrentUiObject,
     updateEditorExperiment
 } from "../../states/editor/editorSlice.ts";
-import {removeUiObjectTrialType} from "../../utils/helperMethods.ts";
+import {removeUiObjectTrialType, updateExperimentItem} from "../../utils/helperMethods.ts";
 
 type Props = {
     uiObject: UiObjects;
@@ -19,7 +18,7 @@ type Props = {
 
 function CurrentUiElementContainer({uiObject}: Props) {
     const dispatch = useDispatch();
-    const trialType = useSelector((state: EditorState) => (state.editor.currentTrialType));
+    const trialType = useSelector((state: EditorState) => (state.editor.currentItem));
     const experiment = useSelector((state: EditorState) => (state.editor.editorPreview));
     const currentUiObject = useSelector((state: EditorState) => (state.editor.currentUiObject));
     let amICurrentUiObject: boolean = false;
@@ -30,9 +29,9 @@ function CurrentUiElementContainer({uiObject}: Props) {
         <div className={`w-full h-full flex flex-row items-center gap-2 `}>
             <img onClick={(e) => {
                 e.stopPropagation(); // Prevent parent onClick from firing
-                const newTrialType = removeUiObjectTrialType(trialType!, uiObject);
-                const newExperiment = updateExperimentTrialType(newTrialType, experiment!);
-                dispatch(setCurrentTrialType(newTrialType));
+                const newItem = removeUiObjectTrialType(trialType!, uiObject);
+                const newExperiment = updateExperimentItem(newItem, experiment!);
+                dispatch(setCurrentItem(newItem));
                 dispatch(updateEditorExperiment(newExperiment));
             }} src={deleteIcon}
                  className={"w-6 h-6 active:scale-125 opacity-50 hover:opacity-100 duration-200 transition-all"}
@@ -53,22 +52,13 @@ function CurrentUiElementContainer({uiObject}: Props) {
                         if (!currentUiObject) {
                             dispatch(setCurrentUiObject(uiObject));
                         }
-                        dispatch(openPopOverUpdateUiObject());
+                        dispatch(openPopOverEditUiObject());
                     }}
                          className={"w-6 h-6 drop-shadow-md opacity-50 hover:opacity-100 transition-all duration-200 active:scale-125 "}/>
                 </div>
             </div>
         </div>
     );
-}
-
-function updateExperimentTrialType(updatedTrialType: TrialTypeType, experiment: ExperimentEditor): ExperimentEditor {
-    return {
-        ...experiment,
-        trialTypes: experiment.trialTypes.map(currentType =>
-            currentType.id === updatedTrialType.id ? updatedTrialType : currentType
-        )
-    };
 }
 
 

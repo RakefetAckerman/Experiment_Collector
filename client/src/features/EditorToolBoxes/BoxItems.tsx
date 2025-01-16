@@ -12,13 +12,13 @@ type Props = {
     isCollapsed: boolean,
 }
 
-function BoxItem({experimentData, isCollapsed}: Props) {
+function BoxItems({experimentData, isCollapsed}: Props) {
     const dispatch = useDispatch();
 
     return (
         <div
             className={`${isCollapsed ? "h-40" : "min-h-96 "} transition-all duration-1000 relative w-full flex flex-col items-center bg-background-grey border border-gray-100 shadow-md rounded-xl p-3 gap-2`}>
-            <h1 className={`font-exo font-extralight text-clamping-sm truncate transition-all duration-500 ${!isCollapsed ? "opacity-0 h-0" : "opacity-100 "}`}>TrialTypes</h1>
+            <h1 className={`font-exo font-extralight text-clamping-sm truncate transition-all duration-500 ${!isCollapsed ? "opacity-0 h-0" : "opacity-100 "}`}>Items</h1>
             <h2 className={`font-exo font-bold text-clamping-sm truncate transition-all duration-500 ${!isCollapsed ? "opacity-0 h-0" : "opacity-100 -mb-10 "}`}>{experimentData.items.length}</h2>
             <div
                 className={`${isCollapsed ? "opacity-0 h-0" : "opacity-100 "} w-full relative flex flex-row justify-between items-center`}>
@@ -42,4 +42,4 @@ function BoxItem({experimentData, isCollapsed}: Props) {
 }
 
 
-export default BoxItem;
+export default BoxItems;

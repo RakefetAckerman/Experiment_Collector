@@ -1,16 +1,16 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {ExperimentEditor, UiObjects} from "../../utils/types/experimentTypes/experimentsTypes.ts";
 import mockup from "../../assets/mockup.json"
-import {TrialTypeType} from "../../features/TrialType/types.ts";
+import {ItemTypeEditor} from "../../features/TrialType/types.ts";
 
 interface State {
     editorPreview: ExperimentEditor | undefined;
-    currentTrialType: TrialTypeType | undefined;
+    currentItem: ItemTypeEditor | undefined;
     currentUiObject: UiObjects | undefined;
-    popOverTrialTypeEditor: boolean;
-    popOverCreateTrialType: boolean;
+    popOverEditItem: boolean;
+    popOverCreateItem: boolean;
     popOverCreateUiObject: boolean;
-    popOverUpdateUiObject: boolean;
+    popOverEditUiObject: boolean;
 }
 
 function getExperimentEditor(): ExperimentEditor {
@@ -20,12 +20,12 @@ function getExperimentEditor(): ExperimentEditor {
 
 const initialState: State = {
     editorPreview: getExperimentEditor(),
-    currentTrialType: undefined,
+    currentItem: undefined,
     currentUiObject:undefined,
-    popOverTrialTypeEditor: false,
-    popOverCreateTrialType: false,
+    popOverEditItem: false,
+    popOverCreateItem: false,
     popOverCreateUiObject:false,
-    popOverUpdateUiObject: false,
+    popOverEditUiObject: false,
 };
 
 const editorSlice = createSlice({
@@ -35,23 +35,23 @@ const editorSlice = createSlice({
         updateEditorExperiment: (state, action: PayloadAction<ExperimentEditor>) => {
             state.editorPreview = action.payload;
         },
-        setCurrentTrialType: (state, action: PayloadAction<TrialTypeType>) => {
-            state.currentTrialType = action.payload;
+        setCurrentItem: (state, action: PayloadAction<ItemTypeEditor>) => {
+            state.currentItem = action.payload;
         },
         setCurrentUiObject: (state, action: PayloadAction<UiObjects | undefined>) => {
             state.currentUiObject = action.payload;
         },
-        setPopOverTrialTypeEditor: (state) => {
-            state.popOverTrialTypeEditor = !state.popOverTrialTypeEditor;
+        openPopOverEditItem: (state) => {
+            state.popOverEditItem = true;
         },
-        closePopOverTrialTypeEditor: (state) => {
-            state.popOverTrialTypeEditor = false;
+        closePopOverEditItem: (state) => {
+            state.popOverEditItem = false;
         },
-        openPopOverTrialTypeCreator: (state) => {
-            state.popOverCreateTrialType = true;
+        openPopOverCreateItem: (state) => {
+            state.popOverCreateItem = true;
         },
-        closePopOverTrialTypeCreator: (state) => {
-            state.popOverCreateTrialType = false;
+        closePopOverCreateItem: (state) => {
+            state.popOverCreateItem = false;
         },
         openPopOverCreateUiObject: (state) => {
             state.popOverCreateUiObject = true;
@@ -59,26 +59,26 @@ const editorSlice = createSlice({
         closePopOverCreateUiObject: (state) => {
             state.popOverCreateUiObject = false;
         },
-        openPopOverUpdateUiObject: (state) => {
-            state.popOverUpdateUiObject = true;
+        openPopOverEditUiObject: (state) => {
+            state.popOverEditUiObject = true;
         },
-        closePopOverUpdateUiObject: (state) => {
-            state.popOverUpdateUiObject = false;
+        closePopOverEditUiObject: (state) => {
+            state.popOverEditUiObject = false;
         }
     }
 })
 
 export const {
     updateEditorExperiment,
-    closePopOverTrialTypeEditor,
-    setCurrentTrialType,
-    setPopOverTrialTypeEditor,
-    openPopOverTrialTypeCreator,
-    closePopOverTrialTypeCreator,
+    closePopOverEditItem,
+    setCurrentItem,
+    openPopOverEditItem,
+    openPopOverCreateItem,
+    closePopOverCreateItem,
     openPopOverCreateUiObject,
-    openPopOverUpdateUiObject,
+    openPopOverEditUiObject,
     closePopOverCreateUiObject,
-    closePopOverUpdateUiObject,
+    closePopOverEditUiObject,
     setCurrentUiObject
 } = editorSlice.actions;
 

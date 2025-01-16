@@ -2,15 +2,12 @@ import React, {useState} from 'react';
 import back_icon from "../../assets/back_icon.svg";
 import BoxExperimentName from "../EditorToolBoxes/BoxExperimentName.tsx";
 import {useSelector} from "react-redux";
-import BoxTrialType from "../EditorToolBoxes/BoxTrialTypes.tsx";
+import BoxItems from "../EditorToolBoxes/BoxItems.tsx";
 import BoxCurrentUiElements from "../EditorToolBoxes/BoxCurrentUiElements.tsx";
 import {EditorState} from "../../states/editor/editorStore.ts";
 
 function EditorToolSideBar() {
     const experiment = useSelector((state:EditorState ) => (state.editor.editorPreview))
-    const popOverEditTrialType = useSelector((state:EditorState ) => (state.editor.popOverTrialTypeEditor))
-    const popOverCreateTrialType = useSelector((state:EditorState ) => (state.editor.popOverTrialTypeEditor))
-
     const [isCollapsed, setIsCollapsed] = useState(true);
      if (!experiment) {
          return <aside
@@ -26,14 +23,14 @@ function EditorToolSideBar() {
      }
     return (
         <aside
-            className={`${popOverEditTrialType || popOverCreateTrialType ? "opacity-20" : "opacity-100"} border-gray-300 gap-4 border-solid border transition-all duration-500 flex justify-between items-center flex-col pt-4 bg-white h-dvh ${isCollapsed ? "min-w-[15rem]" : "min-w-[35rem]"} relative`}>
+            className={`border-gray-300 gap-4 border-solid border transition-all duration-500 flex justify-between items-center flex-col pt-4 bg-white h-dvh ${isCollapsed ? "min-w-[15rem]" : "min-w-[35rem]"} relative`}>
             <div
                 className={`flex justify-center items-center flex-col w-full gap-4 overflow-x-hidden h-full`}>
                 <h2 className={"font-exo font-light text-3xl underline underline-offset-8 decoration-1 mb-3"}>Editor</h2>
                 <div
                     className={`${isCollapsed ? "opacity-50" : "opacity-100"} h-full w-4/5 duration-500 transition-all flex justify-start items-start flex-col gap-8 p-3 overflow-y-auto`}>
                     <BoxExperimentName experimentName={experiment!.name} isCollapsed={isCollapsed}/>
-                    <BoxTrialType experimentData={experiment!} isCollapsed={isCollapsed}/>
+                    <BoxItems experimentData={experiment!} isCollapsed={isCollapsed}/>
                     <BoxCurrentUiElements isCollapsed={isCollapsed}/>
                 </div>
             </div>

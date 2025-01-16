@@ -1,25 +1,5 @@
 import {understandingInstructionOutput} from "../../../features/Ui/UnderstandingInstruction/types.ts";
-import {TrialTypeType} from "../../../features/TrialType/types.ts";
-
-enum ExperimentTypes {
-    XRAY = "XRay",
-    SLG = "SLG",
-    CRA = "CRA",
-    ANL = "ANL",
-    CRT = "CRT",
-    WC = "WC",
-    TNG = "TNG",
-    SDK = "SDK",
-    PRM = "PRM",
-    OTS = "OTS",
-    NBT = "NBT",
-    MM = "MM",
-    MGCW = "MGCW",
-    MDMP = "MDMP",
-    ANG = "ANG",
-}
-
-export default ExperimentTypes;
+import {ItemTypeEditor} from "../../../features/TrialType/types.ts";
 
 export type Experiment = {
     name: string,
@@ -29,7 +9,7 @@ export type Experiment = {
 export type ExperimentEditor = {
     name: string,
     objectDetails: object,
-    trialTypes: TrialTypeType[]
+    items: ItemTypeEditor[],
 }
 
 export type UiObjects = {

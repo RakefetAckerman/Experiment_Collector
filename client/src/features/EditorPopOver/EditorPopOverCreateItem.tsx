@@ -9,16 +9,17 @@ import InputEditor from "../Ui/EditorUiComponenets/InputEditor.tsx";
 import FeaturesEditor from "../Ui/EditorUiComponenets/FeaturesEditor.tsx";
 import {Features} from "../../utils/features.ts";
 import {toast} from "react-toastify";
-import {TrialTypeType} from "../TrialType/types.ts";
+import {ItemTypeEditor} from "../TrialType/types.ts";
 import {ExperimentEditor} from "../../utils/types/experimentTypes/experimentsTypes.ts";
-import {newExperimentUpdateTrialType} from "../../utils/helperMethods.ts";
+import {newExperimentAddItem, newExperimentUpdateItem} from "../../utils/helperMethods.ts";
 
-function EditorPopOverCreateTrialType() {
+function EditorPopOverCreateItem() {
     const experiment = useSelector((state: EditorState) => (state.editor.editorPreview));
     const popOver = useSelector((state: EditorState) => (state.editor.popOverCreateItem));
 
     const dispatch = useDispatch();
     const [name, setName] = useState<string>("");
+    const [trialType , setTrialType] = useState<string | undefined>(undefined);
     const [features, setFeatures] = useState<Features>({
         zoom: false,
         idle: false,
@@ -38,16 +39,18 @@ function EditorPopOverCreateTrialType() {
             return;
         }
         const newObjectDetails = {features: features};
-        const newTrialType: TrialTypeType = {
+        const newItem: ItemTypeEditor = {
             id: generateUniqueId(getIds(experiment!)),
             name: name,
             objectDetails: newObjectDetails,
             children: [],
-            type: "trialType"
+            type: "item",
+            trialType:trialType
         }
-        const newExperiment = newExperimentUpdateTrialType(newTrialType, experiment!);
+        const newExperiment = newExperimentAddItem(newItem, experiment!);
+        console.log(newExperiment);
         setName("");
-        dispatch(setCurrentItem(newTrialType));
+        dispatch(setCurrentItem(newItem));
         dispatch(updateEditorExperiment(newExperiment));
         dispatch(closePopOverCreateItem());
     }
@@ -56,7 +59,7 @@ function EditorPopOverCreateTrialType() {
 
         <div
             className={"overflow-y-scroll w-1/2 h-1/2 max-w-[600px] items-center z-10 relative rounded-3xl p-3 bg-white drop-shadow-lg flex flex-col gap-3"}>
-            <h1 className={"text-center font-exo  text-clamping-mid mt-3"}>Trial Type Creator</h1>
+            <h1 className={"text-center font-exo  text-clamping-mid mt-3"}>Item Creator</h1>
 
             {/*Ui Containers*/}
             <InputEditor headline={"Name"} initialValue={""} setText={setName}/>
@@ -102,4 +105,4 @@ function generateUniqueId(existingIds: string[]): string {
 }
 
 
-export default EditorPopOverCreateTrialType;
+export default EditorPopOverCreateItem;

@@ -16,7 +16,7 @@ import {AxiosError} from "axios";
 import {TokenType} from "../states/tokenType.ts";
 import Cookies from "universal-cookie";
 import {SerializedUser} from "./types/userTypes/userTypes.ts";
-import {TrialTypeType} from "../features/TrialType/types.ts";
+import {ItemTypeEditor, TrialTypeType} from "../features/TrialType/types.ts";
 
 interface ErrorResponse {
     error?: string | { toString(): string };
@@ -73,7 +73,7 @@ export function fetchUserFromSessionStorage(): SerializedUser | undefined {
 }
 
 
-export function isSubmitButton(trialType: TrialTypeType): boolean {
+export function isSubmitButton(trialType: TrialTypeType |ItemTypeEditor): boolean {
     return trialType.children.some((e) => e.type === ElementsKeys.SUBMIT);
 }
 
@@ -125,16 +125,23 @@ export function getIsSubmitDisabled(pageFlow: PageFlowOutput[], currentIndex: nu
 }
 
 
-export function newExperimentUpdateTrialType(trialType: TrialTypeType, experiment: ExperimentEditor): ExperimentEditor {
+export function newExperimentUpdateItem(item: ItemTypeEditor, experiment: ExperimentEditor): ExperimentEditor {
     return {
         ...experiment,
-        trialTypes: experiment.trialTypes.map(currentType =>
-            currentType.id === trialType.id ? trialType : currentType
+        items: experiment.items.map(currentType =>
+            currentType.id === item.id ? item : currentType
         )
     };
 }
 
-export function removeUiObjectTrialType(trialType: TrialTypeType, uiObject: UiObjects): TrialTypeType {
+export function newExperimentAddItem(newItem: ItemTypeEditor, experiment: ExperimentEditor): ExperimentEditor {
+    return {
+        ...experiment,
+        items: [...experiment.items , newItem]
+    };
+}
+
+export function removeUiObjectTrialType(trialType: ItemTypeEditor, uiObject: UiObjects): ItemTypeEditor {
     return {
         ...trialType,
         children: trialType.children.filter(currentUiObject =>
@@ -143,7 +150,7 @@ export function removeUiObjectTrialType(trialType: TrialTypeType, uiObject: UiOb
     };
 }
 
-export function UpdateUiObjectTrialType(trialType: TrialTypeType, uiObject: UiObjects): TrialTypeType {
+export function UpdateUiObjectTrialType(trialType: ItemTypeEditor, uiObject: UiObjects): ItemTypeEditor {
     return {
         ...trialType,
         children: trialType.children.map(currentUiObject =>
@@ -153,3 +160,12 @@ export function UpdateUiObjectTrialType(trialType: TrialTypeType, uiObject: UiOb
 }
 
 
+
+export function updateExperimentItem(newItem: ItemTypeEditor, experiment: ExperimentEditor): ExperimentEditor {
+    return {
+        ...experiment,
+        items: experiment.items.map(currentType =>
+            currentType.id === newItem.id ? newItem : currentType
+        )
+    };
+}

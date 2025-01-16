@@ -42,16 +42,16 @@ import {ItemTypeEditor} from "../TrialType/types.ts";
 
 type ItemProps = {
     startTime: number,
-    Item: ItemTypeEditor;
+    item: ItemTypeEditor;
 }
 
 /**
  * A single TrialTypeElement - A single way to render every trial type.
  * Features to add to page:
  * @param startTime the time the that the trial type started at.
- * @param item the trial type to render and interact with
+ * @param item the item to render and interact with
  */
-function EditorItems({startTime, item}: ItemProps) {
+function EditorItemRenderer({startTime, item}: ItemProps) {
     const experimentData = useSelector((state: EditorState) => (state.editor.editorPreview));
     const currentUiObject = useSelector((state: EditorState) => (state.editor.currentUiObject));
     const dispatch = useDispatch();
@@ -174,4 +174,4 @@ function EditorItems({startTime, item}: ItemProps) {
     );
 }
 
-export default EditorItems;
+export default EditorItemRenderer;

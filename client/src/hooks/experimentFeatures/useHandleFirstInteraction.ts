@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
-import {TrialTypeType} from "../../features/TrialType/types.ts";
+import {ItemTypeEditor, TrialTypeType} from "../../features/TrialType/types.ts";
 
-const useHandleFirstInteraction = (startTime: number, trailType: TrialTypeType) => {
+const useHandleFirstInteraction = (startTime: number, trailType: TrialTypeType | ItemTypeEditor) => {
 
     const [responseTimeFirst, setResponseTimeFirst] = useState<number | null>(null);
 

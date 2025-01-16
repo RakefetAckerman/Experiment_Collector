@@ -1,11 +1,11 @@
 import React from 'react';
 import {useSelector} from "react-redux";
 import {EditorState} from "../../states/editor/editorStore.ts";
-import EditorTrialType from "./EditorTrialType.tsx";
+import EditorItemRenderer from "./EditorItemRenderer.tsx";
 
 function EditorPreview() {
     const experimentData = useSelector((state: EditorState) => (state.editor.editorPreview));
-    const trialType = useSelector((state: EditorState) => (state.editor.currentTrialType));
+    const item = useSelector((state: EditorState) => (state.editor.currentItem));
 
     if (!experimentData) {
         return null;
@@ -14,7 +14,7 @@ function EditorPreview() {
         <div
             className={`opacity-100 relative gap 3px flex-col w-full h-full flex items-center p-5 transition-all duration-1000 ease-in-out`}>
             <h2 className={"font-exo text-center text-3xl uppercase"}>{experimentData!.name}</h2>
-            {trialType && <EditorTrialType startTime={Date.now()} trialType={trialType} />}
+            {item && <EditorItemRenderer startTime={Date.now()} item={item} />}
         </div>
     );
 }

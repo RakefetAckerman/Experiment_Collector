@@ -1,7 +1,7 @@
 import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
 import closeIcon from "../../assets/close.svg";
 import {
-    closePopOverUpdateUiObject, setCurrentTrialType,
+    closePopOverEditUiObject, setCurrentItem,
 } from "../../states/editor/editorSlice.ts";
 import {useDispatch, useSelector} from "react-redux";
 import {EditorState} from "../../states/editor/editorStore.ts";
@@ -14,8 +14,8 @@ import EditHeadLine from "../Ui/EditorUiComponenets/EditHeadLine.tsx";
 
 function EditorPopOverEditUiElement() {
     const dispatch = useDispatch();
-    const popOver = useSelector((state: EditorState) => (state.editor.popOverUpdateUiObject));
-    const currentTrialType = useSelector((state: EditorState) => (state.editor.currentTrialType));
+    const popOver = useSelector((state: EditorState) => (state.editor.popOverEditUiObject));
+    const currentItem = useSelector((state: EditorState) => (state.editor.currentItem));
     const currentUiObject = useSelector((state: EditorState) => (state.editor.currentUiObject));
     const [uiObjectInternal, setUiObjectInternal] = useState<UiObjects | undefined>(currentUiObject);
 
@@ -31,12 +31,12 @@ function EditorPopOverEditUiElement() {
     function saveUiObject() {
         console.log("saveElement");
         // TODO UPDATE THE EXPERIMENT AND THE CURRENT TRIAL TYPE AS NEEDED
-        const newTrialType = UpdateUiObjectTrialType(currentTrialType!,uiObjectInternal!);
-        dispatch(setCurrentTrialType(newTrialType));
-        dispatch(closePopOverUpdateUiObject());
+        const newItem = UpdateUiObjectTrialType(currentItem!, uiObjectInternal!);
+        dispatch(setCurrentItem(newItem));
+        dispatch(closePopOverEditUiObject());
     }
 
-    function renderUiElementEditor(uiObject:UiObjects , setUiObject:Dispatch<SetStateAction<UiObjects|undefined>>) {
+    function renderUiElementEditor(uiObject: UiObjects, setUiObject: Dispatch<SetStateAction<UiObjects | undefined>>) {
         switch (uiObject.type) {
             case ElementsKeys.IMAGES:
                 return <EditImages uiObject={uiObject} setUiObject={setUiObject}/>;
@@ -78,12 +78,12 @@ function EditorPopOverEditUiElement() {
                 changes
             </button>
             <img alt={"Close"}
-                     id={"close_button"}
-                     src={closeIcon}
-                     className={"transition-all duration-300 absolute w-8 aspect-square top-4 right-4 opacity-50 hover:opacity-100 active:scale-110 z-10"}
-                     onClick={() => (dispatch(closePopOverUpdateUiObject()))}/>
-            </div>
-            );
-            }
+                 id={"close_button"}
+                 src={closeIcon}
+                 className={"transition-all duration-300 absolute w-8 aspect-square top-4 right-4 opacity-50 hover:opacity-100 active:scale-110 z-10"}
+                 onClick={() => (dispatch(closePopOverEditUiObject()))}/>
+        </div>
+    );
+}
 
-            export default EditorPopOverEditUiElement;
+export default EditorPopOverEditUiElement;
