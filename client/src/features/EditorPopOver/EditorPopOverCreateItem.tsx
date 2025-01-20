@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {EditorState} from "../../states/editor/editorStore.ts";
 import closeIcon from "../../assets/close.svg";
@@ -11,7 +11,13 @@ import {Features} from "../../utils/features.ts";
 import {toast} from "react-toastify";
 import {ItemTypeEditor} from "../TrialType/types.ts";
 import {ExperimentEditor} from "../../utils/types/experimentTypes/experimentsTypes.ts";
-import {newExperimentAddItem, newExperimentUpdateItem} from "../../utils/helperMethods.ts";
+import {getUniqueTrialTypes, newExperimentAddItem} from "../../utils/helperMethods.ts";
+import ChooseTrialType from "../Ui/EditorUiComponenets/ChooseTrialType.tsx";
+
+type TrialTypeSelector = {
+    current: string | undefined,
+    trialTypes: (string | undefined)[],
+}
 
 function EditorPopOverCreateItem() {
     const experiment = useSelector((state: EditorState) => (state.editor.editorPreview));
@@ -19,13 +25,24 @@ function EditorPopOverCreateItem() {
 
     const dispatch = useDispatch();
     const [name, setName] = useState<string>("");
-    const [trialType , setTrialType] = useState<string | undefined>(undefined);
+    const trialTypes = getUniqueTrialTypes(experiment!.items);
+    const [trialType, setTrialType] = useState<TrialTypeSelector>({trialTypes, current: undefined});
     const [features, setFeatures] = useState<Features>({
         zoom: false,
         idle: false,
         focus: false,
         mouseTracking: false,
     });
+
+    useEffect(() => {
+        setFeatures({
+            zoom: false,
+            idle: false,
+            focus: false,
+            mouseTracking: false,
+        })
+        setTrialType({trialTypes, current: undefined})
+    }, [popOver]);
 
     if (!popOver) {
         return null;
@@ -34,7 +51,6 @@ function EditorPopOverCreateItem() {
 
     function saveTrialType() {
         if (!name) {
-            console.log("i am here");
             toast.error("Name is required");
             return;
         }
@@ -43,12 +59,11 @@ function EditorPopOverCreateItem() {
             id: generateUniqueId(getIds(experiment!)),
             name: name,
             objectDetails: newObjectDetails,
-            children: [],
+            children: getEmptyTrialType(experiment!, trialType.current),
             type: "item",
-            trialType:trialType
+            trialType: (trialType.current) ? trialType.current : "",
         }
         const newExperiment = newExperimentAddItem(newItem, experiment!);
-        console.log(newExperiment);
         setName("");
         dispatch(setCurrentItem(newItem));
         dispatch(updateEditorExperiment(newExperiment));
@@ -58,12 +73,13 @@ function EditorPopOverCreateItem() {
     return (
 
         <div
-            className={"overflow-y-scroll w-1/2 h-1/2 max-w-[600px] items-center z-10 relative rounded-3xl p-3 bg-white drop-shadow-lg flex flex-col gap-3"}>
+            className={"overflow-y-scroll w-1/2 max-h-3/4 max-w-[600px] items-center z-10 relative rounded-3xl p-3 bg-white drop-shadow-lg flex flex-col gap-3"}>
             <h1 className={"text-center font-exo  text-clamping-mid mt-3"}>Item Creator</h1>
 
             {/*Ui Containers*/}
             <InputEditor headline={"Name"} initialValue={""} setText={setName}/>
             <FeaturesEditor features={features} setFeatures={setFeatures}/>
+            <ChooseTrialType trialType={trialType} setTrialType={setTrialType}/>
             <button
                 onClick={() => saveTrialType()}
                 className={"w-44 text-clamping-sm hover:font-medium hover:bg-gray-300 active:scale-110 font-extralight font-exo bg-background-grey rounded-2xl transition-all duration-200 min-h-16"}>Save
@@ -84,6 +100,13 @@ function getIds(experiment: ExperimentEditor) {
         array.push(trialType.id);
     }
     return array;
+}
+
+function getEmptyTrialType(experiment: ExperimentEditor, trialTypeName: (string | undefined)) {
+    if (!trialTypeName) return [];
+    const item = experiment.items.find((item) => item.trialType === trialTypeName);
+    if (!item) return [];
+    return item.children;
 }
 
 function generateUniqueId(existingIds: string[]): string {

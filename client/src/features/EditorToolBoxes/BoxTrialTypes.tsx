@@ -2,11 +2,9 @@ import React from 'react';
 import {ExperimentEditor} from "../../utils/types/experimentTypes/experimentsTypes.ts";
 import testIcon from "../../assets/test_icon.svg";
 import penIcon from "../../assets/pen_icon.svg";
-import {openPopOverCreateItem, openPopOverEditItem} from "../../states/editor/editorSlice.ts";
 import plusIcon from "../../assets/plus_icon_solar_bold.svg";
-import {useDispatch} from "react-redux";
 import TrialTypeContainer from "./TrialTypeContainer.tsx";
-import {ItemTypeEditor} from "../TrialType/types.ts";
+import {getUniqueTrialTypes} from "../../utils/helperMethods.ts";
 
 type Props = {
     experimentData: ExperimentEditor,
@@ -14,7 +12,6 @@ type Props = {
 }
 
 function BoxTrialTypes({experimentData, isCollapsed}: Props) {
-    const dispatch = useDispatch();
     const trialTypes = getUniqueTrialTypes(experimentData.items);
     console.log(trialTypes);
     return (
@@ -27,7 +24,7 @@ function BoxTrialTypes({experimentData, isCollapsed}: Props) {
                 <img src={testIcon} alt="editor icon" className={"w-6 h-6 opacity-55"}/>
                 <h3 className={"text-clamping-sm text-center w-full font-exo font-light opacity-55 truncate"}>Experiment
                     Trial Types</h3>
-                <img src={penIcon} alt="pen/edit icon" onClick={() => dispatch(openPopOverEditItem())}
+                <img src={penIcon} alt="pen/edit icon"
                      className={"w-6 h-6 drop-shadow-md opacity-50 hover:opacity-100 transition-all duration-200 active:scale-125 "}/>
             </div>
             <div
@@ -35,19 +32,12 @@ function BoxTrialTypes({experimentData, isCollapsed}: Props) {
                 {trialTypes.map((trialType) =>
                     <TrialTypeContainer key={`${trialType}-$trialType`} trialType={trialType} />
                 )}
-                <img src={plusIcon} onClick={() => dispatch(openPopOverCreateItem())}
+                <img src={plusIcon}
                      className={`${isCollapsed ? "opacity-0" : "opacity-55 hover:opacity-100 active:scale-125"} w-12 aspect-square duration-200 transition-all`}/>
             </div>
         </div>
     );
 }
 
-function getUniqueTrialTypes(itemArray: ItemTypeEditor[]) {
-    const trialTypeArray = [];
-    for (const item of itemArray) {
-        trialTypeArray.push(item.trialType);
-    }
-    return [...new Set(trialTypeArray)];
-}
 
 export default BoxTrialTypes;

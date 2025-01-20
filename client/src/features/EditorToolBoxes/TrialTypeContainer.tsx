@@ -13,7 +13,7 @@ type Props = {
 function TrialTypeContainer({trialType}: Props) {
     const experiment = useSelector((state: EditorState) => (state.editor.editorPreview))
     const dispatch = useDispatch();
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true);
     if (!trialType || !experiment) {
         return null;
     }
@@ -26,7 +26,7 @@ function TrialTypeContainer({trialType}: Props) {
                 className={`w-full flex justify-between bg-gray-200 
              transition-all duration-300 items-center relative h-14 border-gray-200 drop-shadow-sm p-4 rounded-xl`}
             >
-                <h1 className={"font-exo truncate max-w-32"}>{trialType}</h1>
+                <h1 className={"font-exo truncate max-w-44"}>{trialType}</h1>
                 <h1 className={"truncate font-exo font-light"}><span
                     className={"opacity-30"}>Elements: </span>{trialTypeItems.length}</h1>
                 <img src={back_icon} onClick={() => (setIsCollapsed(prev => !prev))}

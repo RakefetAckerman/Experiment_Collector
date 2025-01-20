@@ -4,7 +4,6 @@ import {useDispatch, useSelector} from "react-redux";
 import {EditorState} from "../../states/editor/editorStore.ts";
 import {setCurrentItem, setCurrentUiObject, updateEditorExperiment} from "../../states/editor/editorSlice.ts";
 import deleteIcon from "../../assets/trash_bin_icon.svg"
-import {ExperimentEditor} from "../../utils/types/experimentTypes/experimentsTypes.ts";
 import {removeItem} from "../../utils/helperMethods.ts";
 
 type Props = {
@@ -21,9 +20,7 @@ function ItemContainer({item}: Props) {
         <div className={"w-full h-full flex flex-row items-center gap-2 "}>
             <img onClick={(e) => {
                 e.stopPropagation(); // Prevent parent onClick from firing
-                if (confirm("Delete is Permanent")) {
-                    dispatch(updateEditorExperiment(removeItem(item, experiment!)));
-                }
+                dispatch(updateEditorExperiment(removeItem(item, experiment!)));
             }} src={deleteIcon}
                  className={"w-6 h-6 active:scale-125 opacity-50 hover:opacity-100 duration-200 transition-all"}
                  alt={"remove item button"}/>
@@ -41,7 +38,6 @@ function ItemContainer({item}: Props) {
         </div>
     );
 }
-
 
 
 export default ItemContainer;

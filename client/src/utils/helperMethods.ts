@@ -159,7 +159,13 @@ export function UpdateUiObjectTrialType(trialType: ItemTypeEditor, uiObject: UiO
     };
 }
 
-
+export function getUniqueTrialTypes(itemArray: ItemTypeEditor[]) {
+    const trialTypeArray = [];
+    for (const item of itemArray) {
+        trialTypeArray.push(item.trialType);
+    }
+    return [...new Set(trialTypeArray)];
+}
 
 export function updateExperimentItem(newItem: ItemTypeEditor, experiment: ExperimentEditor): ExperimentEditor {
     return {

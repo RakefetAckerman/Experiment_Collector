@@ -38,7 +38,7 @@ const editorSlice = createSlice({
         updateEditorExperiment: (state, action: PayloadAction<ExperimentEditor>) => {
             state.editorPreview = action.payload;
         },
-        setCurrentItem: (state, action: PayloadAction<ItemTypeEditor>) => {
+        setCurrentItem: (state, action: PayloadAction<ItemTypeEditor |undefined>) => {
             state.currentItem = action.payload;
         },
         setCurrentUiObject: (state, action: PayloadAction<UiObjects | undefined>) => {

@@ -56,7 +56,9 @@ function EditorPopOverEditItem() {
             <h1 className={"text-center font-exo  text-clamping-mid mt-3 uppercase"}>Items Editor</h1>
             <h2 className={"opacity-55 max-w-full min-h-[2rem] truncate font-exo text-clamping-sm"}>Item
                 ID:{Item.id}</h2>
-
+            <h2 className={"opacity-80 max-w-full min-h-[2rem] truncate font-exo text-clamping-sm -mt-3"}><span
+                className={"opacity-55"}>
+                Trail-Type:</span> {Item.trialType}</h2>
             {/*Ui Containers*/}
             <InputEditor headline={"Name"} initialValue={Item.name ? Item.name : ""} setText={setName}/>
             <FeaturesEditor features={features} setFeatures={setFeatures}/>
@@ -73,7 +75,6 @@ function EditorPopOverEditItem() {
         </div>
     );
 }
-
 
 
 export default EditorPopOverEditItem;
