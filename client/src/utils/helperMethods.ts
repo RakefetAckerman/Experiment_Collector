@@ -17,6 +17,7 @@ import {TokenType} from "../states/tokenType.ts";
 import Cookies from "universal-cookie";
 import {SerializedUser} from "./types/userTypes/userTypes.ts";
 import {ItemTypeEditor, TrialTypeType} from "../features/TrialType/types.ts";
+import {ItemsArrayWithId} from "../states/editor/editorSlice.ts";
 
 interface ErrorResponse {
     error?: string | { toString(): string };
@@ -54,7 +55,7 @@ export function getTokenFromBrowser(): TokenType | undefined {
 }
 
 export function fetchUserUsingToken(token: TokenType | undefined): SerializedUser | undefined {
-    if(!token){
+    if (!token) {
         return undefined;
     }
     return undefined;
@@ -62,7 +63,7 @@ export function fetchUserUsingToken(token: TokenType | undefined): SerializedUse
 
 export function fetchUserFromSessionStorage(): SerializedUser | undefined {
     const value = sessionStorage.getItem(USER_KEY);
-    if (value){
+    if (value) {
         try {
             return JSON.parse(value);
         } catch (e) {
@@ -73,19 +74,19 @@ export function fetchUserFromSessionStorage(): SerializedUser | undefined {
 }
 
 
-export function isSubmitButton(trialType: TrialTypeType |ItemTypeEditor): boolean {
+export function isSubmitButton(trialType: TrialTypeType | ItemTypeEditor): boolean {
     return trialType.children.some((e) => e.type === ElementsKeys.SUBMIT);
 }
 
 export function buildLikertArray(uiObjects: UiObjects[]) {
-    const output:LikertOutput[] = [];
-    uiObjects.forEach((value, _ ) => {
-        if (value.type === ElementsKeys.LIKERT){
-            const currentLikert:LikertOutput = {
-                responseTimeFirstLikert:null,
-                id:value.id!,
-                headline:value.headline!,
-                output:null
+    const output: LikertOutput[] = [];
+    uiObjects.forEach((value, _) => {
+        if (value.type === ElementsKeys.LIKERT) {
+            const currentLikert: LikertOutput = {
+                responseTimeFirstLikert: null,
+                id: value.id!,
+                headline: value.headline!,
+                output: null
             };
             output.push(currentLikert);
         }
@@ -94,13 +95,13 @@ export function buildLikertArray(uiObjects: UiObjects[]) {
 }
 
 export function buildSliderArray(uiObjects: UiObjects[]) {
-    const output:SliderOutput[] = [];
-    uiObjects.forEach((value, _ ) => {
-        if (value.type === ElementsKeys.SLIDER){
-            const currentSlider:SliderOutput = {
-                id:value.id!,
-                confidence:null,
-                responseTimeFirstJudgment:null
+    const output: SliderOutput[] = [];
+    uiObjects.forEach((value, _) => {
+        if (value.type === ElementsKeys.SLIDER) {
+            const currentSlider: SliderOutput = {
+                id: value.id!,
+                confidence: null,
+                responseTimeFirstJudgment: null
             };
             output.push(currentSlider);
         }
@@ -137,7 +138,7 @@ export function newExperimentUpdateItem(item: ItemTypeEditor, experiment: Experi
 export function newExperimentAddItem(newItem: ItemTypeEditor, experiment: ExperimentEditor): ExperimentEditor {
     return {
         ...experiment,
-        items: [...experiment.items , newItem]
+        items: [...experiment.items, newItem]
     };
 }
 
@@ -183,4 +184,18 @@ export function removeItem(item: ItemTypeEditor, experiment: ExperimentEditor): 
             currentType.id !== item.id
         )
     };
+}
+
+export function removeItemFromOrder(item: ItemTypeEditor | ItemsArrayWithId, items: (ItemTypeEditor | ItemsArrayWithId)[]): (ItemTypeEditor | ItemsArrayWithId)[] {
+    console.log({items})
+    return items.filter(currentType => {
+        console.log({currentType:currentType.id,item:item.id})
+        return currentType.id !== item.id
+    });
+}
+
+
+export function getRandomItem(arr: ItemTypeEditor[]): ItemTypeEditor {
+    const randomIndex = Math.floor(Math.random() * arr.length);
+    return arr[randomIndex];
 }

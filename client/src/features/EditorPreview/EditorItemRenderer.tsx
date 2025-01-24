@@ -35,9 +35,8 @@ import Text from "../Ui/Text/Text.tsx";
 import SubmitButton from "../Ui/Submit/SubmitButton.tsx";
 import useHandlePageFlow from "../PageFlow/usePageFlow.ts";
 import {toast, ToastContainer} from "react-toastify";
-import {useDispatch, useSelector} from "react-redux";
+import {useSelector} from "react-redux";
 import {EditorState} from "../../states/editor/editorStore.ts";
-import {setCurrentItem} from "../../states/editor/editorSlice.ts";
 import {ItemTypeEditor} from "../TrialType/types.ts";
 
 type ItemProps = {
@@ -51,10 +50,8 @@ type ItemProps = {
  * @param startTime the time the that the trial type started at.
  * @param item the item to render and interact with
  */
-function EditorItemRenderer({startTime, item}: ItemProps) {
-    const experimentData = useSelector((state: EditorState) => (state.editor.editorPreview));
+function EditorItemRenderer({startTime, item }: ItemProps) {
     const currentUiObject = useSelector((state: EditorState) => (state.editor.currentUiObject));
-    const dispatch = useDispatch();
 
     // // Page Flow (Output for each Ui element):
     const [pageFlow, setPageFlow] = useState(getPageFlowOutput(item?.children));
@@ -96,21 +93,8 @@ function EditorItemRenderer({startTime, item}: ItemProps) {
         newOutput = updateOutputFromPageFlow(newOutput, pageFlow);
 
         toast(JSON.stringify(newOutput));
-        moveToNextTrialType();
     }
 
-    function moveToNextTrialType() {
-        if (!experimentData || !item) {
-            return;
-        }
-        for (let i: number = 0; i < experimentData.items.length; i++) {
-            const currentTrialType = experimentData.items[i];
-            if (currentTrialType.id === item.id) {
-                dispatch(setCurrentItem(experimentData.items[i + 1]));
-            }
-        }
-
-    }
 
     function renderUi(currentObj: UiObjects, index: number) {
         const key = `${currentObj.id}-${currentObj.type}-${index}`;

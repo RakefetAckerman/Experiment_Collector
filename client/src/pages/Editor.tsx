@@ -7,6 +7,7 @@ import EditorPopOverEditItem from "../features/EditorPopOver/EditorPopOverEditIt
 import EditorPopOverCreateItem from "../features/EditorPopOver/EditorPopOverCreateItem.tsx";
 import EditorPopOverEditUiElement from "../features/EditorPopOver/EditorPopOverEditUiElement.tsx";
 import {ToastContainer} from "react-toastify";
+import EditorPopOverAddItemToOrder from "../features/EditorPopOver/EditorPopOverAddItemToOrder.tsx";
 
 /**
  * The Editor Page for researcher and admins only! it is where researcher can edit there experiment and create new one.
@@ -21,6 +22,7 @@ function Editor() {
                 <EditorPopOverEditItem/>
                 <EditorPopOverCreateItem/>
                 <EditorPopOverEditUiElement/>
+                <EditorPopOverAddItemToOrder/>
             </div>
                 <div className={"w-full h-full flex flex-row"}>
                     <EditorToolSideBar/>

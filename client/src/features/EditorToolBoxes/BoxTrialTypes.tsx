@@ -13,7 +13,6 @@ type Props = {
 
 function BoxTrialTypes({experimentData, isCollapsed}: Props) {
     const trialTypes = getUniqueTrialTypes(experimentData.items);
-    console.log(trialTypes);
     return (
         <div
             className={`${isCollapsed ? "h-40" : "min-h-96 "} transition-all duration-1000 relative w-full flex flex-col items-center bg-background-grey border border-gray-100 shadow-md rounded-xl p-3 gap-2`}>

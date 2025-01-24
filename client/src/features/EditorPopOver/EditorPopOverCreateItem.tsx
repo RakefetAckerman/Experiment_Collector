@@ -11,22 +11,14 @@ import {Features} from "../../utils/features.ts";
 import {toast} from "react-toastify";
 import {ItemTypeEditor} from "../TrialType/types.ts";
 import {ExperimentEditor} from "../../utils/types/experimentTypes/experimentsTypes.ts";
-import {getUniqueTrialTypes, newExperimentAddItem} from "../../utils/helperMethods.ts";
-import ChooseTrialType from "../Ui/EditorUiComponenets/ChooseTrialType.tsx";
-
-type TrialTypeSelector = {
-    current: string | undefined,
-    trialTypes: (string | undefined)[],
-}
+import {newExperimentAddItem} from "../../utils/helperMethods.ts";
 
 function EditorPopOverCreateItem() {
     const experiment = useSelector((state: EditorState) => (state.editor.editorPreview));
     const popOver = useSelector((state: EditorState) => (state.editor.popOverCreateItem));
-
+    const trialType = useSelector((state: EditorState) => (state.editor.currentTrialType));
     const dispatch = useDispatch();
     const [name, setName] = useState<string>("");
-    const trialTypes = getUniqueTrialTypes(experiment!.items);
-    const [trialType, setTrialType] = useState<TrialTypeSelector>({trialTypes, current: undefined});
     const [features, setFeatures] = useState<Features>({
         zoom: false,
         idle: false,
@@ -41,7 +33,6 @@ function EditorPopOverCreateItem() {
             focus: false,
             mouseTracking: false,
         })
-        setTrialType({trialTypes, current: undefined})
     }, [popOver]);
 
     if (!popOver) {
@@ -59,9 +50,9 @@ function EditorPopOverCreateItem() {
             id: generateUniqueId(getIds(experiment!)),
             name: name,
             objectDetails: newObjectDetails,
-            children: getEmptyTrialType(experiment!, trialType.current),
+            children: getEmptyTrialType(experiment!, trialType),
             type: "item",
-            trialType: (trialType.current) ? trialType.current : "",
+            trialType: trialType,
         }
         const newExperiment = newExperimentAddItem(newItem, experiment!);
         setName("");
@@ -75,11 +66,11 @@ function EditorPopOverCreateItem() {
         <div
             className={"overflow-y-scroll w-1/2 max-h-3/4 max-w-[600px] items-center z-10 relative rounded-3xl p-3 bg-white drop-shadow-lg flex flex-col gap-3"}>
             <h1 className={"text-center font-exo  text-clamping-mid mt-3"}>Item Creator</h1>
+            <h2 className={"text-center font-exo  text-clamping-sm mt-3"}>Trial Type: {trialType}</h2>
 
             {/*Ui Containers*/}
             <InputEditor headline={"Name"} initialValue={""} setText={setName}/>
             <FeaturesEditor features={features} setFeatures={setFeatures}/>
-            <ChooseTrialType trialType={trialType} setTrialType={setTrialType}/>
             <button
                 onClick={() => saveTrialType()}
                 className={"w-44 text-clamping-sm hover:font-medium hover:bg-gray-300 active:scale-110 font-extralight font-exo bg-background-grey rounded-2xl transition-all duration-200 min-h-16"}>Save

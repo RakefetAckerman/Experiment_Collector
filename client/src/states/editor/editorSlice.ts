@@ -5,16 +5,21 @@ import {ItemTypeEditor} from "../../features/TrialType/types.ts";
 
 interface State {
     editorPreview: ExperimentEditor | undefined;
+    itemsOrder: (ItemTypeEditor | ItemsArrayWithId)[];
     currentItem: ItemTypeEditor | undefined;
     currentUiObject: UiObjects | undefined;
+    currentTrialType: string | undefined;
+    popOverAddItemToOrder: boolean;
     popOverEditItem: boolean;
     popOverCreateItem: boolean;
     popOverCreateUiObject: boolean;
     popOverEditUiObject: boolean;
     popOverCreateTrialType: boolean;
-
 }
-
+export type ItemsArrayWithId ={
+    items:ItemTypeEditor[],
+    id:string
+}
 function getExperimentEditor(): ExperimentEditor {
     // @ts-expect-error TODO HERE SHOULD BE EMPTY ARRAY ONLY FOR TESTING PURPOSE
     return mockup;
@@ -22,6 +27,7 @@ function getExperimentEditor(): ExperimentEditor {
 
 const initialState: State = {
     editorPreview: getExperimentEditor(),
+    itemsOrder: [],
     currentItem: undefined,
     currentUiObject: undefined,
     popOverEditItem: false,
@@ -29,6 +35,8 @@ const initialState: State = {
     popOverCreateUiObject: false,
     popOverEditUiObject: false,
     popOverCreateTrialType: false,
+    currentTrialType: undefined,
+    popOverAddItemToOrder: false,
 };
 
 const editorSlice = createSlice({
@@ -38,7 +46,10 @@ const editorSlice = createSlice({
         updateEditorExperiment: (state, action: PayloadAction<ExperimentEditor>) => {
             state.editorPreview = action.payload;
         },
-        setCurrentItem: (state, action: PayloadAction<ItemTypeEditor |undefined>) => {
+        updateItemsOrder: (state, action: PayloadAction<(ItemTypeEditor | ItemsArrayWithId)[]>) => {
+            state.itemsOrder = action.payload;
+        },
+        setCurrentItem: (state, action: PayloadAction<ItemTypeEditor | undefined>) => {
             state.currentItem = action.payload;
         },
         setCurrentUiObject: (state, action: PayloadAction<UiObjects | undefined>) => {
@@ -73,6 +84,15 @@ const editorSlice = createSlice({
         },
         openPopOverCreateTrialType: (state) => {
             state.popOverCreateTrialType = true;
+        },
+        setCurrentTrialType: (state, action: PayloadAction<string | undefined>) => {
+            state.currentTrialType = action.payload;
+        },
+        closePopOverAddItemToOrder: (state) => {
+            state.popOverAddItemToOrder = false;
+        },
+        openPopOverAddItemToOrder: (state) => {
+            state.popOverAddItemToOrder = true;
         }
     }
 })
@@ -86,11 +106,15 @@ export const {
     closePopOverCreateItem,
     openPopOverCreateUiObject,
     openPopOverEditUiObject,
+    updateItemsOrder,
+    openPopOverAddItemToOrder,
+    closePopOverAddItemToOrder,
     openPopOverCreateTrialType,
     closePopOverCreateUiObject,
     closePopOverCreateTrialType,
     closePopOverEditUiObject,
-    setCurrentUiObject
+    setCurrentUiObject,
+    setCurrentTrialType
 } = editorSlice.actions;
 
 export default editorSlice.reducer

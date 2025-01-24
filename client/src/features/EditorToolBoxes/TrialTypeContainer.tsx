@@ -3,25 +3,30 @@ import {useDispatch, useSelector} from "react-redux";
 import {EditorState} from "../../states/editor/editorStore.ts";
 import {ItemTypeEditor} from "../TrialType/types.ts";
 import {ExperimentEditor} from "../../utils/types/experimentTypes/experimentsTypes.ts";
-import {setCurrentItem, setCurrentUiObject} from "../../states/editor/editorSlice.ts";
+import {
+    openPopOverCreateItem,
+    setCurrentItem,
+    setCurrentTrialType,
+    setCurrentUiObject
+} from "../../states/editor/editorSlice.ts";
 import back_icon from "../../assets/back_icon.svg";
+import plusIcon from "../../assets/plus_icon_solar_bold.svg";
 
 type Props = {
     trialType: string | undefined,
 }
 
 function TrialTypeContainer({trialType}: Props) {
-    const experiment = useSelector((state: EditorState) => (state.editor.editorPreview))
+    const experiment = useSelector((state: EditorState) => (state.editor.editorPreview));
     const dispatch = useDispatch();
     const [isCollapsed, setIsCollapsed] = useState(true);
     if (!trialType || !experiment) {
         return null;
     }
     const trialTypeItems: ItemTypeEditor[] = getItemsByTrialType(trialType, experiment);
-    console.log(trialTypeItems);
     return (
         <div
-            className={"w-full h-full flex flex-col items-center gap-2 opacity-30 hover:opacity-100 duration-200 transition-all"}>
+            className={"w-full flex flex-col items-center gap-2 opacity-60 hover:opacity-100 duration-200 transition-all"}>
             <div
                 className={`w-full flex justify-between bg-gray-200 
              transition-all duration-300 items-center relative h-14 border-gray-200 drop-shadow-sm p-4 rounded-xl`}
@@ -35,7 +40,7 @@ function TrialTypeContainer({trialType}: Props) {
                      alt="image of a arrow"/>
             </div>
             {!isCollapsed && trialTypeItems && trialTypeItems.map((item: ItemTypeEditor, index: number) => {
-                return<div className={"ml-[5%] gap-3 w-full flex justify-between items-center"}>
+                return <div className={"ml-[5%] gap-3 w-full flex justify-between items-center"}>
                     <div className={"w-2 h-2 bg-gray-500 rounded-full"}></div>
                     <div key={`item_${index}_${index}`}
                          className={`w-full h-14 cursor-pointer flex justify-between bg-gray-200 hover:bg-gray-300
@@ -51,6 +56,11 @@ function TrialTypeContainer({trialType}: Props) {
                 </div>
 
             })}
+            { !isCollapsed && <img src={plusIcon} onClick={() => {
+                dispatch(setCurrentTrialType(trialType));
+                dispatch(openPopOverCreateItem());
+            }}
+                 className={`opacity-55 hover:opacity-100 active:scale-125 w-12 aspect-square duration-200 transition-all p-2`}/> }
 
         </div>
     );

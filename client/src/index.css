@@ -63,3 +63,41 @@
 .z-index-max{
     z-index: 10000;
 }
+.gradient-text {
+    background: linear-gradient(45deg, #12c2e9, #c471ed, #f64f59);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradient 3s ease infinite;
+    background-size: 200% 200%;
+}
+
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+.background-gradient {
+    background: linear-gradient(45deg, rgba(18, 194, 233, 0.5), rgba(196, 113, 237, 0.5), rgba(246, 79, 89, 0.5));
+    background-size: 400% 400%;
+    animation: gradientAnimation 5s ease infinite;
+}
+
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}

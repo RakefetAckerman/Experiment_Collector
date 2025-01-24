@@ -16,3 +16,15 @@ export type ItemTypeEditor = {
     type?: "item",
     trialType: string | undefined,
 }
+
+
+export function isItemTypeEditor(item: any): item is ItemTypeEditor {
+    return (
+        item &&
+        typeof item.id === 'string' &&
+        item.objectDetails !== undefined &&
+        Array.isArray(item.children) &&  // Ensure 'children' is an array
+        (item.name === undefined || typeof item.name === 'string') &&
+        (item.trialType === undefined || typeof item.trialType === 'string')
+    );
+}

@@ -2,9 +2,13 @@ import React from 'react';
 import {ItemTypeEditor} from "../TrialType/types.ts";
 import {useDispatch, useSelector} from "react-redux";
 import {EditorState} from "../../states/editor/editorStore.ts";
-import {setCurrentItem, setCurrentUiObject, updateEditorExperiment} from "../../states/editor/editorSlice.ts";
+import {
+    setCurrentItem,
+    setCurrentUiObject,
+    updateItemsOrder
+} from "../../states/editor/editorSlice.ts";
 import deleteIcon from "../../assets/trash_bin_icon.svg"
-import {removeItem} from "../../utils/helperMethods.ts";
+import { removeItemFromOrder} from "../../utils/helperMethods.ts";
 
 type Props = {
     item: ItemTypeEditor;
@@ -13,14 +17,16 @@ type Props = {
 function ItemContainer({item}: Props) {
     const name = item.name ? `${item.name}` : `ID: ${item.id}`;
     const currentItem = useSelector((state: EditorState) => (state.editor.currentItem))
-    const experiment = useSelector((state: EditorState) => (state.editor.editorPreview))
+    const itemsOrder = useSelector((state: EditorState) => (state.editor.itemsOrder))
     const trialTypeId = currentItem ? currentItem.id : null;
+
     const dispatch = useDispatch();
     return (
         <div className={"w-full h-full flex flex-row items-center gap-2 "}>
             <img onClick={(e) => {
                 e.stopPropagation(); // Prevent parent onClick from firing
-                dispatch(updateEditorExperiment(removeItem(item, experiment!)));
+                dispatch(setCurrentItem(undefined));
+                dispatch(updateItemsOrder(removeItemFromOrder(item, itemsOrder!)));
             }} src={deleteIcon}
                  className={"w-6 h-6 active:scale-125 opacity-50 hover:opacity-100 duration-200 transition-all"}
                  alt={"remove item button"}/>

@@ -17,7 +17,7 @@ function SideBar() {
 
 
     return (
-        <aside className={`z-index-max border-gray-300 gap-4 border-solid border transition-all duration-500 flex justify-between items-center flex-col pt-4 bg-white h-dvh overflow-y-scroll  ${isCollapsed ? "w-32" : "w-96"} relative`}>
+        <aside className={`z-index-max border-gray-300 gap-4 border-solid border transition-all duration-500 flex justify-between items-center flex-col pt-4 bg-white h-dvh overflow-y-scroll  ${isCollapsed ? "min-w-28" : "min-w-72"} relative`}>
             <div className={`flex justify-center items-center flex-col w-full gap-4`}>
                 <LogoNavBar isCollapsed={isCollapsed} className={""} />
                 <CardNavBar to={"/"} title="Home" img={home_icon} isCollapsed={isCollapsed}/>
