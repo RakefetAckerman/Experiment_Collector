@@ -1,7 +1,7 @@
 import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
 import closeIcon from "../../assets/close.svg";
 import {
-    closePopOverEditUiObject, setCurrentItem,
+    closePopOverEditUiObject, setCurrentItem, setIndexInPreview,
 } from "../../states/editor/editorSlice.ts";
 import {useDispatch, useSelector} from "react-redux";
 import {EditorState} from "../../states/editor/editorStore.ts";
@@ -32,6 +32,7 @@ function EditorPopOverEditUiElement() {
         console.log("saveElement");
         // TODO UPDATE THE EXPERIMENT AND THE CURRENT TRIAL TYPE AS NEEDED
         const newItem = UpdateUiObjectTrialType(currentItem!, uiObjectInternal!);
+        dispatch(setIndexInPreview(undefined));
         dispatch(setCurrentItem(newItem));
         dispatch(closePopOverEditUiObject());
     }

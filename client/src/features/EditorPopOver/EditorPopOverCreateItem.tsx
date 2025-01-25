@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {EditorState} from "../../states/editor/editorStore.ts";
 import closeIcon from "../../assets/close.svg";
 import {
-    closePopOverCreateItem, setCurrentItem, updateEditorExperiment,
+    closePopOverCreateItem, setCurrentItem, setIndexInPreview, updateEditorExperiment,
 } from "../../states/editor/editorSlice.ts";
 import InputEditor from "../Ui/EditorUiComponenets/InputEditor.tsx";
 import FeaturesEditor from "../Ui/EditorUiComponenets/FeaturesEditor.tsx";
@@ -57,6 +57,7 @@ function EditorPopOverCreateItem() {
         const newExperiment = newExperimentAddItem(newItem, experiment!);
         setName("");
         dispatch(setCurrentItem(newItem));
+        dispatch(setIndexInPreview(undefined));
         dispatch(updateEditorExperiment(newExperiment));
         dispatch(closePopOverCreateItem());
     }

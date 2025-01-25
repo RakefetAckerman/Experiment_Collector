@@ -6,6 +6,7 @@ import {ItemTypeEditor} from "../../features/TrialType/types.ts";
 interface State {
     editorPreview: ExperimentEditor | undefined;
     itemsOrder: (ItemTypeEditor | ItemsArrayWithId)[];
+    indexInPreview: number | undefined;
     currentItem: ItemTypeEditor | undefined;
     currentUiObject: UiObjects | undefined;
     currentTrialType: string | undefined;
@@ -28,6 +29,7 @@ function getExperimentEditor(): ExperimentEditor {
 const initialState: State = {
     editorPreview: getExperimentEditor(),
     itemsOrder: [],
+    indexInPreview: undefined,
     currentItem: undefined,
     currentUiObject: undefined,
     popOverEditItem: false,
@@ -51,6 +53,9 @@ const editorSlice = createSlice({
         },
         setCurrentItem: (state, action: PayloadAction<ItemTypeEditor | undefined>) => {
             state.currentItem = action.payload;
+        },
+        setIndexInPreview: (state, action: PayloadAction<(number | undefined)>) => {
+            state.indexInPreview = action.payload;
         },
         setCurrentUiObject: (state, action: PayloadAction<UiObjects | undefined>) => {
             state.currentUiObject = action.payload;
@@ -114,7 +119,8 @@ export const {
     closePopOverCreateTrialType,
     closePopOverEditUiObject,
     setCurrentUiObject,
-    setCurrentTrialType
+    setCurrentTrialType,
+    setIndexInPreview
 } = editorSlice.actions;
 
 export default editorSlice.reducer

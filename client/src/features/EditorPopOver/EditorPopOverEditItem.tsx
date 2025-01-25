@@ -4,7 +4,7 @@ import {EditorState} from "../../states/editor/editorStore.ts";
 import closeIcon from "../../assets/close.svg";
 import {
     closePopOverEditItem,
-    setCurrentItem,
+    setCurrentItem, setIndexInPreview,
     updateEditorExperiment
 } from "../../states/editor/editorSlice.ts";
 import InputEditor from "../Ui/EditorUiComponenets/InputEditor.tsx";
@@ -46,6 +46,7 @@ function EditorPopOverEditItem() {
         const newItem: ItemTypeEditor = {...Item, objectDetails: newObjectDetails, name: newName};
         const newExperiment = newExperimentUpdateItem(newItem, experiment!);
         dispatch(setCurrentItem(newItem));
+        dispatch(setIndexInPreview(undefined));
         dispatch(updateEditorExperiment(newExperiment))
         dispatch(closePopOverEditItem());
     }

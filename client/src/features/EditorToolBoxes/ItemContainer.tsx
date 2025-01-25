@@ -3,8 +3,9 @@ import {ItemTypeEditor} from "../TrialType/types.ts";
 import {useDispatch, useSelector} from "react-redux";
 import {EditorState} from "../../states/editor/editorStore.ts";
 import {
+    ItemsArrayWithId,
     setCurrentItem,
-    setCurrentUiObject,
+    setCurrentUiObject, setIndexInPreview,
     updateItemsOrder
 } from "../../states/editor/editorSlice.ts";
 import deleteIcon from "../../assets/trash_bin_icon.svg"
@@ -35,6 +36,7 @@ function ItemContainer({item}: Props) {
              transition-all duration-300 items-center relative border-gray-200 drop-shadow-sm p-4 rounded-xl`}
                 onClick={() => {
                     dispatch(setCurrentUiObject(undefined));
+                    dispatch(setIndexInPreview(getItemIndex(itemsOrder,currentItem!)));
                     dispatch(setCurrentItem(item));
                 }}>
                 <h1 className={"font-exo truncate max-w-32"}>{name}</h1>
@@ -43,6 +45,15 @@ function ItemContainer({item}: Props) {
             </div>
         </div>
     );
+}
+
+function getItemIndex(items:(ItemsArrayWithId|ItemTypeEditor)[] , item: ItemTypeEditor) {
+    for (let i = 0; i < items.length; i++) {
+        if (items[i].id === item.id) {
+            return i;
+        }
+    }
+    return undefined;
 }
 
 

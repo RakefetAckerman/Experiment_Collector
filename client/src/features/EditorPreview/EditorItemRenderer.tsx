@@ -35,9 +35,10 @@ import Text from "../Ui/Text/Text.tsx";
 import SubmitButton from "../Ui/Submit/SubmitButton.tsx";
 import useHandlePageFlow from "../PageFlow/usePageFlow.ts";
 import {toast, ToastContainer} from "react-toastify";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {EditorState} from "../../states/editor/editorStore.ts";
 import {ItemTypeEditor} from "../TrialType/types.ts";
+import {setIndexInPreview} from "../../states/editor/editorSlice.ts";
 
 type ItemProps = {
     startTime: number,
@@ -52,7 +53,9 @@ type ItemProps = {
  */
 function EditorItemRenderer({startTime, item }: ItemProps) {
     const currentUiObject = useSelector((state: EditorState) => (state.editor.currentUiObject));
-
+    const indexOfItem = useSelector((state: EditorState) => (state.editor.indexInPreview));
+    const items = useSelector((state: EditorState) => (state.editor.itemsOrder));
+    const dispatch = useDispatch();
     // // Page Flow (Output for each Ui element):
     const [pageFlow, setPageFlow] = useState(getPageFlowOutput(item?.children));
     // For Idle
@@ -63,6 +66,7 @@ function EditorItemRenderer({startTime, item }: ItemProps) {
     const [currentImageZoom, setCurrentImageZoom] = useState<ZoomType>(getInitialZoom(startTime));
     // For Mouse Tracking feature
     const {mouseTracking} = useMouseTracking(startTime, 350);
+
 
     useEffect(() => {
         if (!item) {
@@ -91,10 +95,16 @@ function EditorItemRenderer({startTime, item }: ItemProps) {
         newOutput = updateImages(newOutput, item!.children);
         //Setting the output to fit each ui element criteria
         newOutput = updateOutputFromPageFlow(newOutput, pageFlow);
-
+        moveToNextItem();
         toast(JSON.stringify(newOutput));
     }
 
+    function moveToNextItem(){
+        if (!indexOfItem || indexOfItem === items.length - 1) {
+            return;
+        }
+        dispatch(setIndexInPreview(indexOfItem + 1));
+    }
 
     function renderUi(currentObj: UiObjects, index: number) {
         const key = `${currentObj.id}-${currentObj.type}-${index}`;
